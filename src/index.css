@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: -0.4px;
+  line-height: 1.5715;
+  font-feature-settings: "pnum", "kern", "calt", "liga";
+  font-variant-numeric: proportional-nums;
+}
