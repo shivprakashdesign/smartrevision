@@ -204,9 +204,14 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen font-sans flex items-center justify-center sm:px-5 sm:py-8" style={{ backgroundColor: T.bg, transition: colorTransition }}>
-      <div className="w-full sm:max-w-sm rounded-none sm:rounded-3xl border-0 sm:border shadow-none sm:shadow-sm p-6 min-h-screen sm:min-h-[600px] flex flex-col overflow-hidden"
-        style={{ backgroundColor: T.card, borderColor: T.border, transition: colorTransition }}>
+    <div className="font-sans flex items-center justify-center sm:px-5 sm:py-8" style={{ height: '100dvh', backgroundColor: T.bg, transition: colorTransition }}>
+      <div className="w-full sm:max-w-sm rounded-none sm:rounded-3xl border-0 sm:border shadow-none sm:shadow-sm px-6 sm:h-auto flex flex-col overflow-y-auto"
+        style={{
+          backgroundColor: T.card, borderColor: T.border, transition: colorTransition,
+          height: '100dvh',
+          paddingTop: 'max(24px, env(safe-area-inset-top))',
+          paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
+        }}>
 
         {!['hook', 'curve', 'type'].includes(step) && (
           <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ backgroundColor: T.cardAlt, transition: colorTransition }}>
@@ -219,7 +224,7 @@ export default function Onboarding() {
 
           {step === 'hook' && (
             <Screen id="hook" onBack={goBack} muted={T.muted}>
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex items-center justify-center" style={{ minHeight: '26vh', maxHeight: '32vh' }}>
                 <div className="text-center">
                   <p className="text-[76px] font-bold text-brand-500 leading-none">82%</p>
                   <p style={{ color: T.muted, transition: colorTransition }} className="text-[14px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
@@ -233,7 +238,7 @@ export default function Onboarding() {
 
           {step === 'curve' && (
             <Screen id="curve" onBack={goBack} muted={T.muted}>
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex items-center justify-center" style={{ minHeight: '26vh', maxHeight: '32vh' }}>
                 <div className="w-full">
                   <svg viewBox="0 0 320 200" width="100%">
                     <line x1="34" y1="16" x2="34" y2="168" stroke={T.border} strokeWidth="2" />
