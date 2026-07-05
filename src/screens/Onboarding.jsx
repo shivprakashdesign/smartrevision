@@ -6,8 +6,6 @@ import { supabase } from '../lib/supabase'
 const easing = [0.23, 1, 0.32, 1]
 const colorTransition = 'background-color .35s cubic-bezier(0.23,1,0.32,1), border-color .35s cubic-bezier(0.23,1,0.32,1), color .35s cubic-bezier(0.23,1,0.32,1)'
 
-// Exact tokens pulled from Supernotes' real CSS earlier — accent stays constant,
-// only neutrals shift per theme (matches their own system).
 const THEME_COLORS = {
   chalk:      { bg: 'hsl(264,3%,94%)',  card: 'hsl(264,100%,100%)', cardAlt: 'hsl(264,3%,90%)',  ink: 'hsl(264,6%,17%)', muted: 'hsl(264,3%,59%)', border: 'hsl(264,6%,93%)' },
   parchment:  { bg: 'hsl(20,30%,94%)',  card: 'hsl(20,30%,97%)',    cardAlt: '#ebe0db',           ink: 'hsl(20,6%,17%)',  muted: 'hsl(264,3%,59%)', border: 'hsl(20,20%,89%)' },
@@ -57,15 +55,11 @@ const THEMES = [
 const STEPS = ['hook', 'curve', 'type', 'name', 'blockers', 'goal', 'schedule', 'subjects', 'theme', 'auth']
 const SKIP_TARGET = { hook: 'type', curve: 'type', blockers: 'goal', subjects: 'theme' }
 
-// Kept OUTSIDE Onboarding — defining these inside would give React a new
-// component identity every render (every keystroke), forcing a full
-// unmount/remount instead of an in-place update. That was the jitter bug.
-
 function TopRow({ id, onBack, muted }) {
   const isFirst = STEPS.indexOf(id) === 0
   const skipTo = SKIP_TARGET[id]
   return (
-    <div className="flex items-center justify-between mb-3 min-h-[24px]">
+    <div className="flex items-center justify-between mb-2 min-h-[24px] flex-shrink-0">
       {!isFirst ? (
         <button onClick={onBack} style={{ color: muted, transition: colorTransition }} className="text-[12px] font-bold active:opacity-70">
           ← Back
@@ -80,12 +74,20 @@ function TopRow({ id, onBack, muted }) {
   )
 }
 
-function Screen({ children, id, onBack, muted }) {
+// center=true: short, fixed-length content (hook/curve/name/schedule/theme) gets
+// vertically centered as ONE cohesive block, avoiding the dead-gap problem.
+// center=false: variable-length content (lists, forms) stays top-anchored and
+// scrolls internally within its own region if it overflows — the outer
+// TopRow/footer never move, so the screen itself never scrolls as a whole.
+function Screen({ children, footer, id, onBack, muted, center = true }) {
   return (
     <motion.div key={id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}
-      transition={{ duration: 0.22, ease: easing }} className="flex flex-col flex-1">
+      transition={{ duration: 0.22, ease: easing }} className="flex flex-col h-full">
       <TopRow id={id} onBack={onBack} muted={muted} />
-      {children}
+      <div className={`flex-1 min-h-0 overflow-y-auto flex flex-col ${center ? 'justify-center' : 'justify-start'}`}>
+        {children}
+      </div>
+      {footer && <div className="flex-shrink-0 pt-3">{footer}</div>}
     </motion.div>
   )
 }
@@ -93,7 +95,7 @@ function Screen({ children, id, onBack, muted }) {
 function Btn({ onClick, children, disabled, type = 'button' }) {
   return (
     <button type={type} onClick={onClick} disabled={disabled}
-      className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-40 active:scale-[0.98] transition-transform mt-auto">
+      className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-40 active:scale-[0.98] transition-transform">
       {children}
     </button>
   )
@@ -205,16 +207,16 @@ export default function Onboarding() {
 
   return (
     <div className="font-sans flex items-center justify-center sm:px-5 sm:py-8" style={{ height: '100dvh', backgroundColor: T.bg, transition: colorTransition }}>
-      <div className="w-full sm:max-w-sm rounded-none sm:rounded-3xl border-0 sm:border shadow-none sm:shadow-sm px-6 sm:h-auto flex flex-col overflow-y-auto"
+      <div className="w-full sm:max-w-sm rounded-none sm:rounded-3xl border-0 sm:border shadow-none sm:shadow-sm px-6 flex flex-col"
         style={{
           backgroundColor: T.card, borderColor: T.border, transition: colorTransition,
           height: '100dvh',
-          paddingTop: 'max(24px, env(safe-area-inset-top))',
-          paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
+          paddingTop: 'max(20px, env(safe-area-inset-top))',
+          paddingBottom: 'max(20px, env(safe-area-inset-bottom))'
         }}>
 
         {!['hook', 'curve', 'type'].includes(step) && (
-          <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ backgroundColor: T.cardAlt, transition: colorTransition }}>
+          <div className="h-1.5 rounded-full mb-3 overflow-hidden flex-shrink-0" style={{ backgroundColor: T.cardAlt, transition: colorTransition }}>
             <motion.div animate={{ width: `${progress}%` }} transition={{ duration: 0.35, ease: easing }}
               className="h-full rounded-full bg-brand-500" />
           </div>
@@ -223,48 +225,42 @@ export default function Onboarding() {
         <AnimatePresence mode="wait">
 
           {step === 'hook' && (
-            <Screen id="hook" onBack={goBack} muted={T.muted}>
-              <div className="flex items-center justify-center" style={{ minHeight: '26vh', maxHeight: '32vh' }}>
-                <div className="text-center">
-                  <p className="text-[76px] font-bold text-brand-500 leading-none">82%</p>
-                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[14px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
-                </div>
+            <Screen id="hook" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('curve')}>Continue</Btn>}>
+              <div className="text-center mb-8">
+                <p className="text-[72px] font-bold text-brand-500 leading-none">82%</p>
+                <p style={{ color: T.muted, transition: colorTransition }} className="text-[14px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
               </div>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight leading-snug mb-2">You don't have a studying problem. You have a forgetting problem.</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-6">Psychologists proved the average student loses most of what they learn within just 24 hours.</p>
-              <Btn onClick={() => setStep('curve')}>Continue</Btn>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px]">Psychologists proved the average student loses most of what they learn within just 24 hours.</p>
             </Screen>
           )}
 
           {step === 'curve' && (
-            <Screen id="curve" onBack={goBack} muted={T.muted}>
-              <div className="flex items-center justify-center" style={{ minHeight: '26vh', maxHeight: '32vh' }}>
-                <div className="w-full">
-                  <svg viewBox="0 0 320 200" width="100%">
-                    <line x1="34" y1="16" x2="34" y2="168" stroke={T.border} strokeWidth="2" />
-                    <line x1="34" y1="168" x2="304" y2="168" stroke={T.border} strokeWidth="2" />
-                    <path d="M 36 22 Q 62 128 120 148 T 300 162" fill="none" stroke={T.muted} strokeWidth="3" strokeDasharray="5 5" opacity=".5" />
-                    <motion.path d="M 36 22 Q 56 82 74 88 L 74 42 Q 106 96 136 100 L 136 54 Q 186 104 226 106 L 226 64 Q 264 102 300 104"
-                      fill="none" stroke="hsl(213,96%,56%)" strokeWidth="3.5" strokeLinejoin="round"
-                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} />
-                    <circle cx="74" cy="42" r="5" fill="hsl(213,96%,56%)" />
-                    <circle cx="136" cy="54" r="5" fill="hsl(213,96%,56%)" />
-                    <circle cx="226" cy="64" r="5" fill="hsl(213,96%,56%)" />
-                    <text x="30" y="11" fontSize="10" fontWeight="700" fill={T.muted}>Memory</text>
-                    <text x="262" y="184" fontSize="10" fontWeight="700" fill={T.muted}>Time →</text>
-                    <text x="150" y="156" fontSize="9.5" fontWeight="600" fill={T.muted}>without revision</text>
-                    <text x="148" y="46" fontSize="9.5" fontWeight="700" fill="hsl(213,96%,56%)">each revision lifts you back up</text>
-                  </svg>
-                </div>
+            <Screen id="curve" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('type')}>Continue</Btn>}>
+              <div className="mb-6">
+                <svg viewBox="0 0 320 200" width="100%">
+                  <line x1="34" y1="16" x2="34" y2="168" stroke={T.border} strokeWidth="2" />
+                  <line x1="34" y1="168" x2="304" y2="168" stroke={T.border} strokeWidth="2" />
+                  <path d="M 36 22 Q 62 128 120 148 T 300 162" fill="none" stroke={T.muted} strokeWidth="3" strokeDasharray="5 5" opacity=".5" />
+                  <motion.path d="M 36 22 Q 56 82 74 88 L 74 42 Q 106 96 136 100 L 136 54 Q 186 104 226 106 L 226 64 Q 264 102 300 104"
+                    fill="none" stroke="hsl(213,96%,56%)" strokeWidth="3.5" strokeLinejoin="round"
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} />
+                  <circle cx="74" cy="42" r="5" fill="hsl(213,96%,56%)" />
+                  <circle cx="136" cy="54" r="5" fill="hsl(213,96%,56%)" />
+                  <circle cx="226" cy="64" r="5" fill="hsl(213,96%,56%)" />
+                  <text x="30" y="11" fontSize="10" fontWeight="700" fill={T.muted}>Memory</text>
+                  <text x="262" y="184" fontSize="10" fontWeight="700" fill={T.muted}>Time →</text>
+                  <text x="150" y="156" fontSize="9.5" fontWeight="600" fill={T.muted}>without revision</text>
+                  <text x="148" y="46" fontSize="9.5" fontWeight="700" fill="hsl(213,96%,56%)">each revision lifts you back up</text>
+                </svg>
               </div>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight leading-snug mb-2">Every revision resets the curve.</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-6">Reviewing at the right moments moves knowledge into long-term memory — so it's still there on exam day.</p>
-              <Btn onClick={() => setStep('type')}>Continue</Btn>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px]">Reviewing at the right moments moves knowledge into long-term memory — so it's still there on exam day.</p>
             </Screen>
           )}
 
           {step === 'type' && (
-            <Screen id="type" onBack={goBack} muted={T.muted}>
+            <Screen id="type" onBack={goBack} muted={T.muted} center={false}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Who's revising?</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-5">This shapes your whole experience.</p>
               <div className="space-y-2.5">
@@ -287,24 +283,23 @@ export default function Onboarding() {
                   <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-0.5">Push topics to your whole class and track who's revising</p>
                 </div>
               </div>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-center text-[12px] mt-auto pt-6">
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-center text-[12px] mt-6">
                 Already have an account? <Link to="/login" className="text-brand-500 font-bold">Log in</Link>
               </p>
             </Screen>
           )}
 
           {step === 'name' && (
-            <Screen id="name" onBack={goBack} muted={T.muted}>
+            <Screen id="name" onBack={goBack} muted={T.muted} footer={<Btn disabled={name.trim().length < 2} onClick={() => setStep('blockers')}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">First things first — what should we call you?</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-6">Just your first name is perfect.</p>
               <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inputStyle}
                 className="w-full text-center text-[19px] font-bold border-2 rounded-2xl px-4 py-4 focus:outline-none focus:border-brand-500 transition-colors" />
-              <Btn disabled={name.trim().length < 2} onClick={() => setStep('blockers')}>Continue</Btn>
             </Screen>
           )}
 
           {step === 'blockers' && (
-            <Screen id="blockers" onBack={goBack} muted={T.muted}>
+            <Screen id="blockers" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('goal')}>Continue</Btn>}>
               <span className="self-start text-[12px] font-bold text-brand-500 bg-brand-50 px-3 py-1 rounded-full mb-3">Nice to meet you, {name}! 👋</span>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">{copy.blockersQ}</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">{copy.blockersSub}</p>
@@ -322,12 +317,11 @@ export default function Onboarding() {
                   )
                 })}
               </div>
-              <Btn onClick={() => setStep('goal')}>Continue</Btn>
             </Screen>
           )}
 
           {step === 'goal' && (
-            <Screen id="goal" onBack={goBack} muted={T.muted}>
+            <Screen id="goal" onBack={goBack} muted={T.muted} center={false} footer={<Btn disabled={!goal} onClick={() => setStep('schedule')}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">{copy.goalQ}</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">This helps us personalise your experience.</p>
               <div className="space-y-2">
@@ -343,12 +337,11 @@ export default function Onboarding() {
                   )
                 })}
               </div>
-              <Btn disabled={!goal} onClick={() => setStep('schedule')}>Continue</Btn>
             </Screen>
           )}
 
           {step === 'schedule' && (
-            <Screen id="schedule" onBack={goBack} muted={T.muted}>
+            <Screen id="schedule" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('subjects')}>Looks good</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Here's your default schedule</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">Based on proven memory research — the 5-review cycle that moves knowledge into long-term memory.</p>
               <div className="border-2 rounded-2xl p-4" style={{ borderColor: 'hsla(213,96%,56%,.33)' }}>
@@ -363,12 +356,11 @@ export default function Onboarding() {
                 ))}
                 <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] mt-3">You can switch any topic to a custom schedule later.</p>
               </div>
-              <Btn onClick={() => setStep('subjects')}>Looks good</Btn>
             </Screen>
           )}
 
           {step === 'subjects' && (
-            <Screen id="subjects" onBack={goBack} muted={T.muted}>
+            <Screen id="subjects" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('theme')}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">{copy.subjQ}</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">Pick a few to start — you can add more anytime.</p>
               <div className="flex flex-wrap gap-2">
@@ -385,12 +377,11 @@ export default function Onboarding() {
                   )
                 })}
               </div>
-              <Btn onClick={() => setStep('theme')}>Continue</Btn>
             </Screen>
           )}
 
           {step === 'theme' && (
-            <Screen id="theme" onBack={goBack} muted={T.muted}>
+            <Screen id="theme" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('auth')}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Choose your theme</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">Pick a design that fits your study mood — the card behind this quiz updates live.</p>
               <div className="grid grid-cols-2 gap-2.5">
@@ -407,17 +398,16 @@ export default function Onboarding() {
                   )
                 })}
               </div>
-              <Btn onClick={() => setStep('auth')}>Continue</Btn>
             </Screen>
           )}
 
           {step === 'auth' && (
-            <Screen id="auth" onBack={goBack} muted={T.muted}>
+            <Screen id="auth" onBack={goBack} muted={T.muted} center={false}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Almost there, {name}!</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">
                 {mode === 'student' ? 'Your school & class connect you to your class leaderboard.' : "Create your account — you'll add your child right after."}
               </p>
-              <form onSubmit={handleSignup} className="space-y-2.5 flex flex-col flex-1">
+              <form onSubmit={handleSignup} className="space-y-2.5">
                 <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle}
                   className="w-full border rounded-2xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                 <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={inputStyle}
