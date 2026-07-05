@@ -5,10 +5,11 @@ import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { useStudentProfile } from '../lib/useStudentProfile'
+import AppShell from '../lib/AppShell'
 
 function HomeSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-5 py-8">
+    <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div className="space-y-2">
@@ -30,7 +31,7 @@ function HomeSkeleton() {
           ))}
         </div>
       </div>
-    </div>
+    </div></AppShell>
   )
 }
 
@@ -74,7 +75,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-5 py-8">
+    <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -152,6 +153,6 @@ export default function Home() {
           </Link>
         </div>
       </div>
-    </div>
+    </div></AppShell>
   )
 }
