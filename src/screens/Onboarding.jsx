@@ -204,8 +204,8 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen font-sans flex items-center justify-center px-5 py-8" style={{ backgroundColor: T.bg, transition: colorTransition }}>
-      <div className="w-full max-w-sm rounded-3xl border shadow-sm p-6 min-h-[600px] flex flex-col overflow-hidden"
+    <div className="min-h-screen font-sans flex items-center justify-center sm:px-5 sm:py-8" style={{ backgroundColor: T.bg, transition: colorTransition }}>
+      <div className="w-full sm:max-w-sm rounded-none sm:rounded-3xl border-0 sm:border shadow-none sm:shadow-sm p-6 min-h-screen sm:min-h-[600px] flex flex-col overflow-hidden"
         style={{ backgroundColor: T.card, borderColor: T.border, transition: colorTransition }}>
 
         {!['hook', 'curve', 'type'].includes(step) && (
