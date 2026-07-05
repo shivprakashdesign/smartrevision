@@ -2,10 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+html, body {
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+body {
   letter-spacing: -0.4px;
   line-height: 1.5715;
   font-feature-settings: "pnum", "kern", "calt", "liga";
   font-variant-numeric: proportional-nums;
+}
+
+/* Hide scrollbars everywhere — scrolling still works, just no visible track,
+   matching native app behavior instead of browser chrome */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  scrollbar-width: none;
 }

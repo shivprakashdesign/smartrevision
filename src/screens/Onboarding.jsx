@@ -95,7 +95,7 @@ function Screen({ children, footer, id, onBack, muted, center = true }) {
 function Btn({ onClick, children, disabled, type = 'button' }) {
   return (
     <button type={type} onClick={onClick} disabled={disabled}
-      className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-40 active:scale-[0.98] transition-transform">
+      className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[15px] disabled:opacity-40 active:scale-[0.98] transition-transform">
       {children}
     </button>
   )
@@ -227,11 +227,11 @@ export default function Onboarding() {
           {step === 'hook' && (
             <Screen id="hook" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('curve')}>Continue</Btn>}>
               <div className="text-center mb-8">
-                <p className="text-[72px] font-bold text-brand-500 leading-none">82%</p>
-                <p style={{ color: T.muted, transition: colorTransition }} className="text-[14px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
+                <p className="text-[76px] font-bold text-brand-500 leading-none">82%</p>
+                <p style={{ color: T.muted, transition: colorTransition }} className="text-[15px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
               </div>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight leading-snug mb-2">You don't have a studying problem. You have a forgetting problem.</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px]">Psychologists proved the average student loses most of what they learn within just 24 hours.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight leading-snug mb-2">You don't have a studying problem. You have a forgetting problem.</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px]">Psychologists proved the average student loses most of what they learn within just 24 hours.</p>
             </Screen>
           )}
 
@@ -254,33 +254,33 @@ export default function Onboarding() {
                   <text x="148" y="46" fontSize="9.5" fontWeight="700" fill="hsl(213,96%,56%)">each revision lifts you back up</text>
                 </svg>
               </div>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight leading-snug mb-2">Every revision resets the curve.</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px]">Reviewing at the right moments moves knowledge into long-term memory — so it's still there on exam day.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight leading-snug mb-2">Every revision resets the curve.</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px]">Reviewing at the right moments moves knowledge into long-term memory — so it's still there on exam day.</p>
             </Screen>
           )}
 
           {step === 'type' && (
             <Screen id="type" onBack={goBack} muted={T.muted} center={false}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Who's revising?</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-5">This shapes your whole experience.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Who's revising?</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-5">This shapes your whole experience.</p>
               <div className="space-y-2.5">
                 <button onClick={() => { setMode('student'); setStep('name') }}
                   style={{ borderColor: T.border, transition: colorTransition }}
                   className="w-full text-left border-2 rounded-2xl p-4 active:border-brand-500 transition-colors">
                   <p style={{ color: T.ink, transition: colorTransition }} className="font-bold text-[14px]">🎓 I'm a student</p>
-                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-0.5">I'll add my own topics and manage my own revisions</p>
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mt-0.5">I'll add my own topics and manage my own revisions</p>
                 </button>
                 <button onClick={() => { setMode('parent'); setStep('name') }}
                   style={{ borderColor: T.border, transition: colorTransition }}
                   className="w-full text-left border-2 rounded-2xl p-4 active:border-brand-500 transition-colors">
                   <p style={{ color: T.ink, transition: colorTransition }} className="font-bold text-[14px]">👨‍👩‍👧 I'm a parent</p>
-                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-0.5">I'll manage revision for my children — great for Class 6–8</p>
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mt-0.5">I'll manage revision for my children — great for Class 6–8</p>
                 </button>
                 <div style={{ borderColor: T.border, transition: colorTransition }} className="w-full text-left border-2 rounded-2xl p-4 opacity-55">
                   <p style={{ color: T.ink, transition: colorTransition }} className="font-bold text-[14px]">🧑‍🏫 I'm a teacher
                     <span className="text-[9px] font-bold text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full ml-2 align-middle">COMING SOON</span>
                   </p>
-                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-0.5">Push topics to your whole class and track who's revising</p>
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mt-0.5">Push topics to your whole class and track who's revising</p>
                 </div>
               </div>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-center text-[12px] mt-6">
@@ -291,25 +291,25 @@ export default function Onboarding() {
 
           {step === 'name' && (
             <Screen id="name" onBack={goBack} muted={T.muted} footer={<Btn disabled={name.trim().length < 2} onClick={() => setStep('blockers')}>Continue</Btn>}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">First things first — what should we call you?</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-6">Just your first name is perfect.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">First things first — what should we call you?</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-6">Just your first name is perfect.</p>
               <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inputStyle}
-                className="w-full text-center text-[19px] font-bold border-2 rounded-2xl px-4 py-4 focus:outline-none focus:border-brand-500 transition-colors" />
+                className="w-full text-center text-[20px] font-bold border-2 rounded-2xl px-4 py-4 focus:outline-none focus:border-brand-500 transition-colors" />
             </Screen>
           )}
 
           {step === 'blockers' && (
             <Screen id="blockers" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('goal')}>Continue</Btn>}>
               <span className="self-start text-[12px] font-bold text-brand-500 bg-brand-50 px-3 py-1 rounded-full mb-3">Nice to meet you, {name}! 👋</span>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">{copy.blockersQ}</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">{copy.blockersSub}</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">{copy.blockersQ}</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">{copy.blockersSub}</p>
               <div className="space-y-2">
                 {copy.blockers.map(b => {
                   const sel = blockers.includes(b)
                   return (
                     <button key={b} onClick={() => toggle(blockers, setBlockers, b)}
                       style={sel ? {} : { borderColor: T.border, color: T.ink, transition: colorTransition }}
-                      className={`w-full text-left border-2 rounded-2xl p-3.5 text-[13px] font-bold transition-colors ${
+                      className={`w-full text-left border-2 rounded-2xl p-3.5 text-[14.5px] font-bold transition-colors ${
                         sel ? 'border-brand-500 bg-brand-50 text-brand-600' : ''
                       }`}>
                       {b}
@@ -322,8 +322,8 @@ export default function Onboarding() {
 
           {step === 'goal' && (
             <Screen id="goal" onBack={goBack} muted={T.muted} center={false} footer={<Btn disabled={!goal} onClick={() => setStep('schedule')}>Continue</Btn>}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">{copy.goalQ}</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">This helps us personalise your experience.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">{copy.goalQ}</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">This helps us personalise your experience.</p>
               <div className="space-y-2">
                 {copy.goals.map(g => {
                   const sel = goal === g.t
@@ -331,8 +331,8 @@ export default function Onboarding() {
                     <button key={g.t} onClick={() => setGoal(g.t)}
                       style={sel ? {} : { borderColor: T.border, transition: colorTransition }}
                       className={`w-full text-left border-2 rounded-2xl p-3.5 transition-colors ${sel ? 'border-brand-500 bg-brand-50' : ''}`}>
-                      <p style={sel ? {} : { color: T.ink, transition: colorTransition }} className={`text-[14px] font-bold ${sel ? 'text-brand-600' : ''}`}>{g.t}</p>
-                      <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px]">{g.d}</p>
+                      <p style={sel ? {} : { color: T.ink, transition: colorTransition }} className={`text-[15px] font-bold ${sel ? 'text-brand-600' : ''}`}>{g.t}</p>
+                      <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px]">{g.d}</p>
                     </button>
                   )
                 })}
@@ -342,8 +342,8 @@ export default function Onboarding() {
 
           {step === 'schedule' && (
             <Screen id="schedule" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('subjects')}>Looks good</Btn>}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Here's your default schedule</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">Based on proven memory research — the 5-review cycle that moves knowledge into long-term memory.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Here's your default schedule</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Based on proven memory research — the 5-review cycle that moves knowledge into long-term memory.</p>
               <div className="border-2 rounded-2xl p-4" style={{ borderColor: 'hsla(213,96%,56%,.33)' }}>
                 <p className="text-[10px] font-bold tracking-widest text-brand-500 mb-3">STANDARD SCIENTIFIC SCHEDULE</p>
                 {SCHEDULE.map(([n, when], i) => (
@@ -351,25 +351,25 @@ export default function Onboarding() {
                     transition={{ delay: i * 0.08, duration: 0.25, ease: easing }}
                     className="flex items-center mb-2.5 last:mb-0">
                     <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-500 text-[12px] font-bold flex items-center justify-center mr-3">{n}</span>
-                    <span style={{ color: T.ink, transition: colorTransition }} className="text-[13px] font-bold">{when}</span>
+                    <span style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold">{when}</span>
                   </motion.div>
                 ))}
-                <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] mt-3">You can switch any topic to a custom schedule later.</p>
+                <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-3">You can switch any topic to a custom schedule later.</p>
               </div>
             </Screen>
           )}
 
           {step === 'subjects' && (
             <Screen id="subjects" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('theme')}>Continue</Btn>}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">{copy.subjQ}</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">Pick a few to start — you can add more anytime.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">{copy.subjQ}</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Pick a few to start — you can add more anytime.</p>
               <div className="flex flex-wrap gap-2">
                 {SUBJECTS.map(s => {
                   const sel = subjects.includes(s)
                   return (
                     <button key={s} onClick={() => toggle(subjects, setSubjects, s)}
                       style={sel ? {} : { borderColor: T.border, color: T.ink, transition: colorTransition }}
-                      className={`px-4 py-2.5 rounded-full text-[13px] font-bold border-2 transition-colors ${
+                      className={`px-4 py-2.5 rounded-full text-[14.5px] font-bold border-2 transition-colors ${
                         sel ? 'bg-brand-500 border-brand-500 text-white' : ''
                       }`}>
                       {s}
@@ -382,8 +382,8 @@ export default function Onboarding() {
 
           {step === 'theme' && (
             <Screen id="theme" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('auth')}>Continue</Btn>}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Choose your theme</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">Pick a design that fits your study mood — the card behind this quiz updates live.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Choose your theme</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Pick a design that fits your study mood — the card behind this quiz updates live.</p>
               <div className="grid grid-cols-2 gap-2.5">
                 {THEMES.map(t => {
                   const sel = theme === t.id
@@ -392,8 +392,8 @@ export default function Onboarding() {
                       style={sel ? {} : { borderColor: T.border, transition: colorTransition }}
                       className={`text-left border-2 rounded-2xl p-3 transition-colors ${sel ? 'border-brand-500' : ''}`}>
                       <div className={`h-12 rounded-xl mb-2 border border-slate-200 ${t.swatch}`} />
-                      <p style={{ color: T.ink, transition: colorTransition }} className="text-[13px] font-bold">{t.name}</p>
-                      <p style={{ color: T.muted, transition: colorTransition }} className="text-[10.5px]">{t.desc}</p>
+                      <p style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold">{t.name}</p>
+                      <p style={{ color: T.muted, transition: colorTransition }} className="text-[11.5px]">{t.desc}</p>
                     </button>
                   )
                 })}
@@ -403,28 +403,28 @@ export default function Onboarding() {
 
           {step === 'auth' && (
             <Screen id="auth" onBack={goBack} muted={T.muted} center={false}>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[21px] font-bold tracking-tight mb-1">Almost there, {name}!</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px] mb-4">
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Almost there, {name}!</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">
                 {mode === 'student' ? 'Your school & class connect you to your class leaderboard.' : "Create your account — you'll add your child right after."}
               </p>
               <form onSubmit={handleSignup} className="space-y-2.5">
                 <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle}
-                  className="w-full border rounded-2xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
+                  className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                 <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={inputStyle}
-                  className="w-full border rounded-2xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
+                  className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                 {mode === 'student' && (
                   <>
                     <input placeholder="School name" value={school} onChange={e => onSchoolType(e.target.value)} list="school-suggestions" style={inputStyle}
-                      className="w-full border rounded-2xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
+                      className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                     <datalist id="school-suggestions">
                       {schoolSuggestions.map(s => <option key={s} value={s} />)}
                     </datalist>
                     <input placeholder="Class (e.g. Class 11)" value={classGrade} onChange={e => setClassGrade(e.target.value)} style={inputStyle}
-                      className="w-full border rounded-2xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
+                      className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                   </>
                 )}
                 <input placeholder="Referral code (optional)" value={referralCode} onChange={e => setReferralCode(e.target.value)} style={inputStyle}
-                  className="w-full border rounded-2xl px-4 py-3 text-[14px] uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
+                  className="w-full border rounded-2xl px-4 py-3 text-[15px] uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                 {error && <p className="text-red-500 text-[12px]">{error}</p>}
                 <Btn type="submit" disabled={saving}>{saving ? 'Creating account...' : 'Start revising'}</Btn>
               </form>
