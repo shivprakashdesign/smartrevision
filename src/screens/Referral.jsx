@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Share } from '@capacitor/share'
@@ -91,7 +92,7 @@ export default function Referral() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-5 py-8">
+    <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
         <Link to="/home" className="text-[12px] font-bold text-slate-400">← Back to Home</Link>
         <h1 className="text-[20px] font-bold text-brand-900 tracking-tight mt-2 mb-1">Refer a friend</h1>
@@ -156,6 +157,6 @@ export default function Referral() {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </div></AppShell>
   )
 }

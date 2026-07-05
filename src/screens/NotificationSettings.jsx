@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
@@ -49,7 +50,7 @@ export default function NotificationSettings() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-5 py-8">
+    <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
         <Link to="/home" className="text-[12px] font-bold text-slate-400">← Back to Home</Link>
         <h1 className="text-[20px] font-bold text-brand-900 tracking-tight mt-2 mb-6">Notifications</h1>
@@ -104,6 +105,6 @@ export default function NotificationSettings() {
 
         {saving && <p className="text-[11px] text-slate-400 mt-3">Saving...</p>}
       </div>
-    </div>
+    </div></AppShell>
   )
 }

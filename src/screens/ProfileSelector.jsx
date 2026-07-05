@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import AppShell from '../lib/AppShell'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStudentProfile } from '../lib/useStudentProfile'
@@ -31,7 +32,7 @@ export default function ProfileSelector() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-6 py-10 flex flex-col items-center">
+    <AppShell><div className="px-6 py-10 flex flex-col items-center">
       <div className="w-full max-w-sm">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-[20px] font-bold text-brand-900 tracking-tight">Your children</h1>
@@ -96,6 +97,6 @@ export default function ProfileSelector() {
           </motion.form>
         )}
       </div>
-    </div>
+    </div></AppShell>
   )
 }

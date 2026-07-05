@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import AppShell from '../lib/AppShell'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
@@ -125,7 +126,7 @@ export default function RevisionSession() {
   const easing = [0.23, 1, 0.32, 1]
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-6 flex items-center justify-center">
+    <AppShell><div className="px-6 flex items-center justify-center" style={{minHeight:'100%'}}>
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-sm border border-slate-100 p-6 overflow-hidden">
         <AnimatePresence mode="wait">
 
@@ -217,6 +218,6 @@ export default function RevisionSession() {
 
         </AnimatePresence>
       </div>
-    </div>
+    </div></AppShell>
   )
 }

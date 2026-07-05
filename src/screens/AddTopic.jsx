@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import AppShell from '../lib/AppShell'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
@@ -101,7 +102,7 @@ export default function AddTopic() {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-6 py-10 flex flex-col items-center">
+    <AppShell><div className="px-6 py-10 flex flex-col items-center">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -188,6 +189,6 @@ export default function AddTopic() {
           </button>
         </form>
       </motion.div>
-    </div>
+    </div></AppShell>
   )
 }

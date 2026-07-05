@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
@@ -79,7 +80,7 @@ export default function Learn() {
   const [openId, setOpenId] = useState(null)
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans px-5 py-8">
+    <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
         <Link to="/home" className="text-[12px] font-bold text-slate-400">← Back to Home</Link>
         <h1 className="text-[20px] font-bold text-brand-900 tracking-tight mt-2 mb-1">Learn</h1>
@@ -97,6 +98,6 @@ export default function Learn() {
           ))}
         </div>
       </div>
-    </div>
+    </div></AppShell>
   )
 }
