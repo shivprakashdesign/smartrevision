@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
+import NumberFlow from '@number-flow/react'
+import { toast } from 'sonner'
 import { Share } from '@capacitor/share'
 import { Capacitor } from '@capacitor/core'
 import { supabase } from '../lib/supabase'
@@ -12,7 +14,6 @@ export default function Referral() {
   const [account, setAccount] = useState(null)
   const [enteredCode, setEnteredCode] = useState('')
   const [friendCount, setFriendCount] = useState(0)
-  const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -47,8 +48,7 @@ export default function Referral() {
       await navigator.share({ title: 'SmartRevision', text })
     } else {
       await navigator.clipboard.writeText(text)
-      setMessage('Copied to clipboard!')
-      setTimeout(() => setMessage(''), 2000)
+      toast.success('Copied to clipboard!')
     }
   }
 
@@ -62,12 +62,12 @@ export default function Referral() {
       .rpc('find_account_by_referral_code', { code })
 
     if (lookupError || !referrerId) {
-      setMessage('Code not found')
+      toast.error('Code not found')
       return
     }
 
     if (referrerId === user.id) {
-      setMessage("You can't refer yourself")
+      toast.error("You can't refer yourself")
       return
     }
 
@@ -80,12 +80,12 @@ export default function Referral() {
     })
 
     if (insertError) {
-      setMessage('Something went wrong applying the code')
+      toast.error('Something went wrong applying the code')
       console.error(insertError)
       return
     }
 
-    setMessage('Code applied! Reward unlocks once you complete your first revision.')
+    toast.success('Code applied! Reward unlocks once you complete your first revision.')
     setEnteredCode('')
   }
 
@@ -124,7 +124,7 @@ export default function Referral() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="text-center text-[13px] text-[var(--slate-txt)] mb-4"
           >
-            🎉 {friendCount} friend{friendCount > 1 ? 's' : ''} joined
+            🎉 <NumberFlow value={friendCount} /> friend{friendCount > 1 ? 's' : ''} joined
           </motion.p>
         )}
 
@@ -145,17 +145,6 @@ export default function Referral() {
             </button>
           </form>
         )}
-
-        <AnimatePresence>
-          {message && (
-            <motion.p
-              initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="text-center text-[12px] text-brand-600 mt-3"
-            >
-              {message}
-            </motion.p>
-          )}
-        </AnimatePresence>
       </div>
     </div></AppShell>
   )

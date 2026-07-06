@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AppShell from '../lib/AppShell'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 
 export default function TopicDetail() {
@@ -51,6 +52,9 @@ export default function TopicDetail() {
       setRecallCards([...recallCards, data])
       setQuestion('')
       setAnswer('')
+      toast.success('Recall card added')
+    } else {
+      toast.error(error.message)
     }
     setSavingCard(false)
   }
@@ -67,6 +71,9 @@ export default function TopicDetail() {
     if (!error) {
       setJournalEntries([data, ...journalEntries])
       setJournalText('')
+      toast.success('Journal entry added')
+    } else {
+      toast.error(error.message)
     }
     setSavingJournal(false)
   }
