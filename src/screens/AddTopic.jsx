@@ -13,6 +13,8 @@ const STANDARD_OFFSETS = [
   { label: '4_months', days: 120 }
 ]
 
+const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
+
 export default function AddTopic() {
   const navigate = useNavigate()
   const { student, loading: studentLoading } = useStudentProfile()
@@ -23,8 +25,11 @@ export default function AddTopic() {
   const [priority, setPriority] = useState('medium')
   const [notes, setNotes] = useState('')
   const [pastSubjects, setPastSubjects] = useState([])
+  const [customSubject, setCustomSubject] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  const subjectOptions = [...new Set([...pastSubjects, ...DEFAULT_SUBJECTS])]
 
   useEffect(() => {
     if (!student) return
@@ -40,6 +45,10 @@ export default function AddTopic() {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!student) return
+    if (!subject.trim()) {
+      setError('Please select or enter a subject')
+      return
+    }
     setSaving(true)
     setError('')
 
@@ -112,18 +121,46 @@ export default function AddTopic() {
         <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight mb-4">Add a topic</h1>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="text"
-            placeholder="Subject (e.g. Chemistry)"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            list="subject-suggestions"
-            required
-            className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
-          />
-          <datalist id="subject-suggestions">
-            {pastSubjects.map(s => <option key={s} value={s} />)}
-          </datalist>
+          <div>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Subject</p>
+            <div className="flex flex-wrap gap-2">
+              {subjectOptions.map(s => {
+                const selected = !customSubject && subject === s
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => { setSubject(s); setCustomSubject(false) }}
+                    className={`px-4 py-2 rounded-full text-[13px] font-bold border-2 transition-colors ${
+                      selected ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                )
+              })}
+              <button
+                type="button"
+                onClick={() => { setCustomSubject(true); setSubject('') }}
+                className={`px-4 py-2 rounded-full text-[13px] font-bold border-2 transition-colors ${
+                  customSubject ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                }`}
+              >
+                Other
+              </button>
+            </div>
+            {customSubject && (
+              <input
+                type="text"
+                placeholder="Subject (e.g. Chemistry)"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                autoFocus
+                required
+                className="w-full mt-2 border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
+              />
+            )}
+          </div>
 
           <input
             type="text"
