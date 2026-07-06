@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import AppShell from '../lib/AppShell'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
@@ -140,17 +140,20 @@ export default function AddTopic() {
 
   return (
     <AppShell><div className="px-6 py-10 flex flex-col items-center">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-        className="w-full max-w-sm bg-[var(--card)] rounded-3xl shadow-sm border border-[var(--border)] p-6"
-      >
+      <div className="w-full max-w-sm space-y-3">
+        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          className="bg-[var(--card)] rounded-3xl shadow-sm border border-[var(--border)] p-6"
+        >
         <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight mb-4">Add a topic</h1>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Subject</p>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wide">Subject</p>
             <div className="flex flex-wrap gap-2">
               {subjectOptions.map(s => {
                 const selected = !customSubject && subject === s
@@ -200,7 +203,7 @@ export default function AddTopic() {
           />
 
           <div>
-            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Familiarity</p>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wide">Familiarity</p>
             <div className="flex gap-2">
               {familiarityOpts.map(opt => (
                 <button
@@ -218,7 +221,7 @@ export default function AddTopic() {
           </div>
 
           <div>
-            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Priority</p>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wide">Priority</p>
             <div className="flex gap-2">
               {priorityOpts.map(opt => (
                 <button
@@ -236,7 +239,7 @@ export default function AddTopic() {
           </div>
 
           <div>
-            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Schedule</p>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wide">Schedule</p>
             <div className="flex gap-2">
               {[{ v: 'standard', l: 'Standard' }, { v: 'custom', l: 'Custom' }].map(opt => (
                 <button
@@ -317,7 +320,8 @@ export default function AddTopic() {
             {saving ? 'Saving...' : 'Add topic & schedule revisions'}
           </button>
         </form>
-      </motion.div>
+        </motion.div>
+      </div>
     </div></AppShell>
   )
 }
