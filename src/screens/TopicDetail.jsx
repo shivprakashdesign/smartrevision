@@ -9,6 +9,7 @@ export default function TopicDetail() {
   const [topic, setTopic] = useState(null)
   const [recallCards, setRecallCards] = useState([])
   const [journalEntries, setJournalEntries] = useState([])
+  const [revisions, setRevisions] = useState([])
   const [loading, setLoading] = useState(true)
 
   const [question, setQuestion] = useState('')
@@ -24,14 +25,16 @@ export default function TopicDetail() {
 
   async function loadAll() {
     setLoading(true)
-    const [{ data: t }, { data: cards }, { data: entries }] = await Promise.all([
+    const [{ data: t }, { data: cards }, { data: entries }, { data: revs }] = await Promise.all([
       supabase.from('topics').select('*').eq('id', id).single(),
       supabase.from('recall_cards').select('*').eq('topic_id', id).order('id'),
-      supabase.from('journal_entries').select('*').eq('topic_id', id).order('created_at', { ascending: false })
+      supabase.from('journal_entries').select('*').eq('topic_id', id).order('created_at', { ascending: false }),
+      supabase.from('revisions').select('*').eq('topic_id', id).order('scheduled_date', { ascending: true })
     ])
     setTopic(t)
     setRecallCards(cards || [])
     setJournalEntries(entries || [])
+    setRevisions(revs || [])
     setLoading(false)
   }
 
@@ -98,6 +101,49 @@ export default function TopicDetail() {
             </span>
           </div>
           {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
+        </motion.div>
+
+        <motion.div
+          initial="hidden" animate="show" variants={cardVariants}
+          transition={{ duration: 0.25, delay: 0.025, ease: [0.23, 1, 0.32, 1] }}
+          className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
+        >
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-[13px] font-bold text-[var(--ink)]">Schedule</h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)] uppercase tracking-wide">
+              {topic.schedule_type || 'standard'}
+            </span>
+          </div>
+
+          {revisions.length === 0 ? (
+            <p className="text-[12px] text-[var(--muted)]">No revisions scheduled.</p>
+          ) : (
+            <div className="space-y-2">
+              {revisions.map(r => {
+                const today = new Date().toISOString().slice(0, 10)
+                const status = r.completed ? 'done' : r.scheduled_date < today ? 'overdue' : 'upcoming'
+                const statusStyle = {
+                  done: 'text-emerald-600 bg-[rgba(16,185,129,0.14)]',
+                  overdue: 'text-red-500 bg-[rgba(239,68,68,0.14)]',
+                  upcoming: 'text-[var(--slate-txt)] bg-[var(--card-alt)]'
+                }
+                const statusLabel = { done: 'Done', overdue: 'Overdue', upcoming: 'Upcoming' }
+                return (
+                  <div key={r.id} className="flex justify-between items-center bg-[var(--card-alt)] rounded-2xl px-3 py-2.5">
+                    <div>
+                      <p className="text-[12px] font-bold text-[var(--slate-txt)]">
+                        {new Date(`${r.scheduled_date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                      <p className="text-[11px] text-[var(--muted)]">{r.interval_label?.replace(/_/g, ' ')}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusStyle[status]}`}>
+                      {statusLabel[status]}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </motion.div>
 
         <motion.div

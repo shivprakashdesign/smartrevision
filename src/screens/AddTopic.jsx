@@ -15,6 +15,12 @@ const STANDARD_OFFSETS = [
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
 
+function labelForOffset(days) {
+  if (days === 0) return 'same_day'
+  if (days === 1) return '1_day'
+  return `${days}_days`
+}
+
 export default function AddTopic() {
   const navigate = useNavigate()
   const { student, loading: studentLoading } = useStudentProfile()
@@ -26,10 +32,24 @@ export default function AddTopic() {
   const [notes, setNotes] = useState('')
   const [pastSubjects, setPastSubjects] = useState([])
   const [customSubject, setCustomSubject] = useState(false)
+  const [scheduleType, setScheduleType] = useState('standard')
+  const [customOffsets, setCustomOffsets] = useState([])
+  const [offsetInput, setOffsetInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   const subjectOptions = [...new Set([...pastSubjects, ...DEFAULT_SUBJECTS])]
+
+  function addCustomOffset() {
+    const days = parseInt(offsetInput, 10)
+    if (!Number.isInteger(days) || days < 0 || customOffsets.includes(days)) return
+    setCustomOffsets([...customOffsets, days].sort((a, b) => a - b))
+    setOffsetInput('')
+  }
+
+  function removeCustomOffset(days) {
+    setCustomOffsets(customOffsets.filter(d => d !== days))
+  }
 
   useEffect(() => {
     if (!student) return
@@ -49,6 +69,10 @@ export default function AddTopic() {
       setError('Please select or enter a subject')
       return
     }
+    if (scheduleType === 'custom' && customOffsets.length === 0) {
+      setError('Add at least one custom revision date')
+      return
+    }
     setSaving(true)
     setError('')
 
@@ -65,7 +89,7 @@ export default function AddTopic() {
         familiarity,
         priority,
         notes,
-        schedule_type: 'standard'
+        schedule_type: scheduleType
       })
       .select()
       .single()
@@ -76,7 +100,11 @@ export default function AddTopic() {
       return
     }
 
-    const revisionRows = STANDARD_OFFSETS.map(({ label, days }) => {
+    const offsets = scheduleType === 'custom'
+      ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
+      : STANDARD_OFFSETS
+
+    const revisionRows = offsets.map(({ label, days }) => {
       const d = new Date(today)
       d.setDate(d.getDate() + days)
       return {
@@ -205,6 +233,70 @@ export default function AddTopic() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Schedule</p>
+            <div className="flex gap-2">
+              {[{ v: 'standard', l: 'Standard' }, { v: 'custom', l: 'Custom' }].map(opt => (
+                <button
+                  key={opt.v}
+                  type="button"
+                  onClick={() => setScheduleType(opt.v)}
+                  className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
+                    scheduleType === opt.v ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                  }`}
+                >
+                  {opt.l}
+                </button>
+              ))}
+            </div>
+
+            {scheduleType === 'standard' && (
+              <p className="text-[11px] text-[var(--muted)] mt-2">Same day, 1 day, 1 week, 1 month, 4 months</p>
+            )}
+
+            {scheduleType === 'custom' && (
+              <div className="mt-2">
+                {customOffsets.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {customOffsets.map(days => (
+                      <span
+                        key={days}
+                        className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full text-[12px] font-bold border-2 border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]"
+                      >
+                        {labelForOffset(days).replace('_', ' ')}
+                        <button
+                          type="button"
+                          onClick={() => removeCustomOffset(days)}
+                          className="text-brand-500 leading-none"
+                          aria-label={`Remove ${days} day offset`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Days after learning"
+                    value={offsetInput}
+                    onChange={(e) => setOffsetInput(e.target.value)}
+                    className="flex-1 border border-[var(--border)] rounded-2xl px-4 py-2 text-[13px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomOffset}
+                    className="px-4 py-2 rounded-2xl bg-brand-500 text-white text-[13px] font-bold active:scale-[0.98] transition-transform"
+                  >
+                    + Add
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <textarea
