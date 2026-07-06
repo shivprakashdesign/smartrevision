@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
@@ -122,6 +122,23 @@ export default function Onboarding() {
   const copy = COPY[mode]
   const progress = Math.round(((STEPS.indexOf(step) + 1) / STEPS.length) * 100)
   const T = THEME_COLORS[theme]
+
+  // On mobile the onboarding card is full-bleed and should read as the whole
+  // screen. Match the html/body background to the card so any area outside the
+  // 100dvh box in an iOS standalone PWA (e.g. behind the home indicator) blends
+  // in instead of showing a grey strip. Restored on unmount / theme change.
+  useEffect(() => {
+    const html = document.documentElement
+    const body = document.body
+    const prevHtml = html.style.backgroundColor
+    const prevBody = body.style.backgroundColor
+    html.style.backgroundColor = T.card
+    body.style.backgroundColor = T.card
+    return () => {
+      html.style.backgroundColor = prevHtml
+      body.style.backgroundColor = prevBody
+    }
+  }, [T.card])
 
   function goBack() {
     const i = STEPS.indexOf(step)
