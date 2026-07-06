@@ -293,7 +293,7 @@ export default function AddTopic() {
                   <button
                     type="button"
                     onClick={addCustomOffset}
-                    className="px-4 py-2 rounded-2xl bg-brand-500 text-white text-[13px] font-bold active:scale-[0.98] transition-transform"
+                    className="px-4 py-2 rounded-2xl bg-brand-500 text-white text-[13px] font-bold active:scale-[0.97] transition-transform"
                   >
                     + Add
                   </button>
@@ -313,7 +313,7 @@ export default function AddTopic() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-50 active:scale-[0.98] transition-transform"
+            className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-50 active:scale-[0.97] transition-transform"
           >
             {saving ? 'Saving...' : 'Add topic & schedule revisions'}
           </button>

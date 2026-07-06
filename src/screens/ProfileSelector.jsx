@@ -47,7 +47,7 @@ export default function ProfileSelector() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
               onClick={() => goToChild(child.id)}
-              className="w-full text-left bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)] shadow-sm flex justify-between items-center active:scale-[0.98] transition-transform"
+              className="w-full text-left bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)] shadow-sm flex justify-between items-center active:scale-[0.97] transition-transform"
             >
               <div>
                 <p className="font-bold text-[14px] text-[var(--ink)]">{child.name}</p>
@@ -61,7 +61,7 @@ export default function ProfileSelector() {
         {!adding ? (
           <button
             onClick={() => setAdding(true)}
-            className="w-full py-3 rounded-3xl border-2 border-dashed border-brand-100 text-[13px] font-bold text-brand-500 active:scale-[0.98] transition-transform"
+            className="w-full py-3 rounded-3xl border-2 border-dashed border-brand-100 text-[13px] font-bold text-brand-500 active:scale-[0.97] transition-transform"
           >
             + Add a child
           </button>
@@ -90,7 +90,7 @@ export default function ProfileSelector() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold disabled:opacity-50 active:scale-[0.98] transition-transform"
+              className="w-full py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
             >
               {saving ? 'Adding...' : 'Add child'}
             </button>

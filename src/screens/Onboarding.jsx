@@ -97,7 +97,7 @@ function Screen({ children, footer, id, onBack, muted, center = true }) {
 function Btn({ onClick, children, disabled, type = 'button' }) {
   return (
     <button type={type} onClick={onClick} disabled={disabled}
-      className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[15px] disabled:opacity-40 active:scale-[0.98] transition-transform">
+      className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[15px] disabled:opacity-40 active:scale-[0.97] transition-transform">
       {children}
     </button>
   )

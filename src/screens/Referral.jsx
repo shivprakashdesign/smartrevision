@@ -114,7 +114,7 @@ export default function Referral() {
 
         <button
           onClick={shareCode}
-          className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] mb-3 active:scale-[0.98] transition-transform"
+          className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] mb-3 active:scale-[0.97] transition-transform"
         >
           Share my code
         </button>
@@ -139,7 +139,7 @@ export default function Referral() {
             />
             <button
               type="submit"
-              className="w-full mt-2 py-2.5 rounded-2xl border-2 border-[var(--border)] text-[13px] font-bold text-[var(--slate-txt)] active:scale-[0.98] transition-transform"
+              className="w-full mt-2 py-2.5 rounded-2xl border-2 border-[var(--border)] text-[13px] font-bold text-[var(--slate-txt)] active:scale-[0.97] transition-transform"
             >
               Apply code
             </button>

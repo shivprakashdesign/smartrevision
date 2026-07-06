@@ -191,7 +191,7 @@ export default function TopicDetail() {
             <button
               type="submit"
               disabled={savingCard}
-              className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.98] transition-transform"
+              className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
             >
               {savingCard ? 'Adding...' : '+ Add recall card'}
             </button>
@@ -231,7 +231,7 @@ export default function TopicDetail() {
             <button
               type="submit"
               disabled={savingJournal}
-              className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.98] transition-transform"
+              className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
             >
               {savingJournal ? 'Adding...' : '+ Add journal entry'}
             </button>

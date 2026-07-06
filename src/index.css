@@ -12,6 +12,10 @@ body {
   line-height: 1.5715;
   font-feature-settings: "pnum", "kern", "calt", "liga";
   font-variant-numeric: proportional-nums;
+  /* Crisper rendering of the bold SN Pro type across the app */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Hide scrollbars everywhere — scrolling still works, just no visible track,
@@ -41,4 +45,17 @@ html, body {
 }
 body {
   transition: background-color .35s cubic-bezier(0.23,1,0.32,1);
+}
+
+/* Respect reduced-motion: strip movement/transitions but let content still
+   change state instantly. Motion sickness is real; this is correctness. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

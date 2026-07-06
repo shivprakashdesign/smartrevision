@@ -142,7 +142,7 @@ export default function RevisionSession() {
               <p className="text-[14px] text-[var(--slate-txt)] mb-6">Go revise this from your notes, textbook, or memory — then come back and mark it done.</p>
               <button
                 onClick={() => setStep('time')}
-                className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.98] transition-transform"
+                className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
               >
                 I've revised this ✓
               </button>
@@ -180,7 +180,7 @@ export default function RevisionSession() {
                   />
                   <button
                     onClick={() => setStep('quality')}
-                    className="px-4 py-2 rounded-2xl bg-brand-500 text-white text-[14px] font-bold active:scale-[0.98] transition-transform"
+                    className="px-4 py-2 rounded-2xl bg-brand-500 text-white text-[14px] font-bold active:scale-[0.97] transition-transform"
                   >
                     Next
                   </button>
@@ -195,19 +195,19 @@ export default function RevisionSession() {
               <div className="space-y-2">
                 <button
                   onClick={() => handleQualitySelect('good')}
-                  className="w-full py-3 rounded-2xl border-2 border-[var(--border)] text-[var(--ink)] text-[14px] font-bold text-left px-4 active:scale-[0.98] transition-transform"
+                  className="w-full py-3 rounded-2xl border-2 border-[var(--border)] text-[var(--ink)] text-[14px] font-bold text-left px-4 active:scale-[0.97] transition-transform"
                 >
                   😊 Remembered well
                 </button>
                 <button
                   onClick={() => handleQualitySelect('okay')}
-                  className="w-full py-3 rounded-2xl border-2 border-[var(--border)] text-[var(--ink)] text-[14px] font-bold text-left px-4 active:scale-[0.98] transition-transform"
+                  className="w-full py-3 rounded-2xl border-2 border-[var(--border)] text-[var(--ink)] text-[14px] font-bold text-left px-4 active:scale-[0.97] transition-transform"
                 >
                   😐 It was okay
                 </button>
                 <button
                   onClick={() => handleQualitySelect('struggled')}
-                  className="w-full py-3 rounded-2xl border-2 border-[var(--border)] text-[var(--ink)] text-[14px] font-bold text-left px-4 active:scale-[0.98] transition-transform"
+                  className="w-full py-3 rounded-2xl border-2 border-[var(--border)] text-[var(--ink)] text-[14px] font-bold text-left px-4 active:scale-[0.97] transition-transform"
                 >
                   😓 I struggled remembering
                 </button>

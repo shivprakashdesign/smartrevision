@@ -18,6 +18,15 @@ export default {
       borderRadius: {
         '2xl': '18px',
         '3xl': '24px'
+      },
+      transitionTimingFunction: {
+        // Strong ease-out (Emil's UI curve) as the app-wide default, so every
+        // Tailwind transition-* utility gets a crisp, intentional feel instead
+        // of the weak built-in cubic-bezier(0.4, 0, 0.2, 1).
+        DEFAULT: 'cubic-bezier(0.23, 1, 0.32, 1)',
+        'out-strong': 'cubic-bezier(0.23, 1, 0.32, 1)',
+        'in-out-strong': 'cubic-bezier(0.77, 0, 0.175, 1)',
+        drawer: 'cubic-bezier(0.32, 0.72, 0, 1)'
       }
     },
   },

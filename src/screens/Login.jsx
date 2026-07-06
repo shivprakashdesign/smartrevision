@@ -129,7 +129,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-50 active:scale-[0.98] transition-transform"
+            className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] disabled:opacity-50 active:scale-[0.97] transition-transform"
           >
             {loading ? 'Please wait...' : mode === 'signup' ? 'Create account' : 'Log in'}
           </button>

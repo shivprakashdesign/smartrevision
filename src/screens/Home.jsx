@@ -139,7 +139,7 @@ export default function Home() {
         <div className="mt-6 space-y-2">
           <Link
             to="/add-topic"
-            className="block w-full py-3 rounded-3xl border-2 border-dashed border-brand-100 text-center text-[13px] font-bold text-brand-500 active:scale-[0.98] transition-transform"
+            className="block w-full py-3 rounded-3xl border-2 border-dashed border-brand-100 text-center text-[13px] font-bold text-brand-500 active:scale-[0.97] transition-transform"
           >
             + Add topic
           </Link>
