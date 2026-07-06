@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './lib/AuthContext'
+import { ThemeProvider } from './lib/ThemeContext'
 
 import Onboarding from './screens/Onboarding'
 import Login from './screens/Login'
@@ -12,6 +13,7 @@ import Leaderboard from './screens/Leaderboard'
 import Learn from './screens/Learn'
 import NotificationSettings from './screens/NotificationSettings'
 import Referral from './screens/Referral'
+import ThemeSettings from './screens/ThemeSettings'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -22,6 +24,7 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
+      <ThemeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Onboarding />} />
@@ -35,8 +38,10 @@ export default function App() {
           <Route path="/learn" element={<PrivateRoute><Learn /></PrivateRoute>} />
           <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettings /></PrivateRoute>} />
           <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
+          <Route path="/settings/theme" element={<PrivateRoute><ThemeSettings /></PrivateRoute>} />
         </Routes>
       </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   )
 }

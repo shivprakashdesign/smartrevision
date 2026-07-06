@@ -13,20 +13,20 @@ function HomeSkeleton() {
       <div className="max-w-sm mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div className="space-y-2">
-            <div className="h-3 w-16 rounded-full bg-slate-200 animate-pulse" />
-            <div className="h-5 w-28 rounded-full bg-slate-200 animate-pulse" />
+            <div className="h-3 w-16 rounded-full bg-[var(--card-alt)] animate-pulse" />
+            <div className="h-5 w-28 rounded-full bg-[var(--card-alt)] animate-pulse" />
           </div>
-          <div className="h-8 w-14 rounded-2xl bg-slate-200 animate-pulse" />
+          <div className="h-8 w-14 rounded-2xl bg-[var(--card-alt)] animate-pulse" />
         </div>
         <div className="space-y-3">
           {[0, 1, 2].map(i => (
-            <div key={i} className="bg-white rounded-3xl p-4 border border-slate-100">
+            <div key={i} className="bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)]">
               <div className="flex justify-between items-center mb-2">
-                <div className="h-4 w-32 rounded-full bg-slate-200 animate-pulse" />
-                <div className="h-4 w-12 rounded-full bg-slate-200 animate-pulse" />
+                <div className="h-4 w-32 rounded-full bg-[var(--card-alt)] animate-pulse" />
+                <div className="h-4 w-12 rounded-full bg-[var(--card-alt)] animate-pulse" />
               </div>
-              <div className="h-3 w-24 rounded-full bg-slate-200 animate-pulse mb-3" />
-              <div className="h-9 w-full rounded-2xl bg-slate-200 animate-pulse" />
+              <div className="h-3 w-24 rounded-full bg-[var(--card-alt)] animate-pulse mb-3" />
+              <div className="h-9 w-full rounded-2xl bg-[var(--card-alt)] animate-pulse" />
             </div>
           ))}
         </div>
@@ -69,9 +69,14 @@ export default function Home() {
   }
 
   const priorityStyle = {
-    high: 'bg-red-50 text-red-500',
-    medium: 'bg-amber-50 text-amber-500',
-    low: 'bg-slate-100 text-slate-400'
+    high: 'text-red-500',
+    medium: 'text-amber-500',
+    low: 'text-[var(--muted)]'
+  }
+  const priorityBg = {
+    high: 'rgba(239,68,68,0.14)',
+    medium: 'rgba(245,158,11,0.16)',
+    low: 'var(--card-alt)'
   }
 
   return (
@@ -79,23 +84,23 @@ export default function Home() {
       <div className="max-w-sm mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <p className="text-[13px] text-slate-400">Hi {student?.name}</p>
-            <h1 className="text-[22px] font-bold text-brand-900 leading-tight tracking-tight">Due today</h1>
+            <p className="text-[13px] text-[var(--muted)]">Hi {student?.name}</p>
+            <h1 className="text-[22px] font-bold text-[var(--ink)] leading-tight tracking-tight">Due today</h1>
           </div>
           <div className="flex items-center gap-3">
-            <div className="bg-brand-50 rounded-2xl px-3 py-1.5 text-center">
-              <p className="text-sm font-bold text-brand-600">🔥 {student?.current_streak || 0}</p>
+            <div className="rounded-2xl px-3 py-1.5 text-center" style={{ backgroundColor: 'rgba(37,99,235,0.14)' }}>
+              <p className="text-sm font-bold text-brand-500">🔥 {student?.current_streak || 0}</p>
             </div>
-            <button onClick={logout} className="text-[11px] font-bold text-slate-400 active:text-red-500 transition-colors">
+            <button onClick={logout} className="text-[11px] font-bold text-[var(--muted)] active:text-red-500 transition-colors">
               Log out
             </button>
           </div>
         </div>
 
         {dueTopics.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-100 py-12 text-center">
+          <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
             <p className="text-3xl mb-2">🎉</p>
-            <p className="text-[15px] text-slate-400">Nothing due today</p>
+            <p className="text-[15px] text-[var(--muted)]">Nothing due today</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -105,17 +110,18 @@ export default function Home() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
-                className="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm"
+                className="bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)] shadow-sm"
               >
                 <div className="flex justify-between items-center mb-1">
-                  <Link to={`/topic/${r.topics.id}`} className="font-bold text-[15px] text-brand-900">
+                  <Link to={`/topic/${r.topics.id}`} className="font-bold text-[15px] text-[var(--ink)]">
                     {r.topics.topic_name}
                   </Link>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${priorityStyle[r.topics.priority]}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${priorityStyle[r.topics.priority]}`}
+                    style={{ backgroundColor: priorityBg[r.topics.priority] }}>
                     {r.topics.priority?.toUpperCase()}
                   </span>
                 </div>
-                <p className="text-[13px] text-slate-400 mb-3">
+                <p className="text-[13px] text-[var(--slate-txt)] mb-3">
                   {r.topics.subject} · {r.interval_label.replace('_', ' ')}
                 </p>
                 <Link
@@ -136,20 +142,23 @@ export default function Home() {
           >
             + Add topic
           </Link>
-          <Link to="/leaderboard" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-slate-400 active:text-slate-600">
+          <Link to="/leaderboard" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-[var(--muted)] active:opacity-70">
             🏆 View leaderboard
           </Link>
-          <Link to="/settings/notifications" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-slate-400 active:text-slate-600">
+          <Link to="/settings/notifications" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-[var(--muted)] active:opacity-70">
             🔔 Notification settings
           </Link>
-          <Link to="/learn" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-slate-400 active:text-slate-600">
+          <Link to="/learn" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-[var(--muted)] active:opacity-70">
             📖 Learn
           </Link>
-          <Link to="/referral" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-slate-400 active:text-slate-600">
+          <Link to="/referral" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-[var(--muted)] active:opacity-70">
             🎁 Refer a friend
           </Link>
-          <Link to="/profiles" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-slate-400 active:text-slate-600">
+          <Link to="/profiles" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-[var(--muted)] active:opacity-70">
             👨‍👩‍👧 Switch child
+          </Link>
+          <Link to="/settings/theme" className="block w-full py-3 rounded-3xl text-center text-[13px] font-bold text-[var(--muted)] active:opacity-70">
+            🎨 Theme
           </Link>
         </div>
       </div>

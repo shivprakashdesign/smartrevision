@@ -25,3 +25,20 @@ body {
 * {
   scrollbar-width: none;
 }
+
+:root {
+  --bg: hsl(264,3%,94%);
+  --card: hsl(264,100%,100%);
+  --card-alt: hsl(264,3%,90%);
+  --ink: hsl(264,6%,17%);
+  --slate-txt: hsl(264,4%,46%);
+  --muted: hsl(264,3%,59%);
+  --border: hsl(264,6%,93%);
+}
+
+html, body {
+  background-color: var(--bg);
+}
+body {
+  transition: background-color .35s cubic-bezier(0.23,1,0.32,1);
+}

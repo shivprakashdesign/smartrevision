@@ -88,7 +88,7 @@ export default function AddTopic() {
     navigate('/home')
   }
 
-  if (studentLoading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
+  if (studentLoading) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Loading...</div>
 
   const familiarityOpts = [
     { v: 'first_time', l: 'First time' },
@@ -107,9 +107,9 @@ export default function AddTopic() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-        className="w-full max-w-sm bg-white rounded-3xl shadow-sm border border-slate-100 p-6"
+        className="w-full max-w-sm bg-[var(--card)] rounded-3xl shadow-sm border border-[var(--border)] p-6"
       >
-        <h1 className="text-[20px] font-bold text-brand-900 tracking-tight mb-4">Add a topic</h1>
+        <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight mb-4">Add a topic</h1>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
@@ -119,7 +119,7 @@ export default function AddTopic() {
             onChange={(e) => setSubject(e.target.value)}
             list="subject-suggestions"
             required
-            className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors"
+            className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
           />
           <datalist id="subject-suggestions">
             {pastSubjects.map(s => <option key={s} value={s} />)}
@@ -131,11 +131,11 @@ export default function AddTopic() {
             value={topicName}
             onChange={(e) => setTopicName(e.target.value)}
             required
-            className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors"
+            className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
           />
 
           <div>
-            <p className="text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Familiarity</p>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Familiarity</p>
             <div className="flex gap-2">
               {familiarityOpts.map(opt => (
                 <button
@@ -143,7 +143,7 @@ export default function AddTopic() {
                   type="button"
                   onClick={() => setFamiliarity(opt.v)}
                   className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
-                    familiarity === opt.v ? 'border-brand-500 bg-brand-50 text-brand-600' : 'border-slate-200 text-slate-400'
+                    familiarity === opt.v ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
                   }`}
                 >
                   {opt.l}
@@ -153,7 +153,7 @@ export default function AddTopic() {
           </div>
 
           <div>
-            <p className="text-[11px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Priority</p>
+            <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5 uppercase tracking-wide">Priority</p>
             <div className="flex gap-2">
               {priorityOpts.map(opt => (
                 <button
@@ -161,7 +161,7 @@ export default function AddTopic() {
                   type="button"
                   onClick={() => setPriority(opt.v)}
                   className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
-                    priority === opt.v ? 'border-brand-500 bg-brand-50 text-brand-600' : 'border-slate-200 text-slate-400'
+                    priority === opt.v ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
                   }`}
                 >
                   {opt.l}
@@ -175,7 +175,7 @@ export default function AddTopic() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors"
+            className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
           />
 
           {error && <p className="text-red-500 text-[12px]">{error}</p>}

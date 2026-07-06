@@ -54,11 +54,11 @@ function LessonCard({ lesson, index, isOpen, onToggle }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: index * 0.05, ease: [0.23, 1, 0.32, 1] }}
-      className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden"
+      className="bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-sm overflow-hidden"
     >
       <button onClick={onToggle} className="w-full text-left p-4">
-        <p className="font-bold text-[14px] text-brand-900">{lesson.title}</p>
-        <p className="text-[12px] text-slate-400 mt-1">{lesson.summary}</p>
+        <p className="font-bold text-[14px] text-[var(--ink)]">{lesson.title}</p>
+        <p className="text-[12px] text-[var(--muted)] mt-1">{lesson.summary}</p>
       </button>
       <motion.div
         initial={false}
@@ -67,7 +67,7 @@ function LessonCard({ lesson, index, isOpen, onToggle }) {
         style={{ overflow: 'hidden' }}
       >
         <div ref={contentRef} className="px-4 pb-4">
-          <p className="text-[12px] text-slate-600 whitespace-pre-line leading-relaxed">
+          <p className="text-[12px] text-[var(--slate-txt)] whitespace-pre-line leading-relaxed">
             {lesson.content}
           </p>
         </div>
@@ -82,9 +82,9 @@ export default function Learn() {
   return (
     <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
-        <Link to="/home" className="text-[12px] font-bold text-slate-400">← Back to Home</Link>
-        <h1 className="text-[20px] font-bold text-brand-900 tracking-tight mt-2 mb-1">Learn</h1>
-        <p className="text-[14px] text-slate-400 mb-6">The science behind why SmartRevision works</p>
+        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
+        <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight mt-2 mb-1">Learn</h1>
+        <p className="text-[14px] text-[var(--muted)] mb-6">The science behind why SmartRevision works</p>
 
         <div className="space-y-3">
           {LESSONS.map((lesson, i) => (

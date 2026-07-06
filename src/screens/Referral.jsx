@@ -89,14 +89,14 @@ export default function Referral() {
     setEnteredCode('')
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Loading...</div>
 
   return (
     <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto">
-        <Link to="/home" className="text-[12px] font-bold text-slate-400">← Back to Home</Link>
-        <h1 className="text-[20px] font-bold text-brand-900 tracking-tight mt-2 mb-1">Refer a friend</h1>
-        <p className="text-[14px] text-slate-400 mb-6">
+        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
+        <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight mt-2 mb-1">Refer a friend</h1>
+        <p className="text-[14px] text-[var(--muted)] mb-6">
           When your friend completes their first revision, you both get rewarded.
         </p>
 
@@ -104,9 +104,9 @@ export default function Referral() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-          className="bg-brand-50 rounded-3xl p-6 text-center mb-4"
+          className="rounded-3xl p-6 text-center mb-4" style={{ backgroundColor: 'rgba(37,99,235,0.10)' }}
         >
-          <p className="text-[12px] text-slate-400 mb-1">Your code</p>
+          <p className="text-[12px] text-[var(--muted)] mb-1">Your code</p>
           <p className="text-[26px] font-bold tracking-widest text-brand-600">
             {account?.referral_code}
           </p>
@@ -122,7 +122,7 @@ export default function Referral() {
         {friendCount > 0 && (
           <motion.p
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="text-center text-[13px] text-slate-500 mb-4"
+            className="text-center text-[13px] text-[var(--slate-txt)] mb-4"
           >
             🎉 {friendCount} friend{friendCount > 1 ? 's' : ''} joined
           </motion.p>
@@ -135,11 +135,11 @@ export default function Referral() {
               placeholder="Enter a friend's code"
               value={enteredCode}
               onChange={(e) => setEnteredCode(e.target.value)}
-              className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-[14px] text-center bg-white uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors"
+              className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] text-center bg-[var(--card)] uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors"
             />
             <button
               type="submit"
-              className="w-full mt-2 py-2.5 rounded-2xl border-2 border-slate-200 text-[13px] font-bold text-slate-600 active:scale-[0.98] transition-transform"
+              className="w-full mt-2 py-2.5 rounded-2xl border-2 border-[var(--border)] text-[13px] font-bold text-[var(--slate-txt)] active:scale-[0.98] transition-transform"
             >
               Apply code
             </button>

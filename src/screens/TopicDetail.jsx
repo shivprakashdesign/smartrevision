@@ -68,8 +68,8 @@ export default function TopicDetail() {
     setSavingJournal(false)
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
-  if (!topic) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Topic not found</div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Loading...</div>
+  if (!topic) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Topic not found</div>
 
   const cardVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -80,42 +80,42 @@ export default function TopicDetail() {
     <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto space-y-4">
 
-        <Link to="/home" className="text-[12px] font-bold text-slate-400">← Back to Home</Link>
+        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
 
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-          className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm"
+          className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
         >
-          <h1 className="text-[20px] font-bold text-brand-900 tracking-tight">{topic.topic_name}</h1>
-          <p className="text-[13px] text-slate-400 mt-1">{topic.subject}</p>
+          <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight">{topic.topic_name}</h1>
+          <p className="text-[13px] text-[var(--muted)] mt-1">{topic.subject}</p>
           <div className="flex gap-2 mt-3">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
               {topic.familiarity?.replace('_', ' ')}
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
               {topic.priority} priority
             </span>
           </div>
-          {topic.notes && <p className="text-[14px] text-slate-600 mt-3">{topic.notes}</p>}
+          {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
         </motion.div>
 
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, delay: 0.05, ease: [0.23, 1, 0.32, 1] }}
-          className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm"
+          className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
         >
-          <h2 className="text-[13px] font-bold text-brand-900 mb-3">Recall cards</h2>
+          <h2 className="text-[13px] font-bold text-[var(--ink)] mb-3">Recall cards</h2>
 
           {recallCards.length === 0 && (
-            <p className="text-[12px] text-slate-400 mb-3">No recall cards yet — add a short question you want to test yourself on.</p>
+            <p className="text-[12px] text-[var(--muted)] mb-3">No recall cards yet — add a short question you want to test yourself on.</p>
           )}
 
           <div className="space-y-2 mb-3">
             {recallCards.map(card => (
-              <div key={card.id} className="bg-slate-50 rounded-2xl p-3">
-                <p className="text-[12px] font-bold text-slate-700">Q: {card.question}</p>
-                <p className="text-[12px] text-slate-500 mt-1">A: {card.answer}</p>
+              <div key={card.id} className="bg-[var(--card-alt)] rounded-2xl p-3">
+                <p className="text-[12px] font-bold text-[var(--slate-txt)]">Q: {card.question}</p>
+                <p className="text-[12px] text-[var(--slate-txt)] mt-1">A: {card.answer}</p>
               </div>
             ))}
           </div>
@@ -126,14 +126,14 @@ export default function TopicDetail() {
               placeholder="Question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-[12px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors"
+              className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
             />
             <input
               type="text"
               placeholder="Answer"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-[12px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors"
+              className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
             />
             <button
               type="submit"
@@ -148,19 +148,19 @@ export default function TopicDetail() {
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-          className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm"
+          className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
         >
-          <h2 className="text-[13px] font-bold text-brand-900 mb-3">Journal</h2>
+          <h2 className="text-[13px] font-bold text-[var(--ink)] mb-3">Journal</h2>
 
           {journalEntries.length === 0 && (
-            <p className="text-[12px] text-slate-400 mb-3">Note mistakes, difficult concepts, or things to revisit here.</p>
+            <p className="text-[12px] text-[var(--muted)] mb-3">Note mistakes, difficult concepts, or things to revisit here.</p>
           )}
 
           <div className="space-y-2 mb-3">
             {journalEntries.map(entry => (
-              <div key={entry.id} className="bg-slate-50 rounded-2xl p-3">
-                <p className="text-[12px] text-slate-600">{entry.entry}</p>
-                <p className="text-[10px] text-slate-400 mt-1">
+              <div key={entry.id} className="bg-[var(--card-alt)] rounded-2xl p-3">
+                <p className="text-[12px] text-[var(--slate-txt)]">{entry.entry}</p>
+                <p className="text-[10px] text-[var(--muted)] mt-1">
                   {new Date(entry.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -173,7 +173,7 @@ export default function TopicDetail() {
               value={journalText}
               onChange={(e) => setJournalText(e.target.value)}
               rows={2}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-[12px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors"
+              className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
             />
             <button
               type="submit"
