@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { MotionConfig } from 'framer-motion'
 import { AuthProvider, useAuth } from './lib/AuthContext'
 import { ThemeProvider } from './lib/ThemeContext'
 import AppToaster from './lib/AppToaster'
@@ -26,6 +27,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
+      <MotionConfig reducedMotion="user">
       <AppToaster />
       <BrowserRouter>
         <Routes>
@@ -43,6 +45,7 @@ export default function App() {
           <Route path="/settings/theme" element={<PrivateRoute><ThemeSettings /></PrivateRoute>} />
         </Routes>
       </BrowserRouter>
+      </MotionConfig>
       </ThemeProvider>
     </AuthProvider>
   )
