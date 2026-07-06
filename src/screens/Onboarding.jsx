@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
+import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 
 const easing = [0.23, 1, 0.32, 1]
@@ -117,7 +119,13 @@ export default function Onboarding() {
   const [referralCode, setReferralCode] = useState('')
   const [schoolSuggestions, setSchoolSuggestions] = useState([])
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
+  const [hookPct, setHookPct] = useState(0)
+
+  // Count the opening "82%" stat up from 0 once it has painted.
+  useEffect(() => {
+    const id = setTimeout(() => setHookPct(82), 250)
+    return () => clearTimeout(id)
+  }, [])
 
   const copy = COPY[mode]
   const progress = Math.round(((STEPS.indexOf(step) + 1) / STEPS.length) * 100)
@@ -160,10 +168,9 @@ export default function Onboarding() {
   async function handleSignup(e) {
     e.preventDefault()
     setSaving(true)
-    setError('')
 
     const { data: authData, error: signUpError } = await supabase.auth.signUp({ email, password })
-    if (signUpError) { setError(signUpError.message); setSaving(false); return }
+    if (signUpError) { toast.error(signUpError.message); setSaving(false); return }
 
     const { error: acctError } = await supabase.from('accounts').insert({
       id: authData.user.id,
@@ -174,7 +181,7 @@ export default function Onboarding() {
       preparing_for: goal,
       subjects
     })
-    if (acctError) { setError(acctError.message); setSaving(false); return }
+    if (acctError) { toast.error(acctError.message); setSaving(false); return }
 
     if (mode === 'student') {
       let classId = null
@@ -244,7 +251,7 @@ export default function Onboarding() {
           {step === 'hook' && (
             <Screen id="hook" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('curve')}>Continue</Btn>}>
               <div className="text-center mb-8">
-                <p className="text-[76px] font-bold text-brand-500 leading-none">82%</p>
+                <p className="text-[76px] font-bold text-brand-500 leading-none"><NumberFlow value={hookPct} suffix="%" /></p>
                 <p style={{ color: T.muted, transition: colorTransition }} className="text-[15px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
               </div>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight leading-snug mb-2">You don't have a studying problem. You have a forgetting problem.</h1>
@@ -442,7 +449,6 @@ export default function Onboarding() {
                 )}
                 <input placeholder="Referral code (optional)" value={referralCode} onChange={e => setReferralCode(e.target.value)} style={inputStyle}
                   className="w-full border rounded-2xl px-4 py-3 text-[15px] uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
-                {error && <p className="text-red-500 text-[12px]">{error}</p>}
                 <Btn type="submit" disabled={saving}>{saving ? 'Creating account...' : 'Start revising'}</Btn>
               </form>
             </Screen>

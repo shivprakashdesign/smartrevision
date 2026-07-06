@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './lib/AuthContext'
 import { ThemeProvider } from './lib/ThemeContext'
+import AppToaster from './lib/AppToaster'
 
 import Onboarding from './screens/Onboarding'
 import Login from './screens/Login'
@@ -25,6 +26,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
+      <AppToaster />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Onboarding />} />

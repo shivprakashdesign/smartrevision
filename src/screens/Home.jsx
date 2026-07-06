@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { initNotifications } from '../lib/notifications'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { useStudentProfile } from '../lib/useStudentProfile'
@@ -89,7 +90,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             <div className="rounded-2xl px-3 py-1.5 text-center" style={{ backgroundColor: 'rgba(37,99,235,0.14)' }}>
-              <p className="text-sm font-bold text-brand-500">🔥 {student?.current_streak || 0}</p>
+              <p className="text-sm font-bold text-brand-500">🔥 <NumberFlow value={student?.current_streak || 0} /></p>
             </div>
             <button onClick={logout} className="text-[11px] font-bold text-[var(--muted)] active:text-red-500 transition-colors">
               Log out

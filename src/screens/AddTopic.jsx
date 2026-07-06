@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import AppShell from '../lib/AppShell'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 
@@ -36,7 +37,6 @@ export default function AddTopic() {
   const [customOffsets, setCustomOffsets] = useState([])
   const [offsetInput, setOffsetInput] = useState('')
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
 
   const subjectOptions = [...new Set([...pastSubjects, ...DEFAULT_SUBJECTS])]
 
@@ -66,15 +66,14 @@ export default function AddTopic() {
     e.preventDefault()
     if (!student) return
     if (!subject.trim()) {
-      setError('Please select or enter a subject')
+      toast.error('Please select or enter a subject')
       return
     }
     if (scheduleType === 'custom' && customOffsets.length === 0) {
-      setError('Add at least one custom revision date')
+      toast.error('Add at least one custom revision date')
       return
     }
     setSaving(true)
-    setError('')
 
     const today = new Date()
     const dateLearned = today.toISOString().slice(0, 10)
@@ -95,7 +94,7 @@ export default function AddTopic() {
       .single()
 
     if (topicError) {
-      setError(topicError.message)
+      toast.error(topicError.message)
       setSaving(false)
       return
     }
@@ -117,11 +116,12 @@ export default function AddTopic() {
     const { error: revisionsError } = await supabase.from('revisions').insert(revisionRows)
 
     if (revisionsError) {
-      setError(revisionsError.message)
+      toast.error(revisionsError.message)
       setSaving(false)
       return
     }
 
+    toast.success('Topic added & revisions scheduled')
     navigate('/home')
   }
 
@@ -309,8 +309,6 @@ export default function AddTopic() {
             rows={3}
             className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
           />
-
-          {error && <p className="text-red-500 text-[12px]">{error}</p>}
 
           <button
             type="submit"

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AppShell from '../lib/AppShell'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 
 export default function RevisionSession() {
@@ -50,7 +51,8 @@ export default function RevisionSession() {
       .single()
 
     const today = new Date().toISOString().slice(0, 10)
-    if (student.last_activity_date !== today) {
+    const streakExtended = student.last_activity_date !== today
+    if (streakExtended) {
       await supabase
         .from('students')
         .update({
@@ -117,6 +119,9 @@ export default function RevisionSession() {
       }
     }
 
+    toast.success(streakExtended
+      ? `Revision logged · streak ${(student.current_streak || 0) + 1} 🔥`
+      : 'Revision logged 🎉')
     navigate('/home')
   }
 

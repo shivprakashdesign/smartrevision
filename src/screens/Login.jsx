@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 
 export default function Login() {
@@ -11,17 +12,15 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   async function handleSignup(e) {
     e.preventDefault()
     setLoading(true)
-    setError('')
 
     const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
 
     if (signUpError) {
-      setError(signUpError.message)
+      toast.error(signUpError.message)
       setLoading(false)
       return
     }
@@ -33,7 +32,7 @@ export default function Login() {
     })
 
     if (insertError) {
-      setError(insertError.message)
+      toast.error(insertError.message)
       setLoading(false)
       return
     }
@@ -44,12 +43,11 @@ export default function Login() {
   async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
-    setError('')
 
     const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (signInError) {
-      setError(signInError.message)
+      toast.error(signInError.message)
       setLoading(false)
       return
     }
@@ -127,8 +125,6 @@ export default function Login() {
             minLength={6}
             className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
           />
-
-          {error && <p className="text-red-500 text-[12px]">{error}</p>}
 
           <button
             type="submit"

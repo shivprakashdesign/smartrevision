@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 
@@ -53,7 +54,7 @@ export default function Leaderboard() {
               <span className="flex-1 text-[14px] font-bold text-[var(--ink)] ml-2">
                 {r.student_id === student.id ? 'You' : r.name}
               </span>
-              <span className="text-[12px] text-[var(--muted)]">🔥{r.current_streak} · {r.weekly_score}</span>
+              <span className="text-[12px] text-[var(--muted)]">🔥<NumberFlow value={r.current_streak} /> · <NumberFlow value={r.weekly_score} /></span>
             </motion.div>
           ))}
         </div>
