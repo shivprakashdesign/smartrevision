@@ -126,7 +126,7 @@ export default function RevisionSession() {
   const easing = [0.23, 1, 0.32, 1]
 
   return (
-    <AppShell><div className="px-6 flex items-center justify-center" style={{minHeight:'100%'}}>
+    <AppShell><div className="px-6 flex items-center justify-center" style={{ minHeight: '100dvh' }}>
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-sm border border-slate-100 p-6 overflow-hidden">
         <AnimatePresence mode="wait">
 
