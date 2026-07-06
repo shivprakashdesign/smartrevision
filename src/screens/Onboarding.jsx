@@ -206,8 +206,8 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="font-sans flex items-stretch justify-center sm:items-center sm:px-5 sm:py-8"
-      style={{ position: 'fixed', inset: 0, backgroundColor: T.bg, transition: colorTransition }}>
+    <div className="font-sans flex items-stretch justify-center sm:items-center sm:px-5 sm:py-8 bg-[var(--ob-card)] sm:bg-[var(--ob-bg)]"
+      style={{ position: 'fixed', inset: 0, '--ob-bg': T.bg, '--ob-card': T.card, transition: colorTransition }}>
       <div className="w-full sm:h-auto sm:max-h-[700px] sm:max-w-sm rounded-none sm:rounded-3xl border-0 sm:border shadow-none sm:shadow-sm px-6 flex flex-col overflow-hidden"
         style={{
           backgroundColor: T.card, borderColor: T.border, transition: colorTransition,
