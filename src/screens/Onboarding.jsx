@@ -241,8 +241,10 @@ export default function Onboarding() {
 
         {!['hook', 'curve', 'type'].includes(step) && (
           <div className="h-1.5 rounded-full mb-3 overflow-hidden flex-shrink-0" style={{ backgroundColor: T.cardAlt, transition: colorTransition }}>
-            <motion.div animate={{ width: `${progress}%` }} transition={{ duration: 0.35, ease: easing }}
-              className="h-full rounded-full bg-brand-500" />
+            <div
+              className="h-full w-full rounded-full bg-brand-500 origin-left transition-transform duration-[350ms]"
+              style={{ transform: `scaleX(${progress / 100})` }}
+            />
           </div>
         )}
 
@@ -268,7 +270,7 @@ export default function Onboarding() {
                   <path d="M 36 22 Q 62 128 120 148 T 300 162" fill="none" stroke={T.muted} strokeWidth="3" strokeDasharray="5 5" opacity=".5" />
                   <motion.path d="M 36 22 Q 56 82 74 88 L 74 42 Q 106 96 136 100 L 136 54 Q 186 104 226 106 L 226 64 Q 264 102 300 104"
                     fill="none" stroke="hsl(213,96%,56%)" strokeWidth="3.5" strokeLinejoin="round"
-                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} />
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }} />
                   <circle cx="74" cy="42" r="5" fill="hsl(213,96%,56%)" />
                   <circle cx="136" cy="54" r="5" fill="hsl(213,96%,56%)" />
                   <circle cx="226" cy="64" r="5" fill="hsl(213,96%,56%)" />

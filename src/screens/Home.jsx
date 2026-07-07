@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { initNotifications } from '../lib/notifications'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
@@ -105,12 +104,9 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-3">
-            {dueTopics.map((r, i) => (
-              <motion.div
+            {dueTopics.map((r) => (
+              <div
                 key={r.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
                 className="bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)] shadow-sm"
               >
                 <div className="flex justify-between items-center mb-1">
@@ -131,7 +127,7 @@ export default function Home() {
                 >
                   Revise now
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

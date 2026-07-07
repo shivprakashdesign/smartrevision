@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -47,8 +47,6 @@ Most people can focus for about 50 minutes before needing a break — harder sub
 ]
 
 function LessonCard({ lesson, index, isOpen, onToggle }) {
-  const contentRef = useRef(null)
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -60,18 +58,18 @@ function LessonCard({ lesson, index, isOpen, onToggle }) {
         <p className="font-bold text-[14px] text-[var(--ink)]">{lesson.title}</p>
         <p className="text-[12px] text-[var(--muted)] mt-1">{lesson.summary}</p>
       </button>
-      <motion.div
-        initial={false}
-        animate={{ height: isOpen ? contentRef.current?.scrollHeight ?? 'auto' : 0 }}
-        transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-        style={{ overflow: 'hidden' }}
+      <div
+        className="grid transition-[grid-template-rows] duration-300"
+        style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
       >
-        <div ref={contentRef} className="px-4 pb-4">
-          <p className="text-[12px] text-[var(--slate-txt)] whitespace-pre-line leading-relaxed">
-            {lesson.content}
-          </p>
+        <div className="overflow-hidden">
+          <div className="px-4 pb-4">
+            <p className="text-[12px] text-[var(--slate-txt)] whitespace-pre-line leading-relaxed">
+              {lesson.content}
+            </p>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   )
 }

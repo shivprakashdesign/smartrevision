@@ -66,7 +66,7 @@ export default function Login() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+        transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
         className="w-full max-w-sm bg-[var(--card)] rounded-3xl shadow-sm border border-[var(--border)] p-8"
       >
         <h1 className="text-[22px] font-bold text-[var(--ink)] tracking-tight mb-1">SmartRevision</h1>

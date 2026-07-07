@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import AppShell from '../lib/AppShell'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
@@ -41,12 +40,10 @@ export default function Leaderboard() {
 
         <div className="space-y-2">
           {rows.map((r, i) => (
-            <motion.div
+            <div
               key={r.student_id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: i * 0.04, ease: [0.23, 1, 0.32, 1] }}
-              className={`flex items-center rounded-2xl p-3 border ${
+              style={{ animationDelay: `${i * 0.04}s` }}
+              className={`animate-enter flex items-center rounded-2xl p-3 border ${
                 r.student_id === student.id ? 'border-brand-500 bg-[rgba(37,99,235,0.12)]' : 'bg-[var(--card)] border-[var(--border)]'
               }`}
             >
@@ -55,7 +52,7 @@ export default function Leaderboard() {
                 {r.student_id === student.id ? 'You' : r.name}
               </span>
               <span className="text-[12px] text-[var(--muted)]">🔥<NumberFlow value={r.current_streak} /> · <NumberFlow value={r.weekly_score} /></span>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
