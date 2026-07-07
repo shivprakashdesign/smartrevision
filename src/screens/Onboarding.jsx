@@ -131,6 +131,16 @@ export default function Onboarding() {
     return () => { clearTimeout(startCount); clearTimeout(showHeading); clearTimeout(showParagraph) }
   }, [])
 
+  // Same staged, soft reveal on the forgetting-curve screen: the chart draws
+  // itself first, then the heading fades in, then the paragraph.
+  const [curveReveal, setCurveReveal] = useState(0)
+  useEffect(() => {
+    if (step !== 'curve') { setCurveReveal(0); return }
+    const showHeading = setTimeout(() => setCurveReveal(1), 1600)
+    const showParagraph = setTimeout(() => setCurveReveal(2), 2500)
+    return () => { clearTimeout(showHeading); clearTimeout(showParagraph) }
+  }, [step])
+
   const copy = COPY[mode]
   const progress = Math.round(((STEPS.indexOf(step) + 1) / STEPS.length) * 100)
   const T = THEME_COLORS[theme]
@@ -267,7 +277,7 @@ export default function Onboarding() {
 
           {step === 'curve' && (
             <Screen id="curve" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('type')}>Continue</Btn>}>
-              <div className="mb-6">
+              <div className="mb-6 fade-soft">
                 <svg viewBox="0 0 320 200" width="100%">
                   <line x1="34" y1="16" x2="34" y2="168" stroke={T.border} strokeWidth="2" />
                   <line x1="34" y1="168" x2="304" y2="168" stroke={T.border} strokeWidth="2" />
@@ -284,8 +294,8 @@ export default function Onboarding() {
                   <text x="148" y="46" fontSize="9.5" fontWeight="700" fill="hsl(213,96%,56%)">each revision lifts you back up</text>
                 </svg>
               </div>
-              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight leading-snug mb-2">Every revision resets the curve.</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px]">Reviewing at the right moments moves knowledge into long-term memory — so it's still there on exam day.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className={`${curveReveal >= 1 ? 'fade-soft' : 'opacity-0'} text-[23px] font-bold tracking-tight leading-snug mb-2`}>Every revision resets the curve.</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className={`${curveReveal >= 2 ? 'fade-soft' : 'opacity-0'} text-[14.5px]`}>Reviewing at the right moments moves knowledge into long-term memory — so it's still there on exam day.</p>
             </Screen>
           )}
 
