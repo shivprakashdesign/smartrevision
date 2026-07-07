@@ -81,16 +81,32 @@ function TopRow({ id, onBack, muted }) {
 // center=false: variable-length content (lists, forms) stays top-anchored and
 // scrolls internally within its own region if it overflows — the outer
 // TopRow/footer never move, so the screen itself never scrolls as a whole.
-function Screen({ children, footer, id, onBack, muted, center = true }) {
+function Screen({ children, footer, id, onBack, muted, center = true, overlay = null }) {
   return (
     <motion.div key={id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}
-      transition={{ duration: 0.22, ease: easing }} className="flex flex-col h-full">
+      transition={{ duration: 0.22, ease: easing }} className="relative flex flex-col h-full">
+      {overlay}
       <TopRow id={id} onBack={onBack} muted={muted} />
       <div className={`flex-1 min-h-0 overflow-y-auto flex flex-col ${center ? 'justify-center' : 'justify-start'}`}>
         {children}
       </div>
       {footer && <div className="flex-shrink-0 pt-3">{footer}</div>}
     </motion.div>
+  )
+}
+
+// Decorative emoji that softly fades in (with a stagger) and then bobs forever.
+// The fade lives on the outer span (opacity) and the bob on the inner (transform)
+// so the two animations never fight. aria-hidden + pointer-events-none keep it
+// purely cosmetic.
+function FloatingEmoji({ children, className = '', delay = 0, dur = 3, phase = 0 }) {
+  return (
+    <span aria-hidden="true" style={{ animationDelay: `${delay}s` }}
+      className={`fade-soft pointer-events-none absolute select-none ${className}`}>
+      <span className="emoji-bob inline-block will-change-transform" style={{ animationDuration: `${dur}s`, animationDelay: `${phase}s` }}>
+        {children}
+      </span>
+    </span>
   )
 }
 
@@ -265,7 +281,12 @@ export default function Onboarding() {
         <AnimatePresence mode="wait">
 
           {step === 'hook' && (
-            <Screen id="hook" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('curve')}>Continue</Btn>}>
+            <Screen id="hook" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('curve')}>Continue</Btn>}
+              overlay={<>
+                <FloatingEmoji className="top-[13%] left-[7%] text-[46px]" delay={0.7} dur={2.8} phase={-0.4}>😱</FloatingEmoji>
+                <FloatingEmoji className="top-[7%] right-[11%] text-[38px]" delay={1} dur={3.3} phase={-1.5}>🤯</FloatingEmoji>
+                <FloatingEmoji className="top-[41%] right-[7%] text-[36px]" delay={1.3} dur={3} phase={-0.9}>📉</FloatingEmoji>
+              </>}>
               <div className="mb-8 fade-soft">
                 <p className="text-[76px] font-bold text-brand-500 leading-none"><NumberFlow value={hookPct} suffix="%" /></p>
                 <p style={{ color: T.muted, transition: colorTransition }} className="text-[15px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
@@ -276,7 +297,12 @@ export default function Onboarding() {
           )}
 
           {step === 'curve' && (
-            <Screen id="curve" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('type')}>Continue</Btn>}>
+            <Screen id="curve" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('type')}>Continue</Btn>}
+              overlay={<>
+                <FloatingEmoji className="top-[10%] left-[8%] text-[46px]" delay={0.6} dur={2.9} phase={-0.3}>🧠</FloatingEmoji>
+                <FloatingEmoji className="top-[36%] left-[5%] text-[36px]" delay={1} dur={3.2} phase={-1.6}>😔</FloatingEmoji>
+                <FloatingEmoji className="top-[12%] right-[8%] text-[38px]" delay={1.3} dur={3} phase={-0.9}>📈</FloatingEmoji>
+              </>}>
               <div className="mb-6 fade-soft">
                 <svg viewBox="0 0 320 200" width="100%">
                   <line x1="34" y1="16" x2="34" y2="168" stroke={T.border} strokeWidth="2" />

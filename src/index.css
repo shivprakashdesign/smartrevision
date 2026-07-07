@@ -67,6 +67,15 @@ body {
   animation: fade-soft 900ms ease both;
 }
 
+/* Playful continuous bob + wobble for decorative onboarding emojis. */
+@keyframes emoji-bob {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-14px) rotate(8deg); }
+}
+.emoji-bob {
+  animation: emoji-bob 3s ease-in-out infinite;
+}
+
 /* Respect reduced-motion: strip movement/transitions but let content still
    change state instantly. Motion sickness is real; this is correctness. */
 @media (prefers-reduced-motion: reduce) {
