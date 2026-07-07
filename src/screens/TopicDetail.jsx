@@ -29,7 +29,29 @@ export default function TopicDetail() {
 
   const [lightbox, setLightbox] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   const fileInputRef = useRef(null)
+
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    const img = deleteTarget
+    setDeleting(true)
+    const { error } = await supabase.from('topic_images').delete().eq('id', img.id)
+    if (error) { toast.error(error.message); setDeleting(false); return }
+    // Best-effort removal of the underlying storage object.
+    const marker = '/topic-images/'
+    const at = img.image_url.indexOf(marker)
+    if (at >= 0) {
+      const path = decodeURIComponent(img.image_url.slice(at + marker.length))
+      await supabase.storage.from('topic-images').remove([path])
+    }
+    setImages(prev => prev.filter(x => x.id !== img.id))
+    if (lightbox === img.image_url) setLightbox(null)
+    setDeleting(false)
+    setDeleteTarget(null)
+    toast.success('Photo deleted')
+  }
 
   async function onAddPhotos(e) {
     const files = Array.from(e.target.files || [])
@@ -155,14 +177,23 @@ export default function TopicDetail() {
 
           <div className="flex flex-wrap gap-2 mt-3">
             {images.map(img => (
-              <button
-                key={img.id}
-                type="button"
-                onClick={() => setLightbox(img.image_url)}
-                className="block w-20 h-20 rounded-xl overflow-hidden border border-[var(--border)] active:scale-[0.97] transition-transform"
-              >
-                <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-              </button>
+              <div key={img.id} className="relative w-20 h-20">
+                <button
+                  type="button"
+                  onClick={() => setLightbox(img.image_url)}
+                  className="block w-full h-full rounded-xl overflow-hidden border border-[var(--border)] active:scale-[0.97] transition-transform"
+                >
+                  <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(img)}
+                  aria-label="Delete photo"
+                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-[13px] leading-none flex items-center justify-center shadow active:scale-95 transition-transform"
+                >
+                  ×
+                </button>
+              </div>
             ))}
             <button
               type="button"
@@ -307,6 +338,45 @@ export default function TopicDetail() {
         </motion.div>
 
       </div>
+
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => !deleting && setDeleteTarget(null)}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-6"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-xs bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-5"
+            >
+              <h3 className="text-[15px] font-bold text-[var(--ink)]">Delete this photo?</h3>
+              <p className="text-[13px] text-[var(--muted)] mt-1 mb-4">This can't be undone.</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 rounded-2xl border-2 border-[var(--border)] text-[13px] font-bold text-[var(--muted)] active:scale-[0.97] transition-transform disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 rounded-2xl bg-red-500 text-white text-[13px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
+                >
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {lightbox && (
