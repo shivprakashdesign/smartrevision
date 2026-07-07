@@ -252,12 +252,12 @@ export default function Onboarding() {
 
           {step === 'hook' && (
             <Screen id="hook" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('curve')}>Continue</Btn>}>
-              <div className="mb-8 animate-enter">
+              <div className="mb-8 animate-enter" style={{ animationDuration: '0.4s' }}>
                 <p className="text-[76px] font-bold text-brand-500 leading-none"><NumberFlow value={hookPct} suffix="%" /></p>
                 <p style={{ color: T.muted, transition: colorTransition }} className="text-[15px] font-semibold mt-2">of what you study today<br />is gone by tomorrow</p>
               </div>
-              <h1 style={{ color: T.ink, transition: colorTransition, animationDelay: '0.12s' }} className="animate-enter text-[23px] font-bold tracking-tight leading-snug mb-2">You don't have a studying problem. You have a forgetting problem.</h1>
-              <p style={{ color: T.muted, transition: colorTransition, animationDelay: '0.2s' }} className="animate-enter text-[14.5px]">Psychologists proved the average student loses most of what they learn within just 24 hours.</p>
+              <h1 style={{ color: T.ink, transition: colorTransition, animationDelay: '0.24s', animationDuration: '0.4s' }} className="animate-enter text-[23px] font-bold tracking-tight leading-snug mb-2">You don't have a studying problem. You have a forgetting problem.</h1>
+              <p style={{ color: T.muted, transition: colorTransition, animationDelay: '0.44s', animationDuration: '0.4s' }} className="animate-enter text-[14.5px]">Psychologists proved the average student loses most of what they learn within just 24 hours.</p>
             </Screen>
           )}
 
