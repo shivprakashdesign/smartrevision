@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import AppShell from '../lib/AppShell'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
@@ -186,7 +186,9 @@ export default function AddTopic() {
 
   return (
     <AppShell><div className="px-6 py-10 flex flex-col items-center">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm space-y-3">
+        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -348,13 +350,15 @@ export default function AddTopic() {
           </AnimatePresence>
 
           <div className="flex gap-2 mt-5">
-            <button
-              type="button"
-              onClick={goBack}
-              className="px-5 py-3 rounded-2xl border-2 border-[var(--border)] text-[14px] font-bold text-[var(--muted)] active:scale-[0.97] transition-transform"
-            >
-              {step === 1 ? 'Cancel' : 'Back'}
-            </button>
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={goBack}
+                className="px-5 py-3 rounded-2xl border-2 border-[var(--border)] text-[14px] font-bold text-[var(--muted)] active:scale-[0.97] transition-transform"
+              >
+                Back
+              </button>
+            )}
             {step < 3 ? (
               <button
                 type="button"

@@ -1,9 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import AppShell from '../lib/AppShell'
 import { useParams, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
+
+function randomId() {
+  return globalThis.crypto?.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
 
 export default function TopicDetail() {
   const { id } = useParams()
@@ -21,9 +27,43 @@ export default function TopicDetail() {
   const [journalText, setJournalText] = useState('')
   const [savingJournal, setSavingJournal] = useState(false)
 
+  const [lightbox, setLightbox] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef(null)
+
+  async function onAddPhotos(e) {
+    const files = Array.from(e.target.files || [])
+    e.target.value = ''
+    if (!files.length || !topic) return
+    setUploading(true)
+    const rows = []
+    for (const file of files) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+      const path = `${topic.student_id}/${topic.id}/${randomId()}.${ext}`
+      const { error } = await supabase.storage.from('topic-images').upload(path, file, { contentType: file.type })
+      if (error) { console.error(error); continue }
+      const { data: pub } = supabase.storage.from('topic-images').getPublicUrl(path)
+      if (pub?.publicUrl) rows.push({ topic_id: topic.id, image_url: pub.publicUrl })
+    }
+    if (rows.length) {
+      const { data, error } = await supabase.from('topic_images').insert(rows).select()
+      if (!error && data) setImages(prev => [...prev, ...data])
+      toast.success(rows.length > 1 ? `${rows.length} photos added` : 'Photo added')
+    }
+    if (rows.length < files.length) toast.error('Some photos could not be uploaded')
+    setUploading(false)
+  }
+
   useEffect(() => {
     loadAll()
   }, [id])
+
+  useEffect(() => {
+    if (!lightbox) return
+    const onKey = (e) => { if (e.key === 'Escape') setLightbox(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightbox])
 
   async function loadAll() {
     setLoading(true)
@@ -113,15 +153,28 @@ export default function TopicDetail() {
             </span>
           </div>
 
-          {images.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {images.map(img => (
-                <a key={img.id} href={img.image_url} target="_blank" rel="noreferrer" className="block w-20 h-20 rounded-xl overflow-hidden border border-[var(--border)] active:scale-[0.97] transition-transform">
-                  <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-                </a>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {images.map(img => (
+              <button
+                key={img.id}
+                type="button"
+                onClick={() => setLightbox(img.image_url)}
+                className="block w-20 h-20 rounded-xl overflow-hidden border border-[var(--border)] active:scale-[0.97] transition-transform"
+              >
+                <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-20 h-20 rounded-xl border-2 border-dashed border-[var(--border)] text-[var(--muted)] text-[11px] font-bold flex flex-col items-center justify-center gap-0.5 active:scale-[0.97] transition-transform disabled:opacity-50"
+            >
+              {uploading ? '…' : <><span className="text-xl leading-none">+</span>Photo</>}
+            </button>
+          </div>
+          <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onAddPhotos} />
+
           {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
         </motion.div>
 
@@ -254,6 +307,37 @@ export default function TopicDetail() {
         </motion.div>
 
       </div>
+
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+            onClick={() => setLightbox(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+            style={{ paddingTop: 'max(24px, env(safe-area-inset-top))', paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
+          >
+            <motion.img
+              key={lightbox}
+              src={lightbox}
+              alt=""
+              initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="max-w-full max-h-full rounded-2xl object-contain"
+            />
+            <button
+              type="button"
+              onClick={() => setLightbox(null)}
+              aria-label="Close"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 text-white text-xl leading-none flex items-center justify-center active:scale-95 transition-transform"
+              style={{ top: 'max(16px, env(safe-area-inset-top))' }}
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div></AppShell>
   )
 }
