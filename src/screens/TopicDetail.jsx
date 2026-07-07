@@ -11,6 +11,7 @@ export default function TopicDetail() {
   const [recallCards, setRecallCards] = useState([])
   const [journalEntries, setJournalEntries] = useState([])
   const [revisions, setRevisions] = useState([])
+  const [images, setImages] = useState([])
   const [loading, setLoading] = useState(true)
 
   const [question, setQuestion] = useState('')
@@ -26,16 +27,18 @@ export default function TopicDetail() {
 
   async function loadAll() {
     setLoading(true)
-    const [{ data: t }, { data: cards }, { data: entries }, { data: revs }] = await Promise.all([
+    const [{ data: t }, { data: cards }, { data: entries }, { data: revs }, { data: imgs }] = await Promise.all([
       supabase.from('topics').select('*').eq('id', id).single(),
       supabase.from('recall_cards').select('*').eq('topic_id', id).order('id'),
       supabase.from('journal_entries').select('*').eq('topic_id', id).order('created_at', { ascending: false }),
-      supabase.from('revisions').select('*').eq('topic_id', id).order('scheduled_date', { ascending: true })
+      supabase.from('revisions').select('*').eq('topic_id', id).order('scheduled_date', { ascending: true }),
+      supabase.from('topic_images').select('*').eq('topic_id', id).order('created_at')
     ])
     setTopic(t)
     setRecallCards(cards || [])
     setJournalEntries(entries || [])
     setRevisions(revs || [])
+    setImages(imgs || [])
     setLoading(false)
   }
 
@@ -100,13 +103,25 @@ export default function TopicDetail() {
           <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight">{topic.topic_name}</h1>
           <p className="text-[13px] text-[var(--muted)] mt-1">{topic.subject}</p>
           <div className="flex gap-2 mt-3">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
-              {topic.familiarity?.replace('_', ' ')}
-            </span>
+            {topic.familiarity && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
+                {topic.familiarity.replace('_', ' ')}
+              </span>
+            )}
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
               {topic.priority} priority
             </span>
           </div>
+
+          {images.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {images.map(img => (
+                <a key={img.id} href={img.image_url} target="_blank" rel="noreferrer" className="block w-20 h-20 rounded-xl overflow-hidden border border-[var(--border)] active:scale-[0.97] transition-transform">
+                  <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                </a>
+              ))}
+            </div>
+          )}
           {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
         </motion.div>
 
