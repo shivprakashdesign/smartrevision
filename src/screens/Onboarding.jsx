@@ -300,7 +300,7 @@ export default function Onboarding() {
             <Screen id="curve" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('type')}>Continue</Btn>}
               overlay={<>
                 <FloatingEmoji className="top-[10%] left-[8%] text-[46px]" delay={0.6} dur={2.9} phase={-0.3}>🧠</FloatingEmoji>
-                <FloatingEmoji className="top-[36%] left-[5%] text-[36px]" delay={1} dur={3.2} phase={-1.6}>😔</FloatingEmoji>
+                <FloatingEmoji className="top-[22%] left-[30%] text-[36px]" delay={1} dur={3.2} phase={-1.6}>😔</FloatingEmoji>
                 <FloatingEmoji className="top-[12%] right-[8%] text-[38px]" delay={1.3} dur={3} phase={-0.9}>📈</FloatingEmoji>
               </>}>
               <div className="mb-6 fade-soft">
