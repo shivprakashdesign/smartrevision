@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
   let title = 'A shared revision topic'
   let description = 'Beat the forgetting curve — revise at the right moments so it sticks.'
-  let image = `${origin}/icon-512.png`
+  let image = `${origin}/og-image.jpg`
 
   try {
     if (SUPABASE_URL && SUPABASE_ANON && token) {
