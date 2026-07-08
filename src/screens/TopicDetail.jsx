@@ -8,7 +8,7 @@ import { Capacitor } from '@capacitor/core'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { usePro } from '../lib/ProContext'
-import { useUpsell } from '../lib/ProUpsell'
+import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 
 function randomId() {
@@ -66,6 +66,14 @@ export default function TopicDetail() {
     setEditingSchedule(true)
   }
 
+  function pickCustomSchedule() {
+    if (!isPro) {
+      showUpsell({ title: 'Custom schedules', desc: 'Set your own revision intervals with SmartRevision Pro.' })
+      return
+    }
+    setSchedType('custom')
+  }
+
   function addCustomOffset() {
     const days = parseInt(offsetInput, 10)
     if (!Number.isInteger(days) || days < 0 || customOffsets.includes(days)) return
@@ -79,7 +87,15 @@ export default function TopicDetail() {
     }
     setSavingSchedule(true)
     const { error: upErr } = await supabase.from('topics').update({ schedule_type: schedType }).eq('id', id)
-    if (upErr) { toast.error(upErr.message); setSavingSchedule(false); return }
+    if (upErr) {
+      if (upErr.message?.includes('PRO_REQUIRED')) {
+        showUpsell({ title: 'Custom schedules', desc: 'Set your own revision intervals with SmartRevision Pro.' })
+      } else {
+        toast.error(upErr.message)
+      }
+      setSavingSchedule(false)
+      return
+    }
     // Replace only the upcoming (incomplete) revisions; keep completed history.
     await supabase.from('revisions').delete().eq('topic_id', id).eq('completed', false)
     const today = new Date()
@@ -374,18 +390,24 @@ export default function TopicDetail() {
           {editingSchedule ? (
             <div className="space-y-3">
               <div className="flex gap-2">
-                {[{ v: 'standard', l: 'Standard' }, { v: 'custom', l: 'Custom' }].map(opt => (
-                  <button
-                    key={opt.v}
-                    type="button"
-                    onClick={() => setSchedType(opt.v)}
-                    className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
-                      schedType === opt.v ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
-                    }`}
-                  >
-                    {opt.l}
-                  </button>
-                ))}
+                <button
+                  type="button"
+                  onClick={() => setSchedType('standard')}
+                  className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
+                    schedType === 'standard' ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                  }`}
+                >
+                  Standard
+                </button>
+                <button
+                  type="button"
+                  onClick={pickCustomSchedule}
+                  className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors inline-flex items-center justify-center gap-1.5 ${
+                    schedType === 'custom' ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                  }`}
+                >
+                  Custom {!isPro && <ProLock />}
+                </button>
               </div>
 
               {schedType === 'standard' && (

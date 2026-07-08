@@ -185,7 +185,11 @@ export default function AddTopic() {
       .single()
 
     if (topicError) {
-      toast.error(topicError.message)
+      if (topicError.message?.includes('PRO_REQUIRED')) {
+        showUpsell({ title: 'Upgrade to Pro', desc: 'This needs SmartRevision Pro — custom schedules and unlimited topics.' })
+      } else {
+        toast.error(topicError.message)
+      }
       setSaving(false)
       return
     }
