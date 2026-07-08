@@ -14,6 +14,20 @@ function randomId() {
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
+const STANDARD_OFFSETS = [
+  { label: 'same_day', days: 0 },
+  { label: '1_day', days: 1 },
+  { label: '1_week', days: 7 },
+  { label: '1_month', days: 30 },
+  { label: '4_months', days: 120 }
+]
+
+function labelForOffset(days) {
+  if (days === 0) return 'same_day'
+  if (days === 1) return '1_day'
+  return `${days}_days`
+}
+
 export default function TopicDetail() {
   const { id } = useParams()
   const [topic, setTopic] = useState(null)
@@ -35,7 +49,53 @@ export default function TopicDetail() {
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [sharing, setSharing] = useState(false)
+  const [editingSchedule, setEditingSchedule] = useState(false)
+  const [schedType, setSchedType] = useState('standard')
+  const [customOffsets, setCustomOffsets] = useState([])
+  const [offsetInput, setOffsetInput] = useState('')
+  const [savingSchedule, setSavingSchedule] = useState(false)
   const fileInputRef = useRef(null)
+
+  function startEditSchedule() {
+    setSchedType(topic.schedule_type || 'standard')
+    setCustomOffsets([])
+    setOffsetInput('')
+    setEditingSchedule(true)
+  }
+
+  function addCustomOffset() {
+    const days = parseInt(offsetInput, 10)
+    if (!Number.isInteger(days) || days < 0 || customOffsets.includes(days)) return
+    setCustomOffsets([...customOffsets, days].sort((a, b) => a - b))
+    setOffsetInput('')
+  }
+
+  async function saveSchedule() {
+    if (schedType === 'custom' && customOffsets.length === 0) {
+      return toast.error('Add at least one custom revision date')
+    }
+    setSavingSchedule(true)
+    const { error: upErr } = await supabase.from('topics').update({ schedule_type: schedType }).eq('id', id)
+    if (upErr) { toast.error(upErr.message); setSavingSchedule(false); return }
+    // Replace only the upcoming (incomplete) revisions; keep completed history.
+    await supabase.from('revisions').delete().eq('topic_id', id).eq('completed', false)
+    const today = new Date()
+    const offsets = schedType === 'custom'
+      ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
+      : STANDARD_OFFSETS
+    const rows = offsets.map(({ label, days }) => {
+      const d = new Date(today)
+      d.setDate(d.getDate() + days)
+      return { topic_id: id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
+    })
+    await supabase.from('revisions').insert(rows)
+    setTopic(prev => ({ ...prev, schedule_type: schedType }))
+    const { data: revs } = await supabase.from('revisions').select('*').eq('topic_id', id).order('scheduled_date', { ascending: true })
+    setRevisions(revs || [])
+    setEditingSchedule(false)
+    setSavingSchedule(false)
+    toast.success('Schedule updated')
+  }
 
   const { user } = useAuth()
   const [referralCode, setReferralCode] = useState(null)
@@ -278,12 +338,70 @@ export default function TopicDetail() {
         >
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-[13px] font-bold text-[var(--ink)]">Schedule</h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)] uppercase tracking-wide">
-              {topic.schedule_type || 'standard'}
-            </span>
+            {editingSchedule ? (
+              <button type="button" onClick={() => setEditingSchedule(false)} className="text-[11px] font-bold text-[var(--muted)]">Cancel</button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)] uppercase tracking-wide">
+                  {topic.schedule_type || 'standard'}
+                </span>
+                <button type="button" onClick={startEditSchedule} className="text-[11px] font-bold text-brand-500">Edit</button>
+              </div>
+            )}
           </div>
 
-          {revisions.length === 0 ? (
+          {editingSchedule ? (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                {[{ v: 'standard', l: 'Standard' }, { v: 'custom', l: 'Custom' }].map(opt => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setSchedType(opt.v)}
+                    className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
+                      schedType === opt.v ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                    }`}
+                  >
+                    {opt.l}
+                  </button>
+                ))}
+              </div>
+
+              {schedType === 'standard' && (
+                <p className="text-[11px] text-[var(--muted)]">Same day, 1 day, 1 week, 1 month, 4 months</p>
+              )}
+
+              {schedType === 'custom' && (
+                <div>
+                  {customOffsets.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {customOffsets.map(days => (
+                        <span key={days} className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full text-[12px] font-bold border-2 border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]">
+                          {labelForOffset(days).replace('_', ' ')}
+                          <button type="button" onClick={() => setCustomOffsets(customOffsets.filter(d => d !== days))} className="text-brand-500 leading-none" aria-label={`Remove ${days} day offset`}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <input type="number" min="0" placeholder="Days after today" value={offsetInput} onChange={(e) => setOffsetInput(e.target.value)} className="flex-1 border border-[var(--border)] rounded-2xl px-4 py-2 text-[13px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+                    <button type="button" onClick={addCustomOffset} className="px-4 py-2 rounded-2xl bg-brand-500 text-white text-[13px] font-bold active:scale-[0.97] transition-transform">+ Add</button>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-[11px] text-[var(--muted)]">Saving replaces your upcoming revisions with a fresh schedule from today. Completed ones are kept.</p>
+
+              <button
+                type="button"
+                onClick={saveSchedule}
+                disabled={savingSchedule}
+                className="w-full py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
+              >
+                {savingSchedule ? 'Saving…' : 'Save schedule'}
+              </button>
+            </div>
+          ) : revisions.length === 0 ? (
             <p className="text-[12px] text-[var(--muted)]">No revisions scheduled.</p>
           ) : (
             <div className="space-y-2">
