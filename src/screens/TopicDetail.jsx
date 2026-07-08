@@ -3,7 +3,10 @@ import AppShell from '../lib/AppShell'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
+import { Share } from '@capacitor/share'
+import { Capacitor } from '@capacitor/core'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../lib/AuthContext'
 
 function randomId() {
   return globalThis.crypto?.randomUUID
@@ -31,7 +34,51 @@ export default function TopicDetail() {
   const [uploading, setUploading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [sharing, setSharing] = useState(false)
   const fileInputRef = useRef(null)
+
+  const { user } = useAuth()
+  const [referralCode, setReferralCode] = useState(null)
+
+  useEffect(() => {
+    if (!user) return
+    supabase.from('accounts').select('referral_code').eq('id', user.id).single()
+      .then(({ data }) => setReferralCode(data?.referral_code || null))
+  }, [user])
+
+  async function handleShare() {
+    if (!topic) return
+    setSharing(true)
+    let token = topic.share_token
+    if (!topic.shared || !token) {
+      token = token || randomId()
+      const { error } = await supabase.from('topics').update({ shared: true, share_token: token }).eq('id', topic.id)
+      if (error) { toast.error(error.message); setSharing(false); return }
+      setTopic(prev => ({ ...prev, shared: true, share_token: token }))
+    }
+    const url = `${window.location.origin}/s/${token}${referralCode ? `?ref=${referralCode}` : ''}`
+    const text = `Check out my "${topic.topic_name}" revision on SmartRevision 📚`
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await Share.share({ title: 'SmartRevision', text, url })
+      } else if (navigator.share) {
+        await navigator.share({ title: 'SmartRevision', text, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+        toast.success('Share link copied!')
+      }
+    } catch {
+      // share sheet dismissed — no-op
+    }
+    setSharing(false)
+  }
+
+  async function handleUnshare() {
+    const { error } = await supabase.from('topics').update({ shared: false }).eq('id', topic.id)
+    if (error) { toast.error(error.message); return }
+    setTopic(prev => ({ ...prev, shared: false }))
+    toast.success('Topic is now private')
+  }
 
   async function confirmDelete() {
     if (!deleteTarget) return
@@ -207,6 +254,21 @@ export default function TopicDetail() {
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onAddPhotos} />
 
           {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
+
+          <button
+            type="button"
+            onClick={handleShare}
+            disabled={sharing}
+            className="mt-4 w-full py-2.5 rounded-2xl border-2 border-brand-100 text-brand-500 text-[13px] font-bold active:scale-[0.97] transition-transform disabled:opacity-50"
+          >
+            {sharing ? 'Preparing link…' : '🔗 Share topic'}
+          </button>
+          {topic.shared && (
+            <p className="text-[11px] text-[var(--muted)] text-center mt-2">
+              Public link is on ·{' '}
+              <button type="button" onClick={handleUnshare} className="font-bold text-[var(--slate-txt)] underline">Make private</button>
+            </p>
+          )}
         </motion.div>
 
         <motion.div
