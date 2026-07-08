@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
+import { usePro } from '../lib/ProContext'
+import { useUpsell, ProLock } from '../lib/ProUpsell'
+import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 
 const STANDARD_OFFSETS = [
   { label: 'same_day', days: 0 },
@@ -35,8 +38,11 @@ const labelClass = 'text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wi
 export default function AddTopic() {
   const navigate = useNavigate()
   const { student, loading: studentLoading } = useStudentProfile()
+  const { isPro } = usePro()
+  const showUpsell = useUpsell()
 
   const [step, setStep] = useState(1)
+  const [topicCount, setTopicCount] = useState(0)
   const [subject, setSubject] = useState('')
   const [customSubject, setCustomSubject] = useState(false)
   const [topicName, setTopicName] = useState('')
@@ -63,17 +69,45 @@ export default function AddTopic() {
       .select('subject')
       .eq('student_id', student.id)
       .then(({ data }) => {
-        if (data) setPastSubjects([...new Set(data.map(t => t.subject).filter(Boolean))])
+        if (data) {
+          setPastSubjects([...new Set(data.map(t => t.subject).filter(Boolean))])
+          setTopicCount(data.length)
+        }
       })
   }, [student])
+
+  const atTopicLimit = !isPro && topicCount >= FREE_TOPIC_LIMIT
+
+  function pickCustomSchedule() {
+    if (!isPro) {
+      showUpsell({ title: 'Custom schedules', desc: 'Set your own revision intervals with SmartRevision Pro.' })
+      return
+    }
+    setScheduleType('custom')
+  }
+
+  function openPhotoPicker() {
+    if (!isPro && photos.length >= FREE_PHOTOS_PER_TOPIC) {
+      showUpsell({ title: 'Multiple photos', desc: 'Attach as many notes/textbook photos as you want with Pro.' })
+      return
+    }
+    fileInputRef.current?.click()
+  }
 
   // Release preview object URLs when leaving the screen.
   useEffect(() => () => { photosRef.current.forEach(p => URL.revokeObjectURL(p.url)) }, [])
 
   function onPickPhotos(e) {
-    const files = Array.from(e.target.files || [])
-    setPhotos(prev => [...prev, ...files.map(file => ({ file, url: URL.createObjectURL(file) }))])
+    let files = Array.from(e.target.files || [])
     e.target.value = ''
+    if (!isPro) {
+      const room = Math.max(0, FREE_PHOTOS_PER_TOPIC - photos.length)
+      if (files.length > room) {
+        files = files.slice(0, room)
+        showUpsell({ title: 'Multiple photos', desc: 'Attach as many notes/textbook photos as you want with Pro.' })
+      }
+    }
+    if (files.length) setPhotos(prev => [...prev, ...files.map(file => ({ file, url: URL.createObjectURL(file) }))])
   }
 
   function removePhoto(idx) {
@@ -98,6 +132,10 @@ export default function AddTopic() {
 
   function goNext() {
     if (step === 1) {
+      if (atTopicLimit) {
+        showUpsell({ title: 'Topic limit reached', desc: `Free plans include ${FREE_TOPIC_LIMIT} topics. Upgrade to Pro for unlimited topics.` })
+        return
+      }
       if (!subject.trim()) return toast.error('Please select or enter a subject')
       if (!topicName.trim()) return toast.error('Please enter a topic name')
     }
@@ -212,6 +250,13 @@ export default function AddTopic() {
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }} className="space-y-3">
+                {atTopicLimit && (
+                  <button type="button" onClick={() => showUpsell({ title: 'Topic limit reached', desc: `Free plans include ${FREE_TOPIC_LIMIT} topics. Upgrade to Pro for unlimited topics.` })}
+                    className="w-full text-left rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform">
+                    <p className="text-[12px] font-bold text-brand-500">You've reached the free limit of {FREE_TOPIC_LIMIT} topics 🔒</p>
+                    <p className="text-[11px] text-[var(--muted)] mt-0.5">Tap to upgrade to Pro for unlimited topics.</p>
+                  </button>
+                )}
                 <div>
                   <p className={labelClass}>Subject</p>
                   <div className="flex flex-wrap gap-2">
@@ -273,7 +318,7 @@ export default function AddTopic() {
                 </div>
 
                 <div>
-                  <p className={labelClass}>Photos (optional)</p>
+                  <p className={labelClass}>Photos (optional) {!isPro && <ProLock />}</p>
                   <div className="flex flex-wrap gap-2">
                     {photos.map((p, i) => (
                       <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-[var(--border)]">
@@ -290,7 +335,7 @@ export default function AddTopic() {
                     ))}
                     <button
                       type="button"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={openPhotoPicker}
                       className="w-16 h-16 rounded-xl border-2 border-dashed border-[var(--border)] text-[var(--muted)] text-2xl flex items-center justify-center active:scale-[0.97] transition-transform"
                     >
                       +
@@ -327,18 +372,24 @@ export default function AddTopic() {
                 <div>
                   <p className={labelClass}>Schedule</p>
                   <div className="flex gap-2">
-                    {[{ v: 'standard', l: 'Standard' }, { v: 'custom', l: 'Custom' }].map(opt => (
-                      <button
-                        key={opt.v}
-                        type="button"
-                        onClick={() => setScheduleType(opt.v)}
-                        className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
-                          scheduleType === opt.v ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
-                        }`}
-                      >
-                        {opt.l}
-                      </button>
-                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setScheduleType('standard')}
+                      className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
+                        scheduleType === 'standard' ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                      }`}
+                    >
+                      Standard
+                    </button>
+                    <button
+                      type="button"
+                      onClick={pickCustomSchedule}
+                      className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors inline-flex items-center justify-center gap-1.5 ${
+                        scheduleType === 'custom' ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                      }`}
+                    >
+                      Custom {!isPro && <ProLock />}
+                    </button>
                   </div>
 
                   {scheduleType === 'standard' && (

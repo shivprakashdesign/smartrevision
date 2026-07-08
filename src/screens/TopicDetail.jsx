@@ -7,6 +7,9 @@ import { Share } from '@capacitor/share'
 import { Capacitor } from '@capacitor/core'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
+import { usePro } from '../lib/ProContext'
+import { useUpsell } from '../lib/ProUpsell'
+import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 
 function randomId() {
   return globalThis.crypto?.randomUUID
@@ -98,7 +101,17 @@ export default function TopicDetail() {
   }
 
   const { user } = useAuth()
+  const { isPro } = usePro()
+  const showUpsell = useUpsell()
   const [referralCode, setReferralCode] = useState(null)
+
+  function openPhotoPicker() {
+    if (!isPro && images.length >= FREE_PHOTOS_PER_TOPIC) {
+      showUpsell({ title: 'Multiple photos', desc: 'Attach as many notes/textbook photos as you want with Pro.' })
+      return
+    }
+    fileInputRef.current?.click()
+  }
 
   useEffect(() => {
     if (!user) return
@@ -161,9 +174,17 @@ export default function TopicDetail() {
   }
 
   async function onAddPhotos(e) {
-    const files = Array.from(e.target.files || [])
+    let files = Array.from(e.target.files || [])
     e.target.value = ''
     if (!files.length || !topic) return
+    if (!isPro) {
+      const room = Math.max(0, FREE_PHOTOS_PER_TOPIC - images.length)
+      if (files.length > room) {
+        files = files.slice(0, room)
+        showUpsell({ title: 'Multiple photos', desc: 'Attach as many notes/textbook photos as you want with Pro.' })
+      }
+      if (!files.length) return
+    }
     setUploading(true)
     const rows = []
     for (const file of files) {
@@ -304,7 +325,7 @@ export default function TopicDetail() {
             ))}
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={openPhotoPicker}
               disabled={uploading}
               className="w-20 h-20 rounded-xl border-2 border-dashed border-[var(--border)] text-[var(--muted)] text-[11px] font-bold flex flex-col items-center justify-center gap-0.5 active:scale-[0.97] transition-transform disabled:opacity-50"
             >
