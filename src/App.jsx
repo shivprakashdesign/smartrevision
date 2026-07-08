@@ -16,6 +16,7 @@ import Learn from './screens/Learn'
 import NotificationSettings from './screens/NotificationSettings'
 import Referral from './screens/Referral'
 import ThemeSettings from './screens/ThemeSettings'
+import SharedTopic from './screens/SharedTopic'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -33,6 +34,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Onboarding />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/s/:token" element={<SharedTopic />} />
           <Route path="/profiles" element={<PrivateRoute><ProfileSelector /></PrivateRoute>} />
           <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path="/add-topic" element={<PrivateRoute><AddTopic /></PrivateRoute>} />
