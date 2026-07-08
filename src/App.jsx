@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { MotionConfig } from 'framer-motion'
 import { AuthProvider, useAuth } from './lib/AuthContext'
+import { ProProvider } from './lib/ProContext'
 import { ThemeProvider } from './lib/ThemeContext'
 import AppToaster from './lib/AppToaster'
 
@@ -17,6 +18,8 @@ import NotificationSettings from './screens/NotificationSettings'
 import Referral from './screens/Referral'
 import ThemeSettings from './screens/ThemeSettings'
 import SharedTopic from './screens/SharedTopic'
+import Paywall from './screens/Paywall'
+import { UpsellProvider } from './lib/ProUpsell'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -27,10 +30,12 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
+      <ProProvider>
       <ThemeProvider>
       <MotionConfig reducedMotion="user">
       <AppToaster />
       <BrowserRouter>
+        <UpsellProvider>
         <Routes>
           <Route path="/" element={<Onboarding />} />
           <Route path="/login" element={<Login />} />
@@ -45,10 +50,13 @@ export default function App() {
           <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettings /></PrivateRoute>} />
           <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
           <Route path="/settings/theme" element={<PrivateRoute><ThemeSettings /></PrivateRoute>} />
+          <Route path="/pro" element={<PrivateRoute><Paywall /></PrivateRoute>} />
         </Routes>
+        </UpsellProvider>
       </BrowserRouter>
       </MotionConfig>
       </ThemeProvider>
+      </ProProvider>
     </AuthProvider>
   )
 }
