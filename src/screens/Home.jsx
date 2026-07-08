@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { initNotifications } from '../lib/notifications'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { useStudentProfile } from '../lib/useStudentProfile'
+import { applyPendingShare } from '../lib/sharing'
 import AppShell from '../lib/AppShell'
 
 function HomeSkeleton() {
@@ -38,6 +40,7 @@ function HomeSkeleton() {
 export default function Home() {
   const { user, logout } = useAuth()
   const { student, loading: studentLoading } = useStudentProfile()
+  const navigate = useNavigate()
   const [dueTopics, setDueTopics] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -49,6 +52,19 @@ export default function Home() {
   useEffect(() => {
     if (user) initNotifications(user.id)
   }, [user])
+
+  // If this visitor arrived via a shared-topic link and just signed up, finish
+  // the "Save to my revisions" flow now that their profile exists.
+  useEffect(() => {
+    if (!user || !student) return
+    if (!localStorage.getItem('sr_pending_share')) return
+    applyPendingShare(user, student).then(newId => {
+      if (newId) {
+        toast.success('Saved to your revisions 🎉')
+        navigate(`/topic/${newId}`)
+      }
+    })
+  }, [user, student])
 
   async function loadDueToday() {
     const today = new Date().toISOString().slice(0, 10)
