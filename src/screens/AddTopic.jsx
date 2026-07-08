@@ -43,6 +43,7 @@ export default function AddTopic() {
   const [priority, setPriority] = useState('medium')
   const [notes, setNotes] = useState('')
   const [photos, setPhotos] = useState([])
+  const [shared, setShared] = useState(false)
   const [pastSubjects, setPastSubjects] = useState([])
   const [scheduleType, setScheduleType] = useState('standard')
   const [customOffsets, setCustomOffsets] = useState([])
@@ -138,7 +139,9 @@ export default function AddTopic() {
         date_learned: today.toISOString().slice(0, 10),
         priority,
         notes,
-        schedule_type: scheduleType
+        schedule_type: scheduleType,
+        shared,
+        share_token: shared ? randomId() : null
       })
       .select()
       .single()
@@ -299,6 +302,22 @@ export default function AddTopic() {
                 <div>
                   <p className={labelClass}>Notes (optional)</p>
                   <textarea placeholder="Anything worth remembering..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={inputClass} />
+                </div>
+
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  <div>
+                    <p className="text-[13px] font-bold text-[var(--ink)]">Make shareable</p>
+                    <p className="text-[11px] text-[var(--muted)] mt-0.5">Anyone with the link can view this topic.</p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={shared}
+                    onClick={() => setShared(s => !s)}
+                    className={`relative w-11 h-6 rounded-full flex-shrink-0 transition-colors ${shared ? 'bg-brand-500' : 'bg-[var(--card-alt)]'}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${shared ? 'translate-x-5' : ''}`} />
+                  </button>
                 </div>
               </motion.div>
             )}
