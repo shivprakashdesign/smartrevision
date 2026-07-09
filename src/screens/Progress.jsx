@@ -27,6 +27,7 @@ export default function Progress() {
       .from('topics')
       .select('id, revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality)')
       .eq('student_id', student.id)
+      .not('archived', 'is', true)
       .then(({ data, error }) => {
         if (error) console.error(error)
         setTopics(data || [])

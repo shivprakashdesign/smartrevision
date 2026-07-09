@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import AppShell from '../lib/AppShell'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { Share } from '@capacitor/share'
@@ -10,7 +10,7 @@ import { useAuth } from '../lib/AuthContext'
 import { usePro } from '../lib/ProContext'
 import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, Link01Icon } from '@hugeicons/core-free-icons'
+import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, Link01Icon, Archive02Icon, InboxIcon } from '@hugeicons/core-free-icons'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 
 function randomId() {
@@ -35,7 +35,9 @@ function labelForOffset(days) {
 
 export default function TopicDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [topic, setTopic] = useState(null)
+  const [archiving, setArchiving] = useState(false)
   const [recallCards, setRecallCards] = useState([])
   const [journalEntries, setJournalEntries] = useState([])
   const [revisions, setRevisions] = useState([])
@@ -169,6 +171,24 @@ export default function TopicDetail() {
     if (error) { toast.error(error.message); return }
     setTopic(prev => ({ ...prev, shared: false }))
     toast.success('Topic is now private')
+  }
+
+  async function toggleArchive() {
+    const next = !topic.archived
+    setArchiving(true)
+    const { error } = await supabase.from('topics').update({ archived: next }).eq('id', topic.id)
+    setArchiving(false)
+    if (error) { toast.error(error.message); return }
+    setTopic(prev => ({ ...prev, archived: next }))
+    if (next) {
+      const topicId = topic.id
+      toast.success('Topic archived', {
+        action: { label: 'Undo', onClick: () => supabase.from('topics').update({ archived: false }).eq('id', topicId) }
+      })
+      navigate('/topics')
+    } else {
+      toast.success('Topic restored')
+    }
   }
 
   async function confirmDelete() {
@@ -312,7 +332,12 @@ export default function TopicDetail() {
         >
           <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight">{topic.topic_name}</h1>
           <p className="text-[13px] text-[var(--muted)] mt-1">{topic.subject}</p>
-          <div className="flex gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 mt-3">
+            {topic.archived && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 uppercase tracking-wide">
+                Archived
+              </span>
+            )}
             {topic.familiarity && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
                 {topic.familiarity.replace('_', ' ')}
@@ -370,6 +395,18 @@ export default function TopicDetail() {
               <button type="button" onClick={handleUnshare} className="font-bold text-[var(--slate-txt)] underline">Make private</button>
             </p>
           )}
+
+          <div className="mt-3 pt-3 border-t border-[var(--border)]">
+            <button
+              type="button"
+              onClick={toggleArchive}
+              disabled={archiving}
+              className="w-full py-2.5 rounded-2xl text-[13px] font-bold inline-flex items-center justify-center gap-1.5 text-[var(--slate-txt)] active:bg-[var(--card-alt)] transition-colors disabled:opacity-50"
+            >
+              <HugeiconsIcon icon={topic.archived ? InboxIcon : Archive02Icon} size={15} strokeWidth={2} />
+              {archiving ? 'Saving…' : topic.archived ? 'Restore to active' : 'Archive topic'}
+            </button>
+          </div>
         </motion.div>
 
         <motion.div

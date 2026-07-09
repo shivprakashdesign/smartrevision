@@ -201,6 +201,7 @@ export default function Home() {
       .from('topics')
       .select('id, subject, topic_name, date_learned, priority, revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality)')
       .eq('student_id', student.id)
+      .not('archived', 'is', true)
       .order('created_at', { ascending: false })
 
     if (error) console.error(error)
