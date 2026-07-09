@@ -8,7 +8,7 @@ import { useStudentProfile } from '../lib/useStudentProfile'
 import AppShell from '../lib/AppShell'
 import {
   computeMemory, isOnTrack, activeDates, longestStreak,
-  completedByDay, recallBreakdown, memoryBySubject
+  completedByDay, recallBreakdown, memoryBySubject, studyBalance
 } from '../lib/metrics'
 
 // ── shared tones ────────────────────────────────────────────────────────────
@@ -134,6 +134,127 @@ function HeatLegend() {
   )
 }
 
+// ── study balance ───────────────────────────────────────────────────────────
+const BAND_META = {
+  balanced:   { color: EMERALD, label: 'Balanced',   pill: 'Healthy pace — keep it up',    emoji: '🌿' },
+  busy:       { color: AMBER,   label: 'Busy',        pill: 'Busy stretch — pace yourself', emoji: '⚡' },
+  overloaded: { color: RED,     label: 'Overloaded',  pill: 'Backlog is piling up',         emoji: '💙' }
+}
+
+// A short, specific, gentle line — leads with whichever signal is loudest.
+function balanceInsight(b) {
+  if (b.band === 'overloaded') {
+    if (b.overdue > 0)
+      return <>You've got <b className="text-[var(--ink)]">{b.overdue} topic{b.overdue === 1 ? '' : 's'} overdue</b> and a heavy stretch behind you. Clear a few tomorrow morning — and it's okay to <b className="text-[var(--ink)]">use a streak freeze</b> tonight.</>
+    return <>That's a lot of reviewing packed into short bursts. Spreading it out sticks better — and goes easier on you.</>
+  }
+  if (b.band === 'busy') {
+    if (b.lateNight >= 3)
+      return <>You've revised late <b className="text-[var(--ink)]">{b.lateNight} nights</b> this week. Try shifting a session to the morning — recall is stronger on rest.</>
+    if (b.overdue > 0)
+      return <>A few topics are slipping — <b className="text-[var(--ink)]">{b.overdue} overdue</b>. Knock those out first and you're back in the green.</>
+    return <>A full week, but nothing's out of hand. Keep an eye on the backlog.</>
+  }
+  if (b.overdue === 0)
+    return <>Your load is spread nicely and <b className="text-[var(--ink)]">nothing's overdue</b> — you're revising right on schedule.</>
+  return <>You're keeping a steady, sustainable pace. Nice work.</>
+}
+
+function FactorRow({ label, value, color, children }) {
+  return (
+    <div className="flex items-center gap-2.5 py-2.5 border-b border-[var(--border)] last:border-none">
+      <span className="w-[18px] shrink-0 text-[var(--slate-txt)]">{children}</span>
+      <span className="text-[13px] font-bold text-[var(--slate-txt)] flex-1">{label}</span>
+      <span className="text-[13px] font-bold shrink-0" style={{ color }}>{value}</span>
+    </div>
+  )
+}
+
+const HeartIcon = ({ color }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
+    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+  </svg>
+)
+
+function BalanceCard({ balance, delay }) {
+  const meta = BAND_META[balance.band]
+  const load = Math.max(6, 100 - balance.score) // sliver even when perfectly balanced
+  const b = balance
+
+  const overdueColor = b.overdue === 0 ? EMERALD : b.overdue >= 5 ? RED : AMBER
+  const lateColor = b.lateNight >= 5 ? RED : b.lateNight >= 3 ? AMBER : 'var(--slate-txt)'
+  const busiestColor = b.busiest.count >= 12 ? RED : b.busiest.count >= 9 ? AMBER : 'var(--slate-txt)'
+
+  return (
+    <Card delay={delay} className="p-5 mb-3">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <HeartIcon color={meta.color} />
+          <p className="text-[15px] font-bold text-[var(--ink)]">Study Balance</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[23px] font-bold leading-none" style={{ color: meta.color }}>
+            <NumberFlow value={b.score} />
+          </p>
+          <p className="text-[10.5px] font-bold uppercase tracking-wide mt-1" style={{ color: meta.color }}>{meta.label}</p>
+        </div>
+      </div>
+
+      {/* Load meter — tri-colour track, fill grows with strain */}
+      <div
+        className="relative h-[11px] rounded-full overflow-hidden"
+        style={{ background: 'linear-gradient(90deg, hsl(160,55%,19%) 0%, hsl(160,48%,17%) 33%, hsl(38,58%,21%) 34%, hsl(38,52%,19%) 66%, hsl(0,52%,23%) 67%, hsl(0,48%,21%) 100%)' }}
+      >
+        <div
+          className="absolute inset-y-0 left-0 rounded-full"
+          style={{ width: `${load}%`, backgroundColor: meta.color, transition: 'width 800ms cubic-bezier(0.23,1,0.32,1)' }}
+        />
+      </div>
+      <div className="flex justify-between mt-2.5">
+        {['balanced', 'busy', 'overloaded'].map(k => (
+          <span
+            key={k}
+            className="text-[11px] font-bold"
+            style={{ color: k === b.band ? BAND_META[k].color : 'var(--muted)' }}
+          >
+            {BAND_META[k].label}
+          </span>
+        ))}
+      </div>
+
+      <div
+        className="inline-flex items-center gap-2 mt-4 px-3.5 py-2 rounded-full text-[13px] font-bold"
+        style={{ backgroundColor: `${meta.color.replace(')', ',0.14)').replace('hsl', 'hsla')}`, color: meta.color }}
+      >
+        <span className="text-[15px] leading-none">{meta.emoji}</span>
+        {meta.pill}
+      </div>
+
+      {/* Contributing signals — the actual numbers */}
+      <div className="mt-4 border-t border-[var(--border)] pt-1">
+        <FactorRow label="Overdue backlog" value={`${b.overdue} topic${b.overdue === 1 ? '' : 's'}`} color={overdueColor}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-[18px] h-[18px]"><circle cx="12" cy="12" r="9" /><path d="M12 8v4l3 2" /></svg>
+        </FactorRow>
+        <FactorRow label="Late-night reviews" value={`${b.lateNight} this week`} color={lateColor}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+        </FactorRow>
+        <FactorRow
+          label="Busiest day"
+          value={b.busiest.day ? `${b.busiest.count} · ${b.busiest.day}` : '—'}
+          color={busiestColor}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]"><rect x="3" y="4" width="18" height="17" rx="3" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
+        </FactorRow>
+      </div>
+
+      <div className="mt-4 bg-[var(--card-alt)] rounded-2xl p-3.5 flex gap-2.5 items-start">
+        <span className="text-[17px] leading-tight">{meta.emoji}</span>
+        <p className="text-[12.5px] font-semibold text-[var(--slate-txt)] leading-relaxed">{balanceInsight(b)}</p>
+      </div>
+    </Card>
+  )
+}
+
 // ── section wrapper ─────────────────────────────────────────────────────────
 function Card({ children, delay = 0, className = '' }) {
   return (
@@ -201,6 +322,7 @@ export default function Progress() {
   const best = Math.max(student?.longest_streak || 0, longestStreak(activeDates(topics)))
   const recall = recallBreakdown(topics)
   const subjects = memoryBySubject(topics)
+  const balance = studyBalance(topics)
 
   const memLabel = memories.length === 0 ? 'No revisions yet'
     : avgMemory >= 67 ? 'Strong recall'
@@ -289,6 +411,9 @@ export default function Progress() {
           <ActivityHeatmap byDay={byDay} />
           <HeatLegend />
         </Card>
+
+        {/* Study balance — sustainability of pace (hidden until there's real load) */}
+        {balance && <BalanceCard balance={balance} delay={205} />}
 
         {/* Recall quality */}
         {recall.total > 0 && (
