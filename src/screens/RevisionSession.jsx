@@ -44,23 +44,8 @@ export default function RevisionSession() {
       .eq('id', id)
 
     const studentId = revision.topics.student_id
-    const { data: student } = await supabase
-      .from('students')
-      .select('current_streak, last_activity_date')
-      .eq('id', studentId)
-      .single()
-
-    const today = new Date().toISOString().slice(0, 10)
-    const streakExtended = student.last_activity_date !== today
-    if (streakExtended) {
-      await supabase
-        .from('students')
-        .update({
-          current_streak: (student.current_streak || 0) + 1,
-          last_activity_date: today
-        })
-        .eq('id', studentId)
-    }
+    // Streak + freeze handling lives server-side in the record_activity RPC.
+    const { data: activity } = await supabase.rpc('record_activity', { p_student_id: studentId })
 
     const { data: myAccount } = await supabase
       .from('accounts')
@@ -119,9 +104,15 @@ export default function RevisionSession() {
       }
     }
 
-    toast.success(streakExtended
-      ? `Revision logged · streak ${(student.current_streak || 0) + 1} 🔥`
-      : 'Revision logged 🎉')
+    if (activity?.froze) {
+      toast.success(`Welcome back! A streak freeze saved your ${activity.streak}-day streak 🧊`)
+    } else if (activity?.milestone) {
+      toast.success(`${activity.streak}-day streak! +50 💎`)
+    } else if (activity?.streak) {
+      toast.success(`Revision logged · streak ${activity.streak} 🔥`)
+    } else {
+      toast.success('Revision logged 🎉')
+    }
     navigate('/home')
   }
 

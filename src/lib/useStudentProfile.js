@@ -70,6 +70,16 @@ export function useStudentProfile() {
     if (match) setStudent(match)
   }
 
+  // Re-fetch the active student (e.g. after gems/streak/freeze changes) so the UI reflects it.
+  async function refreshStudent() {
+    if (!student) return
+    const { data } = await supabase.from('students').select('*').eq('id', student.id).single()
+    if (data) {
+      setStudent(data)
+      setAllStudents(prev => prev.map(s => (s.id === data.id ? data : s)))
+    }
+  }
+
   async function addChild(name, classGrade) {
     const { data, error } = await supabase
       .from('students')
@@ -93,5 +103,5 @@ export function useStudentProfile() {
     return data
   }
 
-  return { student, allStudents, loading, selectStudent, addChild }
+  return { student, allStudents, loading, selectStudent, addChild, refreshStudent }
 }

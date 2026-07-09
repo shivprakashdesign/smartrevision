@@ -1,10 +1,15 @@
-export default function AppShell({ children }) {
+import BottomNav from './BottomNav'
+
+export default function AppShell({ children, nav = false }) {
   // Normal document flow (body scrolls) rather than a position:fixed scroll box.
   // In an iOS standalone PWA a fixed inset:0 element's height can mismatch the
   // visible screen, pushing the bottom of the scroll area (and the content
   // scrolled to it) off-screen behind a strip. Flowing content with a
   // min-height of 100dvh always reaches the true bottom, and the safe-area
   // insets keep content clear of the notch and home indicator.
+  //
+  // `nav` opts a screen into the floating bottom tab bar. A spacer of the bar's
+  // height keeps the last content scrollable clear of it.
   return (
     <div
       className="font-sans"
@@ -17,6 +22,12 @@ export default function AppShell({ children }) {
       }}
     >
       {children}
+      {nav && (
+        <>
+          <div aria-hidden style={{ height: 'calc(84px + env(safe-area-inset-bottom))' }} />
+          <BottomNav />
+        </>
+      )}
     </div>
   )
 }
