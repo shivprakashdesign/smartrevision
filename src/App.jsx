@@ -9,6 +9,8 @@ import Onboarding from './screens/Onboarding'
 import Login from './screens/Login'
 import ProfileSelector from './screens/ProfileSelector'
 import Home from './screens/Home'
+import Topics from './screens/Topics'
+import Progress from './screens/Progress'
 import AddTopic from './screens/AddTopic'
 import TopicDetail from './screens/TopicDetail'
 import RevisionSession from './screens/RevisionSession'
@@ -42,6 +44,8 @@ export default function App() {
           <Route path="/s/:token" element={<SharedTopic />} />
           <Route path="/profiles" element={<PrivateRoute><ProfileSelector /></PrivateRoute>} />
           <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/topics" element={<PrivateRoute><Topics /></PrivateRoute>} />
+          <Route path="/progress" element={<PrivateRoute><Progress /></PrivateRoute>} />
           <Route path="/add-topic" element={<PrivateRoute><AddTopic /></PrivateRoute>} />
           <Route path="/topic/:id" element={<PrivateRoute><TopicDetail /></PrivateRoute>} />
           <Route path="/revise/:id" element={<PrivateRoute><RevisionSession /></PrivateRoute>} />

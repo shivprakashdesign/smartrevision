@@ -67,6 +67,23 @@ body {
   animation: fade-soft 900ms ease both;
 }
 
+/* Friendly greeting wave — pivots at the wrist, waves a few beats then rests,
+   looping. Reduced-motion users get it flattened by the media query below. */
+@keyframes wave-hand {
+  0%   { transform: rotate(0deg); }
+  10%  { transform: rotate(14deg); }
+  20%  { transform: rotate(-8deg); }
+  30%  { transform: rotate(14deg); }
+  40%  { transform: rotate(-4deg); }
+  50%  { transform: rotate(10deg); }
+  60%, 100% { transform: rotate(0deg); }
+}
+.wave-hand {
+  display: inline-block;
+  transform-origin: 70% 70%;
+  animation: wave-hand 2.4s ease-in-out infinite;
+}
+
 /* Playful continuous bob + wobble for decorative onboarding emojis. */
 @keyframes emoji-bob {
   0%, 100% { transform: translateY(0) rotate(-8deg); }

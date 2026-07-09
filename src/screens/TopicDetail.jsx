@@ -9,6 +9,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { usePro } from '../lib/ProContext'
 import { useUpsell, ProLock } from '../lib/ProUpsell'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, Link01Icon } from '@hugeicons/core-free-icons'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 
 function randomId() {
@@ -299,7 +301,9 @@ export default function TopicDetail() {
     <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto space-y-4">
 
-        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
+        <Link to="/home" className="inline-flex items-center gap-1 text-[12px] font-bold text-[var(--muted)]">
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.2} /> Back to Home
+        </Link>
 
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
@@ -333,9 +337,9 @@ export default function TopicDetail() {
                   type="button"
                   onClick={() => setDeleteTarget(img)}
                   aria-label="Delete photo"
-                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-[13px] leading-none flex items-center justify-center shadow active:scale-95 transition-transform"
+                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-black/70 text-white flex items-center justify-center shadow active:scale-95 transition-transform"
                 >
-                  ×
+                  <HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} />
                 </button>
               </div>
             ))}
@@ -345,7 +349,7 @@ export default function TopicDetail() {
               disabled={uploading}
               className="w-20 h-20 rounded-xl border-2 border-dashed border-[var(--border)] text-[var(--muted)] text-[11px] font-bold flex flex-col items-center justify-center gap-0.5 active:scale-[0.97] transition-transform disabled:opacity-50"
             >
-              {uploading ? '…' : <><span className="text-xl leading-none">+</span>Photo</>}
+              {uploading ? '…' : <><HugeiconsIcon icon={PlusSignIcon} size={20} strokeWidth={2} />Photo</>}
             </button>
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onAddPhotos} />
@@ -356,9 +360,9 @@ export default function TopicDetail() {
             type="button"
             onClick={handleShare}
             disabled={sharing}
-            className="mt-4 w-full py-2.5 rounded-2xl border-2 border-brand-100 text-brand-500 text-[13px] font-bold active:scale-[0.97] transition-transform disabled:opacity-50"
+            className="mt-4 w-full py-2.5 rounded-2xl border-2 border-brand-100 text-brand-500 text-[13px] font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform disabled:opacity-50"
           >
-            {sharing ? 'Preparing link…' : '🔗 Share topic'}
+            {sharing ? 'Preparing link…' : <><HugeiconsIcon icon={Link01Icon} size={15} strokeWidth={2} /> Share topic</>}
           </button>
           {topic.shared && (
             <p className="text-[11px] text-[var(--muted)] text-center mt-2">
@@ -421,7 +425,7 @@ export default function TopicDetail() {
                       {customOffsets.map(days => (
                         <span key={days} className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full text-[12px] font-bold border-2 border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]">
                           {labelForOffset(days).replace('_', ' ')}
-                          <button type="button" onClick={() => setCustomOffsets(customOffsets.filter(d => d !== days))} className="text-brand-500 leading-none" aria-label={`Remove ${days} day offset`}>×</button>
+                          <button type="button" onClick={() => setCustomOffsets(customOffsets.filter(d => d !== days))} className="text-brand-500 inline-flex items-center" aria-label={`Remove ${days} day offset`}><HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} /></button>
                         </span>
                       ))}
                     </div>
@@ -623,10 +627,10 @@ export default function TopicDetail() {
               type="button"
               onClick={() => setLightbox(null)}
               aria-label="Close"
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 text-white text-xl leading-none flex items-center justify-center active:scale-95 transition-transform"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 text-white flex items-center justify-center active:scale-95 transition-transform"
               style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             >
-              ×
+              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.2} />
             </button>
           </motion.div>
         )}

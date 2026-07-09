@@ -7,6 +7,8 @@ import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { usePro } from '../lib/ProContext'
 import { useUpsell, ProLock } from '../lib/ProUpsell'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 
 const STANDARD_OFFSETS = [
@@ -232,7 +234,9 @@ export default function AddTopic() {
   return (
     <AppShell><div className="px-6 py-10 flex flex-col items-center">
       <div className="w-full max-w-sm space-y-3">
-        <Link to="/home" className="text-[12px] font-bold text-[var(--muted)]">← Back to Home</Link>
+        <Link to="/home" className="inline-flex items-center gap-1 text-[12px] font-bold text-[var(--muted)]">
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.2} /> Back to Home
+        </Link>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -257,7 +261,7 @@ export default function AddTopic() {
                 {atTopicLimit && (
                   <button type="button" onClick={() => showUpsell({ title: 'Topic limit reached', desc: `Free plans include ${FREE_TOPIC_LIMIT} topics. Upgrade to Pro for unlimited topics.` })}
                     className="w-full text-left rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform">
-                    <p className="text-[12px] font-bold text-brand-500">You've reached the free limit of {FREE_TOPIC_LIMIT} topics 🔒</p>
+                    <p className="inline-flex items-center gap-1 text-[12px] font-bold text-brand-500">You've reached the free limit of {FREE_TOPIC_LIMIT} topics <HugeiconsIcon icon={LockIcon} size={13} strokeWidth={2} /></p>
                     <p className="text-[11px] text-[var(--muted)] mt-0.5">Tap to upgrade to Pro for unlimited topics.</p>
                   </button>
                 )}
@@ -331,18 +335,19 @@ export default function AddTopic() {
                           type="button"
                           onClick={() => removePhoto(i)}
                           aria-label="Remove photo"
-                          className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white text-[12px] leading-none flex items-center justify-center"
+                          className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center"
                         >
-                          ×
+                          <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={2.5} />
                         </button>
                       </div>
                     ))}
                     <button
                       type="button"
                       onClick={openPhotoPicker}
-                      className="w-16 h-16 rounded-xl border-2 border-dashed border-[var(--border)] text-[var(--muted)] text-2xl flex items-center justify-center active:scale-[0.97] transition-transform"
+                      aria-label="Add photo"
+                      className="w-16 h-16 rounded-xl border-2 border-dashed border-[var(--border)] text-[var(--muted)] flex items-center justify-center active:scale-[0.97] transition-transform"
                     >
-                      +
+                      <HugeiconsIcon icon={PlusSignIcon} size={22} strokeWidth={2} />
                     </button>
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onPickPhotos} />
@@ -407,7 +412,7 @@ export default function AddTopic() {
                           {customOffsets.map(days => (
                             <span key={days} className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full text-[12px] font-bold border-2 border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]">
                               {labelForOffset(days).replace('_', ' ')}
-                              <button type="button" onClick={() => removeCustomOffset(days)} className="text-brand-500 leading-none" aria-label={`Remove ${days} day offset`}>×</button>
+                              <button type="button" onClick={() => removeCustomOffset(days)} className="text-brand-500 inline-flex items-center" aria-label={`Remove ${days} day offset`}><HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} /></button>
                             </span>
                           ))}
                         </div>
