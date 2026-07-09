@@ -138,6 +138,68 @@ export function dayStatus(entry) {
   return { kind: 'empty' }
 }
 
+// Count of revisions actually completed on each ISO day. Powers the Progress
+// activity heatmap. Keyed by completion day (falls back to scheduled_date).
+export function completedByDay(topics) {
+  const map = {}
+  for (const t of topics) {
+    for (const r of t.revisions || []) {
+      if (!r.completed) continue
+      const d = (r.completed_at ? String(r.completed_at) : r.scheduled_date).slice(0, 10)
+      map[d] = (map[d] || 0) + 1
+    }
+  }
+  return map
+}
+
+// Longest run of consecutive active days in a set of ISO dates (from
+// `activeDates`). This is the student's best-ever streak — we don't store it.
+export function longestStreak(dates) {
+  if (!dates || dates.size === 0) return 0
+  const sorted = [...dates].sort()
+  let best = 1, run = 1
+  for (let i = 1; i < sorted.length; i++) {
+    const gap = Math.round(daysBetween(sorted[i - 1], sorted[i]))
+    if (gap === 1) run++
+    else if (gap !== 0) run = 1
+    if (run > best) best = run
+  }
+  return best
+}
+
+// Tally recall self-ratings across every graded, completed revision.
+export function recallBreakdown(topics) {
+  const b = { good: 0, okay: 0, struggled: 0, total: 0 }
+  for (const t of topics) {
+    for (const r of t.revisions || []) {
+      if (r.completed && r.recall_quality && r.recall_quality in b) {
+        b[r.recall_quality]++
+        b.total++
+      }
+    }
+  }
+  return b
+}
+
+// Average estimated memory% per subject, over the topics that have been revised
+// at least once. Sorted strongest-first for the Progress subject bars.
+export function memoryBySubject(topics) {
+  const groups = {}
+  for (const t of topics) {
+    const mem = computeMemory(t.revisions || [])
+    if (mem == null) continue
+    const key = t.subject || 'General'
+    ;(groups[key] || (groups[key] = [])).push(mem)
+  }
+  return Object.entries(groups)
+    .map(([subject, mems]) => ({
+      subject,
+      count: mems.length,
+      memory: Math.round(mems.reduce((a, b) => a + b, 0) / mems.length)
+    }))
+    .sort((a, b) => b.memory - a.memory)
+}
+
 // Roll a list of topics (each with a nested `revisions` array) into the three
 // home buckets plus the summary counts used in the greeting line.
 export function summarize(topics, today = todayISO()) {
