@@ -13,10 +13,11 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, Link01Icon, Archive02Icon, InboxIcon,
   FlashIcon, PencilEdit02Icon, Delete02Icon, Calendar03Icon, ArrowUp01Icon,
-  File01Icon, StickyNote01Icon, Clock01Icon
+  File01Icon, StickyNote01Icon, Clock01Icon, Brain02Icon, ArrowRight01Icon, AlarmClockIcon
 } from '@hugeicons/core-free-icons'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { nextRevision, intervalToDays } from '../lib/metrics'
+import { nextRevision, intervalToDays, computeMemory } from '../lib/metrics'
+import { subjectColor, subjectGradient } from '../lib/subjects'
 
 function randomId() {
   return globalThis.crypto?.randomUUID
@@ -67,6 +68,46 @@ const REV_STYLE = {
   upcoming: { label: 'Upcoming', dot: 'bg-[var(--muted)]', chip: 'text-[var(--slate-txt)] bg-[var(--card-alt)]' }
 }
 
+// Recorded recall quality shown on completed revisions.
+const QUALITY = {
+  good: { emoji: '💪', label: 'Recalled well', cls: 'text-emerald-600 bg-emerald-500/12' },
+  okay: { emoji: '🙂', label: 'Recalled okay', cls: 'text-amber-600 bg-amber-500/12' },
+  struggled: { emoji: '😅', label: 'Struggled', cls: 'text-orange-600 bg-orange-500/12' }
+}
+
+// Retention-tone chip: reads as "revise me", not failure, when low.
+function memChipCls(m) {
+  if (m == null) return 'text-[var(--slate-txt)] bg-[var(--card-alt)]'
+  if (m >= 67) return 'text-emerald-600 bg-emerald-500/12'
+  if (m >= 40) return 'text-amber-600 bg-amber-500/12'
+  return 'text-red-500 bg-red-500/12'
+}
+
+function daysUntil(iso) {
+  const d = new Date(`${iso}T00:00:00`)
+  const t = new Date()
+  t.setHours(0, 0, 0, 0)
+  return Math.round((d - t) / 86400000)
+}
+function countdownLabel(iso) {
+  const n = daysUntil(iso)
+  if (n === 0) return 'Due today'
+  if (n < 0) return `${-n} day${n === -1 ? '' : 's'} overdue`
+  return `Next in ${n} day${n === 1 ? '' : 's'}`
+}
+function countdownCls(iso) {
+  const n = daysUntil(iso)
+  if (n < 0) return 'text-red-500 bg-red-500/12'
+  if (n === 0) return 'text-amber-600 bg-amber-500/12'
+  return 'text-[var(--slate-txt)] bg-[var(--card-alt)]'
+}
+function countdownIcon(iso) {
+  return daysUntil(iso) <= 0 ? AlarmClockIcon : Clock01Icon
+}
+
+const PRIORITIES = ['high', 'medium', 'low']
+const FAMILIARITIES = [['first_time', 'First time'], ['partial', 'Partial'], ['familiar', 'Familiar']]
+
 export default function TopicDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -80,6 +121,14 @@ export default function TopicDetail() {
 
   const [contentTab, setContentTab] = useState('cards') // 'cards' | 'journal'
   const [scheduleCollapsed, setScheduleCollapsed] = useState(false)
+
+  const [editingTopic, setEditingTopic] = useState(false)
+  const [etTitle, setEtTitle] = useState('')
+  const [etSubject, setEtSubject] = useState('')
+  const [etNotes, setEtNotes] = useState('')
+  const [etPriority, setEtPriority] = useState('medium')
+  const [etFamiliarity, setEtFamiliarity] = useState('partial')
+  const [savingTopic, setSavingTopic] = useState(false)
 
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
@@ -213,6 +262,33 @@ export default function TopicDetail() {
     if (error) { toast.error(error.message); return }
     setTopic(prev => ({ ...prev, shared: false }))
     toast.success('Topic is now private')
+  }
+
+  function startEditTopic() {
+    setEtTitle(topic.topic_name || '')
+    setEtSubject(topic.subject || '')
+    setEtNotes(topic.notes || '')
+    setEtPriority(topic.priority || 'medium')
+    setEtFamiliarity(topic.familiarity || 'partial')
+    setEditingTopic(true)
+  }
+
+  async function saveTopic() {
+    if (!etTitle.trim()) return toast.error('Title is required')
+    setSavingTopic(true)
+    const patch = {
+      topic_name: etTitle.trim(),
+      subject: etSubject.trim() || null,
+      notes: etNotes.trim() || null,
+      priority: etPriority,
+      familiarity: etFamiliarity
+    }
+    const { error } = await supabase.from('topics').update(patch).eq('id', id)
+    setSavingTopic(false)
+    if (error) { toast.error(error.message); return }
+    setTopic(prev => ({ ...prev, ...patch }))
+    setEditingTopic(false)
+    toast.success('Topic updated')
   }
 
   async function toggleArchive() {
@@ -419,6 +495,7 @@ export default function TopicDetail() {
   }
 
   const next = nextRevision(revisions)
+  const memory = computeMemory(revisions)
   const startISO = topic.date_learned || revisions[0]?.scheduled_date
 
   return (
@@ -445,38 +522,89 @@ export default function TopicDetail() {
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
           className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
+          style={{ backgroundImage: subjectGradient(topic.subject) }}
         >
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-500/12 text-brand-500 truncate">
-              {topic.subject || 'General'}
-            </span>
-            <span className="shrink-0 text-[11px] font-bold text-[var(--muted)]">{topic.shared ? 'Shared · Mine' : 'Private'}</span>
-          </div>
+          {editingTopic ? (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-[14px] font-bold text-[var(--ink)]">Edit topic</span>
+                <button type="button" onClick={() => setEditingTopic(false)} className="text-[12px] font-bold text-[var(--muted)]">Cancel</button>
+              </div>
+              <input value={etTitle} onChange={(e) => setEtTitle(e.target.value)} placeholder="Topic name" className="w-full border border-[var(--border)] rounded-2xl px-4 py-2.5 text-[15px] font-bold text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+              <input value={etSubject} onChange={(e) => setEtSubject(e.target.value)} placeholder="Subject" className="w-full border border-[var(--border)] rounded-2xl px-4 py-2.5 text-[13px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+              <div>
+                <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5">Priority</p>
+                <div className="flex gap-2">
+                  {PRIORITIES.map(p => (
+                    <button key={p} type="button" onClick={() => setEtPriority(p)} className={`flex-1 py-2 rounded-xl text-[12px] font-bold capitalize border-2 transition-colors ${etPriority === p ? 'border-brand-500 text-brand-500 bg-brand-500/12' : 'border-[var(--border)] text-[var(--muted)]'}`}>{p}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5">Familiarity</p>
+                <div className="flex gap-2">
+                  {FAMILIARITIES.map(([val, label]) => (
+                    <button key={val} type="button" onClick={() => setEtFamiliarity(val)} className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${etFamiliarity === val ? 'border-brand-500 text-brand-500 bg-brand-500/12' : 'border-[var(--border)] text-[var(--muted)]'}`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+              <textarea value={etNotes} onChange={(e) => setEtNotes(e.target.value)} rows={2} placeholder="Notes (optional)" className="w-full border border-[var(--border)] rounded-2xl px-4 py-2.5 text-[13px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+              <button type="button" onClick={saveTopic} disabled={savingTopic} className="w-full py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform">
+                {savingTopic ? 'Saving…' : 'Save changes'}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between gap-2">
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full text-white truncate ${subjectColor(topic.subject)}`}>
+                  {topic.subject || 'General'}
+                </span>
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <span className="text-[11px] font-bold text-[var(--muted)]">{topic.shared ? 'Shared · Mine' : 'Private'}</span>
+                  <button type="button" onClick={startEditTopic} aria-label="Edit topic" className="text-[var(--muted)] active:scale-90 transition-transform">
+                    <HugeiconsIcon icon={PencilEdit02Icon} size={16} strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
 
-          <h1 className="text-[24px] font-bold text-[var(--ink)] tracking-tight leading-tight mt-2.5">{topic.topic_name}</h1>
+              <h1 className="text-[24px] font-bold text-[var(--ink)] tracking-tight leading-tight mt-2.5">{topic.topic_name}</h1>
 
-          {/* Meta counts */}
-          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 mt-2 text-[12px] font-bold text-[var(--slate-txt)]">
-            <span className="inline-flex items-center gap-1"><HugeiconsIcon icon={File01Icon} size={14} strokeWidth={2} />{recallCards.length} card{recallCards.length === 1 ? '' : 's'}</span>
-            <span className="inline-flex items-center gap-1"><HugeiconsIcon icon={StickyNote01Icon} size={14} strokeWidth={2} />{journalEntries.length} note{journalEntries.length === 1 ? '' : 's'}</span>
-            {topic.created_at && (
-              <span className="inline-flex items-center gap-1 text-[var(--muted)]"><HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />Added {relativeTime(topic.created_at)}</span>
-            )}
-          </div>
+              {/* Retention + countdown */}
+              <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                <span className={`inline-flex items-center gap-1 text-[12px] font-bold px-2.5 py-1 rounded-full ${memChipCls(memory)}`}>
+                  <HugeiconsIcon icon={Brain02Icon} size={13} strokeWidth={2} />{memory == null ? 'New' : `${memory}% memory`}
+                </span>
+                {next && (
+                  <span className={`inline-flex items-center gap-1 text-[12px] font-bold px-2.5 py-1 rounded-full ${countdownCls(next.scheduled_date)}`}>
+                    <HugeiconsIcon icon={countdownIcon(next.scheduled_date)} size={13} strokeWidth={2} />{countdownLabel(next.scheduled_date)}
+                  </span>
+                )}
+              </div>
 
-          <div className="flex flex-wrap gap-2 mt-3">
-            {topic.archived && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 uppercase tracking-wide">Archived</span>
-            )}
-            {topic.familiarity && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
-                {topic.familiarity.replace('_', ' ')}
-              </span>
-            )}
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
-              {topic.priority} priority
-            </span>
-          </div>
+              {/* Meta counts */}
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 mt-2.5 text-[12px] font-bold text-[var(--slate-txt)]">
+                <span className="inline-flex items-center gap-1"><HugeiconsIcon icon={File01Icon} size={14} strokeWidth={2} />{recallCards.length} card{recallCards.length === 1 ? '' : 's'}</span>
+                <span className="inline-flex items-center gap-1"><HugeiconsIcon icon={StickyNote01Icon} size={14} strokeWidth={2} />{journalEntries.length} note{journalEntries.length === 1 ? '' : 's'}</span>
+                {topic.created_at && (
+                  <span className="inline-flex items-center gap-1 text-[var(--muted)]"><HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />Added {relativeTime(topic.created_at)}</span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                {topic.archived && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 uppercase tracking-wide">Archived</span>
+                )}
+                {topic.familiarity && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
+                    {topic.familiarity.replace('_', ' ')}
+                  </span>
+                )}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
+                  {topic.priority} priority
+                </span>
+              </div>
+            </>
+          )}
 
           <div className="flex flex-wrap gap-2 mt-3">
             {images.map(img => (
@@ -509,9 +637,10 @@ export default function TopicDetail() {
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onAddPhotos} />
 
-          {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
+          {!editingTopic && topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
 
           {/* Primary actions */}
+          {!editingTopic && <>
           <div className="flex gap-2 mt-4">
             {next ? (
               <Link
@@ -540,6 +669,7 @@ export default function TopicDetail() {
               <button type="button" onClick={handleUnshare} className="font-bold text-[var(--slate-txt)] underline">Make private</button>
             </p>
           )}
+          </>}
         </motion.div>
 
         {/* Revision timeline */}
@@ -639,23 +769,39 @@ export default function TopicDetail() {
             <>
               <div className="mt-1">
                 {revisions.map((r, idx) => {
-                  const s = REV_STYLE[revStatus(r)]
+                  const st = revStatus(r)
+                  const s = REV_STYLE[st]
                   const isLast = idx === revisions.length - 1
                   const days = intervalToDays(r.interval_label)
+                  const actionable = st === 'ready' || st === 'overdue'
+                  const quality = r.completed && r.recall_quality ? QUALITY[r.recall_quality] : null
+                  const content = (
+                    <div className={`flex items-start justify-between gap-2 ${isLast ? '' : 'pb-5'}`}>
+                      <div>
+                        <p className="text-[11px] font-bold text-brand-500">Revision {idx + 1}</p>
+                        <p className="text-[15px] font-bold text-[var(--ink)] leading-tight">{dayMonth(r.scheduled_date)}</p>
+                        <p className="text-[11px] text-[var(--muted)]">{days === 0 ? 'Same day' : `Day ${days}`}</p>
+                        {quality && (
+                          <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${quality.cls}`}>{quality.emoji} {quality.label}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${s.chip}`}>{s.label}</span>
+                        {actionable && (
+                          <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-brand-500">Revise <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2.5} /></span>
+                        )}
+                      </div>
+                    </div>
+                  )
                   return (
                     <div key={r.id} className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div className={`w-3.5 h-3.5 rounded-full ring-4 ring-[var(--card)] ${s.dot}`} />
                         {!isLast && <div className="w-0.5 flex-1 bg-[var(--card-alt)]" />}
                       </div>
-                      <div className={`flex items-start justify-between gap-2 flex-1 ${isLast ? '' : 'pb-5'}`}>
-                        <div>
-                          <p className="text-[11px] font-bold text-brand-500">Revision {idx + 1}</p>
-                          <p className="text-[15px] font-bold text-[var(--ink)] leading-tight">{dayMonth(r.scheduled_date)}</p>
-                          <p className="text-[11px] text-[var(--muted)]">{days === 0 ? 'Same day' : `Day ${days}`}</p>
-                        </div>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${s.chip}`}>{s.label}</span>
-                      </div>
+                      {actionable
+                        ? <Link to={`/revise/${r.id}`} className="flex-1 active:opacity-70 transition-opacity">{content}</Link>
+                        : <div className="flex-1">{content}</div>}
                     </div>
                   )
                 })}

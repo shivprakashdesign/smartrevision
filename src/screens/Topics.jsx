@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import AppShell from '../lib/AppShell'
 import { completion, computeMemory, topicBucket, nextRevision } from '../lib/metrics'
+import { subjectColor, subjectTint } from '../lib/subjects'
 
 const BUCKET_STYLE = {
   due: { label: 'Due today', cls: 'text-emerald-600 bg-emerald-500/12' },
@@ -34,19 +35,6 @@ function groupBySubject(list) {
   const map = {}
   for (const t of list) (map[t.subject || 'General'] ??= []).push(t)
   return Object.keys(map).sort((a, b) => a.localeCompare(b)).map(subject => ({ subject, topics: map[subject] }))
-}
-
-// Deterministic pill colour per subject so groups are visually distinct and
-// stable across sessions. "General" (the no-subject fallback) reads neutral.
-const SUBJECT_COLORS = [
-  'bg-emerald-600', 'bg-sky-600', 'bg-violet-600', 'bg-amber-500',
-  'bg-rose-500', 'bg-indigo-600', 'bg-teal-600', 'bg-fuchsia-600'
-]
-function subjectColor(name) {
-  if (!name || name === 'General') return 'bg-slate-500'
-  let h = 0
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0
-  return SUBJECT_COLORS[h % SUBJECT_COLORS.length]
 }
 
 // Average completion across a subject's topics — the group-header progress bar.
@@ -384,7 +372,8 @@ export default function Topics() {
                 <div key={subject}>
                   <button
                     onClick={() => toggleSubject(subject)}
-                    className="w-full flex items-center gap-2 mb-2.5 px-1 active:opacity-70 transition-opacity"
+                    style={{ backgroundColor: subjectTint(subject) }}
+                    className="w-full flex items-center gap-2 mb-2.5 px-2.5 py-2 rounded-2xl active:opacity-70 transition-opacity"
                   >
                     <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-full max-w-[140px] truncate ${subjectColor(subject)}`}>{subject}</span>
                     <span className="shrink-0 text-[12px] font-bold text-[var(--muted)]">({subjectTopics.length})</span>
