@@ -10,8 +10,13 @@ import { useAuth } from '../lib/AuthContext'
 import { usePro } from '../lib/ProContext'
 import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, Link01Icon, Archive02Icon, InboxIcon } from '@hugeicons/core-free-icons'
+import {
+  ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, Link01Icon, Archive02Icon, InboxIcon,
+  FlashIcon, PencilEdit02Icon, Delete02Icon, Calendar03Icon, ArrowUp01Icon,
+  File01Icon, StickyNote01Icon, Clock01Icon
+} from '@hugeicons/core-free-icons'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
+import { nextRevision, intervalToDays } from '../lib/metrics'
 
 function randomId() {
   return globalThis.crypto?.randomUUID
@@ -33,6 +38,35 @@ function labelForOffset(days) {
   return `${days}_days`
 }
 
+const todayISO = () => new Date().toISOString().slice(0, 10)
+const fullDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+const dayMonth = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+
+function relativeTime(iso) {
+  if (!iso) return null
+  const days = Math.floor((Date.now() - new Date(iso)) / 86400000)
+  if (days <= 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 30) return `${days}d ago`
+  const m = Math.floor(days / 30)
+  if (m < 12) return `${m}mo ago`
+  return `${Math.floor(days / 365)}y ago`
+}
+
+// Four-state status for a revision, matching the timeline legend.
+function revStatus(r, today = todayISO()) {
+  if (r.completed) return 'completed'
+  if (r.scheduled_date < today) return 'overdue'
+  if (r.scheduled_date === today) return 'ready'
+  return 'upcoming'
+}
+const REV_STYLE = {
+  completed: { label: 'Completed', dot: 'bg-emerald-500', chip: 'text-emerald-600 bg-emerald-500/12' },
+  overdue: { label: 'Overdue', dot: 'bg-orange-500', chip: 'text-orange-600 bg-orange-500/12' },
+  ready: { label: 'Ready to revise', dot: 'bg-amber-500', chip: 'text-amber-600 bg-amber-500/12' },
+  upcoming: { label: 'Upcoming', dot: 'bg-[var(--muted)]', chip: 'text-[var(--slate-txt)] bg-[var(--card-alt)]' }
+}
+
 export default function TopicDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -44,12 +78,20 @@ export default function TopicDetail() {
   const [images, setImages] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [contentTab, setContentTab] = useState('cards') // 'cards' | 'journal'
+  const [scheduleCollapsed, setScheduleCollapsed] = useState(false)
+
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
   const [savingCard, setSavingCard] = useState(false)
+  const [editCardId, setEditCardId] = useState(null)
+  const [editCardQ, setEditCardQ] = useState('')
+  const [editCardA, setEditCardA] = useState('')
 
   const [journalText, setJournalText] = useState('')
   const [savingJournal, setSavingJournal] = useState(false)
+  const [editEntryId, setEditEntryId] = useState(null)
+  const [editEntryText, setEditEntryText] = useState('')
 
   const [lightbox, setLightbox] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -290,6 +332,36 @@ export default function TopicDetail() {
     setSavingCard(false)
   }
 
+  function startEditCard(card) {
+    setEditCardId(card.id)
+    setEditCardQ(card.question)
+    setEditCardA(card.answer)
+  }
+
+  async function saveEditCard() {
+    if (!editCardQ.trim() || !editCardA.trim()) return toast.error('Both sides are required')
+    const { error } = await supabase.from('recall_cards').update({ question: editCardQ, answer: editCardA }).eq('id', editCardId)
+    if (error) { toast.error(error.message); return }
+    setRecallCards(prev => prev.map(c => (c.id === editCardId ? { ...c, question: editCardQ, answer: editCardA } : c)))
+    setEditCardId(null)
+    toast.success('Card updated')
+  }
+
+  async function deleteCard(card) {
+    const { error } = await supabase.from('recall_cards').delete().eq('id', card.id)
+    if (error) { toast.error(error.message); return }
+    setRecallCards(prev => prev.filter(c => c.id !== card.id))
+    toast.success('Card deleted', {
+      action: {
+        label: 'Undo',
+        onClick: async () => {
+          const { data } = await supabase.from('recall_cards').insert({ topic_id: id, question: card.question, answer: card.answer }).select().single()
+          if (data) setRecallCards(prev => [...prev, data])
+        }
+      }
+    })
+  }
+
   async function addJournalEntry(e) {
     e.preventDefault()
     if (!journalText.trim()) return
@@ -309,6 +381,35 @@ export default function TopicDetail() {
     setSavingJournal(false)
   }
 
+  function startEditEntry(entry) {
+    setEditEntryId(entry.id)
+    setEditEntryText(entry.entry)
+  }
+
+  async function saveEditEntry() {
+    if (!editEntryText.trim()) return toast.error('Entry cannot be empty')
+    const { error } = await supabase.from('journal_entries').update({ entry: editEntryText }).eq('id', editEntryId)
+    if (error) { toast.error(error.message); return }
+    setJournalEntries(prev => prev.map(en => (en.id === editEntryId ? { ...en, entry: editEntryText } : en)))
+    setEditEntryId(null)
+    toast.success('Entry updated')
+  }
+
+  async function deleteEntry(entry) {
+    const { error } = await supabase.from('journal_entries').delete().eq('id', entry.id)
+    if (error) { toast.error(error.message); return }
+    setJournalEntries(prev => prev.filter(en => en.id !== entry.id))
+    toast.success('Entry deleted', {
+      action: {
+        label: 'Undo',
+        onClick: async () => {
+          const { data } = await supabase.from('journal_entries').insert({ topic_id: id, entry: entry.entry }).select().single()
+          if (data) setJournalEntries(prev => [data, ...prev])
+        }
+      }
+    })
+  }
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Loading...</div>
   if (!topic) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Topic not found</div>
 
@@ -317,33 +418,62 @@ export default function TopicDetail() {
     show: { opacity: 1, y: 0 }
   }
 
+  const next = nextRevision(revisions)
+  const startISO = topic.date_learned || revisions[0]?.scheduled_date
+
   return (
     <AppShell><div className="px-5 py-8">
       <div className="max-w-sm mx-auto space-y-4">
 
-        <Link to="/home" className="inline-flex items-center gap-1 text-[12px] font-bold text-[var(--muted)]">
-          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.2} /> Back to Home
-        </Link>
+        <div className="flex items-center justify-between">
+          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1 text-[12px] font-bold text-[var(--muted)] active:opacity-70">
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.2} /> Back
+          </button>
+          <button
+            type="button"
+            onClick={toggleArchive}
+            disabled={archiving}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--card)] border border-[var(--border)] text-[12px] font-bold text-[var(--slate-txt)] active:scale-95 transition-transform disabled:opacity-50"
+          >
+            <HugeiconsIcon icon={topic.archived ? InboxIcon : Archive02Icon} size={14} strokeWidth={2} />
+            {archiving ? '…' : topic.archived ? 'Restore' : 'Archive'}
+          </button>
+        </div>
 
+        {/* Hero */}
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
           className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
         >
-          <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight">{topic.topic_name}</h1>
-          <p className="text-[13px] text-[var(--muted)] mt-1">{topic.subject}</p>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-500/12 text-brand-500 truncate">
+              {topic.subject || 'General'}
+            </span>
+            <span className="shrink-0 text-[11px] font-bold text-[var(--muted)]">{topic.shared ? 'Shared · Mine' : 'Private'}</span>
+          </div>
+
+          <h1 className="text-[24px] font-bold text-[var(--ink)] tracking-tight leading-tight mt-2.5">{topic.topic_name}</h1>
+
+          {/* Meta counts */}
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 mt-2 text-[12px] font-bold text-[var(--slate-txt)]">
+            <span className="inline-flex items-center gap-1"><HugeiconsIcon icon={File01Icon} size={14} strokeWidth={2} />{recallCards.length} card{recallCards.length === 1 ? '' : 's'}</span>
+            <span className="inline-flex items-center gap-1"><HugeiconsIcon icon={StickyNote01Icon} size={14} strokeWidth={2} />{journalEntries.length} note{journalEntries.length === 1 ? '' : 's'}</span>
+            {topic.created_at && (
+              <span className="inline-flex items-center gap-1 text-[var(--muted)]"><HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />Added {relativeTime(topic.created_at)}</span>
+            )}
+          </div>
+
           <div className="flex flex-wrap gap-2 mt-3">
             {topic.archived && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 uppercase tracking-wide">
-                Archived
-              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 uppercase tracking-wide">Archived</span>
             )}
             {topic.familiarity && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
                 {topic.familiarity.replace('_', ' ')}
               </span>
             )}
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)]">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
               {topic.priority} priority
             </span>
           </div>
@@ -381,49 +511,67 @@ export default function TopicDetail() {
 
           {topic.notes && <p className="text-[14px] text-[var(--slate-txt)] mt-3">{topic.notes}</p>}
 
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={sharing}
-            className="mt-4 w-full py-2.5 rounded-2xl border-2 border-brand-100 text-brand-500 text-[13px] font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform disabled:opacity-50"
-          >
-            {sharing ? 'Preparing link…' : <><HugeiconsIcon icon={Link01Icon} size={15} strokeWidth={2} /> Share topic</>}
-          </button>
+          {/* Primary actions */}
+          <div className="flex gap-2 mt-4">
+            {next ? (
+              <Link
+                to={`/revise/${next.id}`}
+                className="flex-1 py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform"
+              >
+                <HugeiconsIcon icon={FlashIcon} size={16} strokeWidth={2} /> Revise now
+              </Link>
+            ) : (
+              <div className="flex-1 py-2.5 rounded-2xl bg-[var(--card-alt)] text-[var(--muted)] text-[13px] font-bold inline-flex items-center justify-center gap-1.5">
+                All revisions done 🎉
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={sharing}
+              className="flex-1 py-2.5 rounded-2xl border-2 border-brand-100 text-brand-500 text-[13px] font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform disabled:opacity-50"
+            >
+              {sharing ? 'Preparing…' : <><HugeiconsIcon icon={Link01Icon} size={15} strokeWidth={2} /> Share</>}
+            </button>
+          </div>
           {topic.shared && (
             <p className="text-[11px] text-[var(--muted)] text-center mt-2">
               Public link is on ·{' '}
               <button type="button" onClick={handleUnshare} className="font-bold text-[var(--slate-txt)] underline">Make private</button>
             </p>
           )}
-
-          <div className="mt-3 pt-3 border-t border-[var(--border)]">
-            <button
-              type="button"
-              onClick={toggleArchive}
-              disabled={archiving}
-              className="w-full py-2.5 rounded-2xl text-[13px] font-bold inline-flex items-center justify-center gap-1.5 text-[var(--slate-txt)] active:bg-[var(--card-alt)] transition-colors disabled:opacity-50"
-            >
-              <HugeiconsIcon icon={topic.archived ? InboxIcon : Archive02Icon} size={15} strokeWidth={2} />
-              {archiving ? 'Saving…' : topic.archived ? 'Restore to active' : 'Archive topic'}
-            </button>
-          </div>
         </motion.div>
 
+        {/* Revision timeline */}
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, delay: 0.025, ease: [0.23, 1, 0.32, 1] }}
           className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
         >
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-[13px] font-bold text-[var(--ink)]">Schedule</h2>
+          <div className="flex justify-between items-start mb-3">
+            <div className="flex items-start gap-2">
+              <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} className="text-brand-500 mt-0.5" />
+              <div>
+                <h2 className="text-[14px] font-bold text-[var(--ink)] leading-tight">Revision schedule</h2>
+                {startISO && <p className="text-[11px] text-[var(--muted)] mt-0.5">Started {fullDate(startISO)}</p>}
+              </div>
+            </div>
             {editingSchedule ? (
               <button type="button" onClick={() => setEditingSchedule(false)} className="text-[11px] font-bold text-[var(--muted)]">Cancel</button>
             ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-[var(--slate-txt)] uppercase tracking-wide">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)] uppercase tracking-wide">
                   {topic.schedule_type || 'standard'}
                 </span>
                 <button type="button" onClick={startEditSchedule} className="text-[11px] font-bold text-brand-500">Edit</button>
+                <button
+                  type="button"
+                  onClick={() => setScheduleCollapsed(v => !v)}
+                  aria-label={scheduleCollapsed ? 'Expand schedule' : 'Collapse schedule'}
+                  className="text-[var(--muted)] active:scale-90 transition-transform"
+                >
+                  <HugeiconsIcon icon={ArrowUp01Icon} size={16} strokeWidth={2.2} className={`transition-transform ${scheduleCollapsed ? 'rotate-180' : ''}`} />
+                </button>
               </div>
             )}
           </div>
@@ -487,118 +635,139 @@ export default function TopicDetail() {
             </div>
           ) : revisions.length === 0 ? (
             <p className="text-[12px] text-[var(--muted)]">No revisions scheduled.</p>
-          ) : (
-            <div className="space-y-2">
-              {revisions.map(r => {
-                const today = new Date().toISOString().slice(0, 10)
-                const status = r.completed ? 'done' : r.scheduled_date < today ? 'overdue' : 'upcoming'
-                const statusStyle = {
-                  done: 'text-emerald-600 bg-[rgba(16,185,129,0.14)]',
-                  overdue: 'text-red-500 bg-[rgba(239,68,68,0.14)]',
-                  upcoming: 'text-[var(--slate-txt)] bg-[var(--card-alt)]'
-                }
-                const statusLabel = { done: 'Done', overdue: 'Overdue', upcoming: 'Upcoming' }
-                return (
-                  <div key={r.id} className="flex justify-between items-center bg-[var(--card-alt)] rounded-2xl px-3 py-2.5">
-                    <div>
-                      <p className="text-[12px] font-bold text-[var(--slate-txt)]">
-                        {new Date(`${r.scheduled_date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                      <p className="text-[11px] text-[var(--muted)]">{r.interval_label?.replace(/_/g, ' ')}</p>
+          ) : !scheduleCollapsed && (
+            <>
+              <div className="mt-1">
+                {revisions.map((r, idx) => {
+                  const s = REV_STYLE[revStatus(r)]
+                  const isLast = idx === revisions.length - 1
+                  const days = intervalToDays(r.interval_label)
+                  return (
+                    <div key={r.id} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-3.5 h-3.5 rounded-full ring-4 ring-[var(--card)] ${s.dot}`} />
+                        {!isLast && <div className="w-0.5 flex-1 bg-[var(--card-alt)]" />}
+                      </div>
+                      <div className={`flex items-start justify-between gap-2 flex-1 ${isLast ? '' : 'pb-5'}`}>
+                        <div>
+                          <p className="text-[11px] font-bold text-brand-500">Revision {idx + 1}</p>
+                          <p className="text-[15px] font-bold text-[var(--ink)] leading-tight">{dayMonth(r.scheduled_date)}</p>
+                          <p className="text-[11px] text-[var(--muted)]">{days === 0 ? 'Same day' : `Day ${days}`}</p>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${s.chip}`}>{s.label}</span>
+                      </div>
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusStyle[status]}`}>
-                      {statusLabel[status]}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+
+              {/* Status legend */}
+              <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-3 border-t border-[var(--border)]">
+                {Object.values(REV_STYLE).map(s => (
+                  <span key={s.label} className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[var(--muted)]">
+                    <span className={`w-2 h-2 rounded-full ${s.dot}`} />{s.label}
+                  </span>
+                ))}
+              </div>
+            </>
           )}
         </motion.div>
 
+        {/* Cards / Journal */}
         <motion.div
           initial="hidden" animate="show" variants={cardVariants}
           transition={{ duration: 0.25, delay: 0.05, ease: [0.23, 1, 0.32, 1] }}
           className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
         >
-          <h2 className="text-[13px] font-bold text-[var(--ink)] mb-3">Recall cards</h2>
-
-          {recallCards.length === 0 && (
-            <p className="text-[12px] text-[var(--muted)] mb-3">No recall cards yet — add a short question you want to test yourself on.</p>
-          )}
-
-          <div className="space-y-2 mb-3">
-            {recallCards.map(card => (
-              <div key={card.id} className="bg-[var(--card-alt)] rounded-2xl p-3">
-                <p className="text-[12px] font-bold text-[var(--slate-txt)]">Q: {card.question}</p>
-                <p className="text-[12px] text-[var(--slate-txt)] mt-1">A: {card.answer}</p>
-              </div>
+          <div className="flex p-1 rounded-2xl bg-[var(--card-alt)] mb-4">
+            {[['cards', 'Cards', recallCards.length], ['journal', 'Journal', journalEntries.length]].map(([key, label, n]) => (
+              <button
+                key={key}
+                onClick={() => setContentTab(key)}
+                className={`flex-1 py-2 rounded-xl text-[13px] font-bold transition-colors ${
+                  contentTab === key ? 'bg-[var(--card)] text-[var(--ink)] shadow-sm' : 'text-[var(--muted)]'
+                }`}
+              >
+                {label} <span className="text-[var(--muted)] font-semibold">({n})</span>
+              </button>
             ))}
           </div>
 
-          <form onSubmit={addRecallCard} className="space-y-2">
-            <input
-              type="text"
-              placeholder="Question"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
-            />
-            <input
-              type="text"
-              placeholder="Answer"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={savingCard}
-              className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
-            >
-              {savingCard ? 'Adding...' : '+ Add recall card'}
-            </button>
-          </form>
-        </motion.div>
-
-        <motion.div
-          initial="hidden" animate="show" variants={cardVariants}
-          transition={{ duration: 0.25, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-          className="bg-[var(--card)] rounded-3xl p-5 border border-[var(--border)] shadow-sm"
-        >
-          <h2 className="text-[13px] font-bold text-[var(--ink)] mb-3">Journal</h2>
-
-          {journalEntries.length === 0 && (
-            <p className="text-[12px] text-[var(--muted)] mb-3">Note mistakes, difficult concepts, or things to revisit here.</p>
-          )}
-
-          <div className="space-y-2 mb-3">
-            {journalEntries.map(entry => (
-              <div key={entry.id} className="bg-[var(--card-alt)] rounded-2xl p-3">
-                <p className="text-[12px] text-[var(--slate-txt)]">{entry.entry}</p>
-                <p className="text-[10px] text-[var(--muted)] mt-1">
-                  {new Date(entry.created_at).toLocaleDateString()}
-                </p>
+          {contentTab === 'cards' ? (
+            <>
+              {recallCards.length === 0 && (
+                <p className="text-[12px] text-[var(--muted)] mb-3">No recall cards yet — add a short question you want to test yourself on.</p>
+              )}
+              <div className="space-y-2 mb-3">
+                {recallCards.map(card => (
+                  editCardId === card.id ? (
+                    <div key={card.id} className="bg-[var(--card-alt)] rounded-2xl p-3 space-y-2">
+                      <input value={editCardQ} onChange={(e) => setEditCardQ(e.target.value)} placeholder="Question" className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                      <input value={editCardA} onChange={(e) => setEditCardA(e.target.value)} placeholder="Answer" className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditCardId(null)} className="flex-1 py-2 rounded-xl border border-[var(--border)] text-[12px] font-bold text-[var(--muted)] active:scale-[0.97] transition-transform">Cancel</button>
+                        <button onClick={saveEditCard} className="flex-1 py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold active:scale-[0.97] transition-transform">Save</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={card.id} className="bg-[var(--card-alt)] rounded-2xl p-3 flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-bold text-[var(--ink)] break-words">{card.question}</p>
+                        <p className="text-[13px] text-[var(--slate-txt)] mt-0.5 break-words">{card.answer}</p>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <button onClick={() => startEditCard(card)} aria-label="Edit card" className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--muted)] active:bg-[var(--card)] active:scale-90 transition"><HugeiconsIcon icon={PencilEdit02Icon} size={16} strokeWidth={2} /></button>
+                        <button onClick={() => deleteCard(card)} aria-label="Delete card" className="w-8 h-8 rounded-full flex items-center justify-center text-red-400 active:bg-red-500/10 active:scale-90 transition"><HugeiconsIcon icon={Delete02Icon} size={16} strokeWidth={2} /></button>
+                      </div>
+                    </div>
+                  )
+                ))}
               </div>
-            ))}
-          </div>
-
-          <form onSubmit={addJournalEntry} className="space-y-2">
-            <textarea
-              placeholder="Write a note..."
-              value={journalText}
-              onChange={(e) => setJournalText(e.target.value)}
-              rows={2}
-              className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={savingJournal}
-              className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform"
-            >
-              {savingJournal ? 'Adding...' : '+ Add journal entry'}
-            </button>
-          </form>
+              <form onSubmit={addRecallCard} className="space-y-2">
+                <input type="text" placeholder="Question" value={question} onChange={(e) => setQuestion(e.target.value)} className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+                <input type="text" placeholder="Answer" value={answer} onChange={(e) => setAnswer(e.target.value)} className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+                <button type="submit" disabled={savingCard} className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform">
+                  {savingCard ? 'Adding...' : '+ Add recall card'}
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              {journalEntries.length === 0 && (
+                <p className="text-[12px] text-[var(--muted)] mb-3">Note mistakes, difficult concepts, or things to revisit here.</p>
+              )}
+              <div className="space-y-2 mb-3">
+                {journalEntries.map(entry => (
+                  editEntryId === entry.id ? (
+                    <div key={entry.id} className="bg-[var(--card-alt)] rounded-2xl p-3 space-y-2">
+                      <textarea value={editEntryText} onChange={(e) => setEditEntryText(e.target.value)} rows={2} className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditEntryId(null)} className="flex-1 py-2 rounded-xl border border-[var(--border)] text-[12px] font-bold text-[var(--muted)] active:scale-[0.97] transition-transform">Cancel</button>
+                        <button onClick={saveEditEntry} className="flex-1 py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold active:scale-[0.97] transition-transform">Save</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={entry.id} className="bg-[var(--card-alt)] rounded-2xl p-3 flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] text-[var(--slate-txt)] break-words">{entry.entry}</p>
+                        <p className="text-[10px] text-[var(--muted)] mt-1">{new Date(entry.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <button onClick={() => startEditEntry(entry)} aria-label="Edit entry" className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--muted)] active:bg-[var(--card)] active:scale-90 transition"><HugeiconsIcon icon={PencilEdit02Icon} size={16} strokeWidth={2} /></button>
+                        <button onClick={() => deleteEntry(entry)} aria-label="Delete entry" className="w-8 h-8 rounded-full flex items-center justify-center text-red-400 active:bg-red-500/10 active:scale-90 transition"><HugeiconsIcon icon={Delete02Icon} size={16} strokeWidth={2} /></button>
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
+              <form onSubmit={addJournalEntry} className="space-y-2">
+                <textarea placeholder="Write a note..." value={journalText} onChange={(e) => setJournalText(e.target.value)} rows={2} className="w-full border border-[var(--border)] rounded-xl px-3 py-2 text-[12px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
+                <button type="submit" disabled={savingJournal} className="w-full py-2 rounded-xl bg-brand-500 text-white text-[12px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform">
+                  {savingJournal ? 'Adding...' : '+ Add journal entry'}
+                </button>
+              </form>
+            </>
+          )}
         </motion.div>
 
       </div>
