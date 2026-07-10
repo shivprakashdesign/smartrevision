@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
 import { useAuth } from './AuthContext'
+import { setSubjectColorOverrides } from './subjects'
 
 const SELECTED_KEY = 'sr_selected_student_id'
 
@@ -15,6 +16,12 @@ export function useStudentProfile() {
     if (!user) return
     loadStudents()
   }, [user])
+
+  // Keep the app-wide subject-colour overrides in sync with the active student
+  // so Topics/TopicDetail pills render their chosen colours.
+  useEffect(() => {
+    setSubjectColorOverrides(student?.subject_colors)
+  }, [student])
 
   async function loadStudents() {
     setLoading(true)
