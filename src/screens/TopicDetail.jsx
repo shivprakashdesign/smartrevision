@@ -106,7 +106,6 @@ function countdownIcon(iso) {
 }
 
 const PRIORITIES = ['high', 'medium', 'low']
-const FAMILIARITIES = [['first_time', 'First time'], ['partial', 'Partial'], ['familiar', 'Familiar']]
 
 export default function TopicDetail() {
   const { id } = useParams()
@@ -127,7 +126,6 @@ export default function TopicDetail() {
   const [etSubject, setEtSubject] = useState('')
   const [etNotes, setEtNotes] = useState('')
   const [etPriority, setEtPriority] = useState('medium')
-  const [etFamiliarity, setEtFamiliarity] = useState('partial')
   const [savingTopic, setSavingTopic] = useState(false)
 
   const [question, setQuestion] = useState('')
@@ -269,7 +267,6 @@ export default function TopicDetail() {
     setEtSubject(topic.subject || '')
     setEtNotes(topic.notes || '')
     setEtPriority(topic.priority || 'medium')
-    setEtFamiliarity(topic.familiarity || 'partial')
     setEditingTopic(true)
   }
 
@@ -280,8 +277,7 @@ export default function TopicDetail() {
       topic_name: etTitle.trim(),
       subject: etSubject.trim() || null,
       notes: etNotes.trim() || null,
-      priority: etPriority,
-      familiarity: etFamiliarity
+      priority: etPriority
     }
     const { error } = await supabase.from('topics').update(patch).eq('id', id)
     setSavingTopic(false)
@@ -540,14 +536,6 @@ export default function TopicDetail() {
                   ))}
                 </div>
               </div>
-              <div>
-                <p className="text-[11px] font-bold text-[var(--muted)] mb-1.5">Familiarity</p>
-                <div className="flex gap-2">
-                  {FAMILIARITIES.map(([val, label]) => (
-                    <button key={val} type="button" onClick={() => setEtFamiliarity(val)} className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${etFamiliarity === val ? 'border-brand-500 text-brand-500 bg-brand-500/12' : 'border-[var(--border)] text-[var(--muted)]'}`}>{label}</button>
-                  ))}
-                </div>
-              </div>
               <textarea value={etNotes} onChange={(e) => setEtNotes(e.target.value)} rows={2} placeholder="Notes (optional)" className="w-full border border-[var(--border)] rounded-2xl px-4 py-2.5 text-[13px] text-[var(--ink)] placeholder:text-[var(--muted)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-[var(--card)] transition-colors" />
               <button type="button" onClick={saveTopic} disabled={savingTopic} className="w-full py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold disabled:opacity-50 active:scale-[0.97] transition-transform">
                 {savingTopic ? 'Saving…' : 'Save changes'}
@@ -593,11 +581,6 @@ export default function TopicDetail() {
               <div className="flex flex-wrap gap-2 mt-3">
                 {topic.archived && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 uppercase tracking-wide">Archived</span>
-                )}
-                {topic.familiarity && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
-                    {topic.familiarity.replace('_', ' ')}
-                  </span>
                 )}
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--card-alt)] text-[var(--slate-txt)]">
                   {topic.priority} priority
