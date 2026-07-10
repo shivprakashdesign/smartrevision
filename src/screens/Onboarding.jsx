@@ -7,6 +7,10 @@ import { supabase } from '../lib/supabase'
 import { subjectColor, subjectsForGoal } from '../lib/subjects'
 import { useSchoolSearch, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
 import { STANDARD_OFFSETS, offsetsFor, offsetLabel, daysUntilExam } from '../lib/schedule'
+import { useTheme } from '../lib/ThemeContext'
+import { usePro } from '../lib/ProContext'
+import { useUpsell, ProLock } from '../lib/ProUpsell'
+import { FREE_THEMES } from '../lib/plan'
 
 const easing = [0.23, 1, 0.32, 1]
 const colorTransition = 'background-color .35s cubic-bezier(0.23,1,0.32,1), border-color .35s cubic-bezier(0.23,1,0.32,1), color .35s cubic-bezier(0.23,1,0.32,1)'
@@ -70,13 +74,22 @@ const GRADES = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
 // `school` is student-only: a parent's children each have their own school, so
 // asking once here would be wrong. See `stepsFor`.
-const STEPS = ['hook', 'curve', 'type', 'name', 'blockers', 'goal', 'school', 'schedule', 'subjects', 'theme', 'auth']
-const SKIP_TARGET = { hook: 'type', curve: 'type', blockers: 'goal', school: 'schedule', subjects: 'theme' }
+//
+// `theme` and `summary` sit *after* `auth`. A pre-auth funnel is the most
+// expensive real estate in the app, and neither one has to be there: theme is
+// editable in Settings and half of it is Pro-locked, and a recap only means
+// something once there's an account to recap.
+const STEPS = ['hook', 'curve', 'type', 'name', 'blockers', 'goal', 'school', 'schedule', 'subjects', 'auth', 'theme', 'summary']
+const SKIP_TARGET = { hook: 'type', curve: 'type', blockers: 'goal', school: 'schedule', subjects: 'auth', theme: 'summary' }
+
+// The account already exists by the time these render — going back would
+// re-submit the signup form against an email that is now taken.
+const NO_BACK = ['hook', 'theme', 'summary']
 
 const stepsFor = (mode) => STEPS.filter(s => s !== 'school' || mode === 'student')
 
 function TopRow({ id, onBack, muted }) {
-  const isFirst = STEPS.indexOf(id) === 0
+  const isFirst = NO_BACK.includes(id)
   const skipTo = SKIP_TARGET[id]
   return (
     <div className="flex items-center justify-between mb-2 min-h-[24px] flex-shrink-0">
@@ -139,6 +152,10 @@ function Btn({ onClick, children, disabled, type = 'button' }) {
 
 export default function Onboarding() {
   const navigate = useNavigate()
+  // The theme step runs after signup, so these are all meaningful by then.
+  const { setTheme: persistTheme } = useTheme()
+  const { isPro } = usePro()
+  const showUpsell = useUpsell()
   const [step, setStep] = useState('hook')
   const [mode, setMode] = useState('student')
   const [name, setName] = useState('')
@@ -201,6 +218,17 @@ export default function Onboarding() {
   const restDayNote = restDays.length === 0
     ? 'Studying every day — any day you miss will break your streak.'
     : `${listAnd(restDays)} ${restDays.length === 1 ? 'is a rest day' : 'are rest days'} — missing ${restDays.length === 1 ? 'it' : 'them'} won't break your streak.`
+
+  // The recap only shows what was actually answered — a skipped school or a
+  // blank exam date leaves no row, rather than a row reading "None".
+  const summaryRows = mode === 'parent'
+    ? [['NEXT UP', "Add your child's profile"]]
+    : [
+        grade && school && ['CLASS & SCHOOL', `Class ${grade} · ${school.name}`],
+        grade && !school && ['CLASS', `Class ${grade}`],
+        examDate && ['EXAM', `${whenExam.replace(/^in /, 'In ')} · ${plannedOffsets.length} reviews per topic`],
+        ['STUDY DAYS', restDays.length ? STUDY_DAYS.filter(([d]) => studyDays.includes(d)).map(([, l]) => l).join(', ') : 'Every day']
+      ].filter(Boolean)
 
   const copy = COPY[mode]
   const steps = stepsFor(mode)
@@ -266,6 +294,18 @@ export default function Onboarding() {
     setSubjects([...subjects, name])
   }
 
+  // Paint the card immediately, and persist through ThemeContext — it already
+  // read accounts.theme when the session appeared, so a bare update here would
+  // be overwritten by its stale copy the moment we land on Home.
+  function pickTheme(id, locked) {
+    if (locked) {
+      showUpsell({ title: 'Every theme', desc: 'Unlock all four themes, including the dark ones, with Pro.' })
+      return
+    }
+    setTheme(id)
+    persistTheme(id)
+  }
+
   // "Can't find your school" — hold the name, don't write it. The insert policy
   // on `schools` requires auth.uid(), and this step runs before signup. The row
   // is created in handleSignup once a session exists.
@@ -286,7 +326,7 @@ export default function Onboarding() {
       id: authData.user.id,
       account_type: mode,
       name,
-      theme,
+      theme,                 // 'chalk' until the theme step; ThemeContext re-reads it
       blockers,
       preparing_for: goal,
       subjects
@@ -330,7 +370,10 @@ export default function Onboarding() {
       }
     }
 
-    navigate(mode === 'parent' ? '/profiles' : '/home')
+    // The account exists now. Theme and the recap live on the far side of it,
+    // where a locked Pro theme is a real lock and a recap has something to recap.
+    setSaving(false)
+    setStep('theme')
   }
 
   const inputStyle = {
@@ -609,7 +652,7 @@ export default function Onboarding() {
           )}
 
           {step === 'subjects' && (
-            <Screen id="subjects" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('theme')}>Continue</Btn>}>
+            <Screen id="subjects" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('auth')}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">{copy.subjQ}</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Tap to select or deselect — you can add more anytime.</p>
               <div className="flex flex-wrap gap-2">
@@ -646,22 +689,64 @@ export default function Onboarding() {
           )}
 
           {step === 'theme' && (
-            <Screen id="theme" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('auth')}>Continue</Btn>}>
+            <Screen id="theme" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('summary')}>Continue</Btn>}>
+              <span className="self-start text-[12px] font-bold text-brand-500 bg-brand-50 px-3 py-1 rounded-full mb-3">Account created ✓</span>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Choose your theme</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Pick a design that fits your study mood — the card behind this quiz updates live.</p>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Pick a design that fits your study mood — this card updates live.</p>
               <div className="grid grid-cols-2 gap-2.5">
                 {THEMES.map(t => {
                   const sel = theme === t.id
+                  const locked = !isPro && !FREE_THEMES.includes(t.id)
                   return (
-                    <button key={t.id} onClick={() => setTheme(t.id)}
+                    <button key={t.id} onClick={() => pickTheme(t.id, locked)}
                       style={sel ? {} : { borderColor: T.border, transition: colorTransition }}
                       className={`text-left border-2 rounded-2xl p-3 transition-colors ${sel ? 'border-brand-500' : ''}`}>
-                      <div className={`h-12 rounded-xl mb-2 border border-slate-200 ${t.swatch}`} />
-                      <p style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold">{t.name}</p>
+                      <div className={`relative h-12 rounded-xl mb-2 border border-slate-200 ${t.swatch}`}>
+                        {locked && <span className="absolute inset-0 flex items-center justify-center text-lg bg-black/25 rounded-xl">🔒</span>}
+                      </div>
+                      <p style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold flex items-center gap-1.5">
+                        {t.name} {locked && <ProLock />}
+                      </p>
                       <p style={{ color: T.muted, transition: colorTransition }} className="text-[11.5px]">{t.desc}</p>
                     </button>
                   )
                 })}
+              </div>
+            </Screen>
+          )}
+
+          {step === 'summary' && (
+            <Screen id="summary" onBack={goBack} muted={T.muted} center={false}
+              footer={<Btn onClick={() => navigate(mode === 'parent' ? '/profiles' : '/home')}>
+                {mode === 'parent' ? 'Add your child' : 'Start revising'}
+              </Btn>}
+              overlay={<>
+                <FloatingEmoji className="top-[6%] left-[10%] text-[34px]" delay={0.5} dur={2.9} phase={-0.3}>⭐</FloatingEmoji>
+                <FloatingEmoji className="top-[4%] right-[12%] text-[30px]" delay={0.8} dur={3.2} phase={-1.4}>✨</FloatingEmoji>
+              </>}>
+              <div className="text-center mb-6 fade-soft">
+                <div className="w-20 h-20 rounded-full bg-brand-500 text-white text-[38px] font-bold flex items-center justify-center mx-auto mb-4">✓</div>
+                <p style={{ color: T.muted, transition: colorTransition }} className="text-[15px] font-semibold">You're all set,</p>
+                <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[28px] font-bold tracking-tight">{name}!</h1>
+              </div>
+
+              <div className="rounded-2xl p-4 space-y-3.5" style={{ backgroundColor: T.cardAlt, transition: colorTransition }}>
+                {summaryRows.map(([label, value]) => (
+                  <div key={label}>
+                    <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest">{label}</p>
+                    <p style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold mt-0.5">{value}</p>
+                  </div>
+                ))}
+                {subjects.length > 0 && (
+                  <div>
+                    <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest mb-1.5">SUBJECTS</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {subjects.map(s => (
+                        <span key={s} className={`${subjectColor(s)} text-white text-[12px] font-bold px-2.5 py-1 rounded-full`}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </Screen>
           )}
