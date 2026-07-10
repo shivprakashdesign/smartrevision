@@ -10,23 +10,10 @@ import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-
-const STANDARD_OFFSETS = [
-  { label: 'same_day', days: 0 },
-  { label: '1_day', days: 1 },
-  { label: '1_week', days: 7 },
-  { label: '1_month', days: 30 },
-  { label: '4_months', days: 120 }
-]
+import { STANDARD_OFFSETS, labelForOffset } from '../lib/schedule'
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
 const STEP_LABELS = ['Topic', 'Details', 'Schedule']
-
-function labelForOffset(days) {
-  if (days === 0) return 'same_day'
-  if (days === 1) return '1_day'
-  return `${days}_days`
-}
 
 function randomId() {
   return globalThis.crypto?.randomUUID

@@ -18,25 +18,12 @@ import {
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 import { nextRevision, intervalToDays, computeMemory } from '../lib/metrics'
 import { subjectColor, subjectGradient } from '../lib/subjects'
+import { STANDARD_OFFSETS, labelForOffset } from '../lib/schedule'
 
 function randomId() {
   return globalThis.crypto?.randomUUID
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`
-}
-
-const STANDARD_OFFSETS = [
-  { label: 'same_day', days: 0 },
-  { label: '1_day', days: 1 },
-  { label: '1_week', days: 7 },
-  { label: '1_month', days: 30 },
-  { label: '4_months', days: 120 }
-]
-
-function labelForOffset(days) {
-  if (days === 0) return 'same_day'
-  if (days === 1) return '1_day'
-  return `${days}_days`
 }
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
