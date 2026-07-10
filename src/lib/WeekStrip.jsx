@@ -22,8 +22,10 @@ function DayBadge({ st }) {
   if (st.kind === 'done') {
     return <span className={base} style={{ backgroundColor: 'rgba(16,185,129,0.16)', color: '#059669' }}><HugeiconsIcon icon={Tick02Icon} size={13} strokeWidth={2.5} /></span>
   }
+  // Behind schedule reads as a nudge, not an alarm — orange, matching the
+  // "Overdue" pill on the topic timeline, rather than red.
   if (st.kind === 'missed') {
-    return <span className={base} style={{ backgroundColor: 'rgba(239,68,68,0.14)', color: '#ef4444' }}><HugeiconsIcon icon={Alert02Icon} size={13} strokeWidth={2.2} /></span>
+    return <span className={base} style={{ backgroundColor: 'rgba(249,115,22,0.16)', color: '#ea580c' }}><HugeiconsIcon icon={Alert02Icon} size={13} strokeWidth={2.2} /></span>
   }
   // A rest day the student marked off: never an alarm, just a calm dash. The
   // revision it may carry is still actionable in Due Today — it isn't lost.
