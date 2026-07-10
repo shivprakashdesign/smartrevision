@@ -145,11 +145,7 @@ drop policy if exists "authed users can create a class" on classes;
 create policy "authed users can create a class" on classes
   for insert with check (auth.uid() is not null);
 
--- ============================================================
--- 5. LATER — after a release with nothing reading the old columns
--- ============================================================
 -- get_leaderboard(class_id) needs no change: students.class_id is untouched.
---
--- alter table classes drop column school_name;
--- alter table classes drop column class_name;
--- alter table classes drop column normalized_key;
+-- The legacy free-text columns are dropped separately in
+-- supabase_drop_legacy_class_columns.sql, once a release has shipped with
+-- nothing writing them.
