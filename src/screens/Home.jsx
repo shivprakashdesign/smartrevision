@@ -269,7 +269,7 @@ export default function Home() {
         <p className="text-[14px] text-[var(--muted)] mt-1 mb-5">{summaryNode}</p>
 
         {/* Calendar week strip */}
-        <WeekStrip topics={topics} />
+        <WeekStrip topics={topics} studyDays={student?.study_days} />
 
         {/* Tabs */}
         <div className="flex items-center gap-1.5 mb-4">

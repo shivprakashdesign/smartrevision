@@ -25,11 +25,24 @@ function DayBadge({ st }) {
   if (st.kind === 'missed') {
     return <span className={base} style={{ backgroundColor: 'rgba(239,68,68,0.14)', color: '#ef4444' }}><HugeiconsIcon icon={Alert02Icon} size={13} strokeWidth={2.2} /></span>
   }
+  // A rest day the student marked off: never an alarm, just a calm dash. The
+  // revision it may carry is still actionable in Due Today — it isn't lost.
+  if (st.kind === 'rest') {
+    return <span className={base} aria-label="Rest day"><span className="w-2.5 h-0.5 rounded-full bg-[var(--muted)] opacity-60" /></span>
+  }
   return <span className={base} style={{ backgroundColor: 'rgba(37,99,235,0.12)', color: 'hsl(213,96%,56%)' }}>+{st.count}</span>
 }
 
+// A rest day is one not in study_days (ISO dow: Mon=1..Sun=7). With no set
+// recorded we treat every day as a study day, matching the old behaviour.
+function isRestDay(d, studyDays) {
+  if (!studyDays?.length) return false
+  const isoDow = d.getDay() === 0 ? 7 : d.getDay()
+  return !studyDays.includes(isoDow)
+}
+
 // At-a-glance week overview with per-day status badges and week navigation.
-export default function WeekStrip({ topics }) {
+export default function WeekStrip({ topics, studyDays }) {
   const [offset, setOffset] = useState(0) // weeks from the current one
 
   const today = new Date()
@@ -75,7 +88,12 @@ export default function WeekStrip({ topics }) {
         {days.map((d, i) => {
           const ds = isoOf(d)
           const isToday = ds === todayStr
-          const st = dayStatus(dayMap[ds])
+          const raw = dayStatus(dayMap[ds])
+          // On a rest day, soften an alarm (missed) or a blank into a rest
+          // marker; a completed tick or an upcoming due count still stand.
+          const st = isRestDay(d, studyDays) && (raw.kind === 'missed' || raw.kind === 'empty')
+            ? { kind: 'rest' }
+            : raw
           return (
             <div key={ds} className="flex-1 flex flex-col items-center gap-1.5">
               <span className="text-[11px] font-bold text-[var(--muted)]">{DOW[i]}</span>
