@@ -130,9 +130,12 @@ export default function Leaderboard() {
             // Extra bottom padding so the last row can scroll clear of the pinned "your rank" bar.
             <div className="space-y-3" style={{ paddingBottom: '130px' }}>
               {others.length === 0 ? (
-                <p className="text-center text-[14px] text-[var(--muted)] py-10">
-                  You're the only one in your class so far — invite classmates to compete! 🎉
-                </p>
+                <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+                  <LottieEmpty src={leaderboardAnim} size={140} className="mb-2" />
+                  <p className="text-[15px] text-[var(--muted)] px-6">
+                    You're the only one in your class so far — invite classmates to compete!
+                  </p>
+                </div>
               ) : (
                 others.map(r => <Row key={r.student_id} r={r} you={false} />)
               )}
