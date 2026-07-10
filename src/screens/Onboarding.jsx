@@ -6,6 +6,7 @@ import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { subjectColor, subjectsForGoal } from '../lib/subjects'
 import { searchSchools, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
+import { STANDARD_OFFSETS, offsetsFor, offsetLabel, daysUntilExam } from '../lib/schedule'
 
 const easing = [0.23, 1, 0.32, 1]
 const colorTransition = 'background-color .35s cubic-bezier(0.23,1,0.32,1), border-color .35s cubic-bezier(0.23,1,0.32,1), color .35s cubic-bezier(0.23,1,0.32,1)'
@@ -48,7 +49,8 @@ const COPY = {
   }
 }
 
-const SCHEDULE =[['1', 'Same day'], ['2', 'Day 1'], ['3', 'Day 7'], ['4', 'Day 30'], ['5', 'Day 120']]
+const todayISO = () => new Date().toLocaleDateString('en-CA')
+
 const THEMES = [
   { id: 'chalk', name: 'Chalk', desc: 'Light, bright & white', swatch: 'bg-slate-100' },
   { id: 'parchment', name: 'Parchment', desc: 'Warm, crème & milky', swatch: 'bg-orange-50' },
@@ -143,6 +145,7 @@ export default function Onboarding() {
   const [password, setPassword] = useState('')
   const [referralCode, setReferralCode] = useState('')
   const [grade, setGrade] = useState(null)
+  const [examDate, setExamDate] = useState('')
   const [school, setSchool] = useState(null)      // the chosen row, or null
   const [schoolQuery, setSchoolQuery] = useState('')
   const [schoolResults, setSchoolResults] = useState([])
@@ -191,6 +194,13 @@ export default function Onboarding() {
     }, 250)
     return () => clearTimeout(t)
   }, [schoolQuery, grade, step, school])
+
+  // The preview shows the schedule a topic added today would actually get, so
+  // picking an exam date visibly removes the reviews that fall after it.
+  const plannedOffsets = offsetsFor(examDate || null)
+  const dropped = STANDARD_OFFSETS.length - plannedOffsets.length
+  const daysLeft = daysUntilExam(examDate || null)
+  const whenExam = daysLeft === 0 ? 'today' : daysLeft === 1 ? 'tomorrow' : `in ${daysLeft} days`
 
   const copy = COPY[mode]
   const steps = stepsFor(mode)
@@ -289,7 +299,8 @@ export default function Onboarding() {
         managed_by_parent: false,
         name,
         class_grade: grade ? String(grade) : null,
-        class_id: classId
+        class_id: classId,
+        exam_date: examDate || null
       })
     }
 
@@ -528,20 +539,35 @@ export default function Onboarding() {
           )}
 
           {step === 'schedule' && (
-            <Screen id="schedule" onBack={goBack} muted={T.muted} footer={<Btn onClick={() => setStep('subjects')}>Looks good</Btn>}>
+            <Screen id="schedule" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('subjects')}>Looks good</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Here's your default schedule</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Based on proven memory research — the 5-review cycle that moves knowledge into long-term memory.</p>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Based on proven memory research — the review cycle that moves knowledge into long-term memory.</p>
+
+              {mode === 'student' && (
+                <label className="flex items-center justify-between rounded-2xl px-4 py-3 mb-3"
+                  style={{ backgroundColor: T.cardAlt, transition: colorTransition }}>
+                  <span style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold">Exam date</span>
+                  <input type="date" value={examDate} min={todayISO()} onChange={e => setExamDate(e.target.value)}
+                    style={{ color: T.ink, transition: colorTransition }}
+                    className="bg-transparent text-[14.5px] font-bold focus:outline-none" />
+                </label>
+              )}
+
               <div className="border-2 rounded-2xl p-4" style={{ borderColor: 'hsla(213,96%,56%,.33)' }}>
                 <p className="text-[10px] font-bold tracking-widest text-brand-500 mb-3">STANDARD SCIENTIFIC SCHEDULE</p>
-                {SCHEDULE.map(([n, when], i) => (
-                  <motion.div key={n} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                {plannedOffsets.map(({ days }, i) => (
+                  <motion.div key={days} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.08, duration: 0.25, ease: easing }}
                     className="flex items-center mb-2.5 last:mb-0">
-                    <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-500 text-[12px] font-bold flex items-center justify-center mr-3">{n}</span>
-                    <span style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold">{when}</span>
+                    <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-500 text-[12px] font-bold flex items-center justify-center mr-3">{i + 1}</span>
+                    <span style={{ color: T.ink, transition: colorTransition }} className="text-[14.5px] font-bold">{offsetLabel(days)}</span>
                   </motion.div>
                 ))}
-                <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-3">You can switch any topic to a custom schedule later.</p>
+                <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-3">
+                  {dropped > 0
+                    ? `Your exam is ${whenExam}, so we've dropped ${dropped} ${dropped === 1 ? 'review that lands' : 'reviews that land'} after it.`
+                    : 'You can switch any topic to a custom schedule later.'}
+                </p>
               </div>
             </Screen>
           )}

@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { STANDARD_OFFSETS } from './schedule'
+import { offsetsFor } from './schedule'
 
 // Clone a shared topic into `studentId`'s account: the topic itself, its recall
 // cards, its photos (same public URLs — no re-upload) and a fresh standard
@@ -12,6 +12,10 @@ export async function cloneSharedTopic(token, studentId) {
     .eq('shared', true)
     .single()
   if (!src) return null
+
+  // The clone is scheduled against the *cloning* student's exam, not the
+  // sharer's — the topic is theirs now.
+  const { data: me } = await supabase.from('students').select('exam_date').eq('id', studentId).single()
 
   const today = new Date()
   const { data: topic, error } = await supabase
@@ -29,7 +33,7 @@ export async function cloneSharedTopic(token, studentId) {
     .single()
   if (error || !topic) return null
 
-  const revisions = STANDARD_OFFSETS.map(({ label, days }) => {
+  const revisions = offsetsFor(me?.exam_date, today).map(({ label, days }) => {
     const d = new Date(today)
     d.setDate(d.getDate() + days)
     return { topic_id: topic.id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
