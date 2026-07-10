@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
+import { subjectColor, subjectsForGoal } from '../lib/subjects'
 
 const easing = [0.23, 1, 0.32, 1]
 const colorTransition = 'background-color .35s cubic-bezier(0.23,1,0.32,1), border-color .35s cubic-bezier(0.23,1,0.32,1), color .35s cubic-bezier(0.23,1,0.32,1)'
@@ -46,8 +47,7 @@ const COPY = {
   }
 }
 
-const SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History', 'Other']
-const SCHEDULE = [['1', 'Same day'], ['2', 'Day 1'], ['3', 'Day 7'], ['4', 'Day 30'], ['5', 'Day 120']]
+const SCHEDULE =[['1', 'Same day'], ['2', 'Day 1'], ['3', 'Day 7'], ['4', 'Day 30'], ['5', 'Day 120']]
 const THEMES = [
   { id: 'chalk', name: 'Chalk', desc: 'Light, bright & white', swatch: 'bg-slate-100' },
   { id: 'parchment', name: 'Parchment', desc: 'Warm, crème & milky', swatch: 'bg-orange-50' },
@@ -127,6 +127,8 @@ export default function Onboarding() {
   const [blockers, setBlockers] = useState([])
   const [goal, setGoal] = useState(null)
   const [subjects, setSubjects] = useState([])
+  const [customSubjects, setCustomSubjects] = useState([])
+  const [customDraft, setCustomDraft] = useState(null)
   const [theme, setTheme] = useState('chalk')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -157,6 +159,13 @@ export default function Onboarding() {
     return () => { clearTimeout(showHeading); clearTimeout(showParagraph) }
   }, [step])
 
+  // Going Back and picking a different goal swaps the offered subjects, so drop
+  // any selection that no longer has a chip. Custom subjects always survive.
+  useEffect(() => {
+    const offered = [...subjectsForGoal(goal), ...customSubjects]
+    setSubjects(prev => prev.filter(s => offered.includes(s)))
+  }, [goal])
+
   const copy = COPY[mode]
   const progress = Math.round(((STEPS.indexOf(step) + 1) / STEPS.length) * 100)
   const T = THEME_COLORS[theme]
@@ -186,6 +195,22 @@ export default function Onboarding() {
 
   function toggle(list, setList, item) {
     setList(list.includes(item) ? list.filter(x => x !== item) : [...list, item])
+  }
+
+  // A custom subject is added already-selected — nobody types a subject name
+  // they don't study. Duplicates just select the existing chip.
+  function addCustomSubject() {
+    const name = (customDraft || '').trim()
+    setCustomDraft(null)
+    if (!name) return
+    const offered = [...subjectsForGoal(goal), ...customSubjects]
+    const match = offered.find(s => s.toLowerCase() === name.toLowerCase())
+    if (match) {
+      if (!subjects.includes(match)) setSubjects([...subjects, match])
+      return
+    }
+    setCustomSubjects([...customSubjects, name])
+    setSubjects([...subjects, name])
   }
 
   async function onSchoolType(v) {
@@ -428,20 +453,36 @@ export default function Onboarding() {
           {step === 'subjects' && (
             <Screen id="subjects" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('theme')}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">{copy.subjQ}</h1>
-              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Pick a few to start — you can add more anytime.</p>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">Tap to select or deselect — you can add more anytime.</p>
               <div className="flex flex-wrap gap-2">
-                {SUBJECTS.map(s => {
+                {[...subjectsForGoal(goal), ...customSubjects].map(s => {
                   const sel = subjects.includes(s)
                   return (
                     <button key={s} onClick={() => toggle(subjects, setSubjects, s)}
                       style={sel ? {} : { borderColor: T.border, color: T.ink, transition: colorTransition }}
                       className={`px-4 py-2.5 rounded-full text-[14.5px] font-bold border-2 transition-colors ${
-                        sel ? 'bg-brand-500 border-brand-500 text-white' : ''
+                        sel ? `${subjectColor(s)} border-transparent text-white` : ''
                       }`}>
                       {s}
                     </button>
                   )
                 })}
+                {customDraft === null ? (
+                  <button onClick={() => setCustomDraft('')}
+                    className="px-4 py-2.5 rounded-full text-[14.5px] font-bold border-2 border-brand-500 bg-brand-50 text-brand-600">
+                    + Add custom
+                  </button>
+                ) : (
+                  <input autoFocus value={customDraft} onChange={e => setCustomDraft(e.target.value)}
+                    onBlur={addCustomSubject}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { e.preventDefault(); addCustomSubject() }
+                      if (e.key === 'Escape') setCustomDraft(null)
+                    }}
+                    placeholder="Subject name"
+                    style={{ borderColor: T.border, color: T.ink, backgroundColor: T.cardAlt, transition: colorTransition }}
+                    className="px-4 py-2.5 w-40 rounded-full text-[14.5px] font-bold border-2 focus:outline-none focus:border-brand-500" />
+                )}
               </div>
             </Screen>
           )}
