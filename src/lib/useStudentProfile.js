@@ -8,6 +8,7 @@ export function useStudentProfile() {
   const { user } = useAuth()
   const [student, setStudent] = useState(null)
   const [allStudents, setAllStudents] = useState([])
+  const [accountType, setAccountType] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -23,6 +24,8 @@ export function useStudentProfile() {
       .select('account_type, name')
       .eq('id', user.id)
       .single()
+
+    setAccountType(accountRow?.account_type || null)
 
     const { data: existing } = await supabase
       .from('students')
@@ -103,5 +106,5 @@ export function useStudentProfile() {
     return data
   }
 
-  return { student, allStudents, loading, selectStudent, addChild, refreshStudent }
+  return { student, allStudents, accountType, loading, selectStudent, addChild, refreshStudent }
 }

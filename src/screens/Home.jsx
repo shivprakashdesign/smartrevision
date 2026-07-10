@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { initNotifications } from '../lib/notifications'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -69,14 +68,6 @@ function HomeSkeleton() {
     </div></AppShell>
   )
 }
-
-const MENU_LINKS = [
-  { to: '/learn', label: 'Learn', emoji: '📖' },
-  { to: '/referral', label: 'Refer a friend', emoji: '🎁' },
-  { to: '/settings/theme', label: 'Theme', emoji: '🎨' },
-  { to: '/settings/notifications', label: 'Notifications', emoji: '🔔' },
-  { to: '/profiles', label: 'Switch child', emoji: '👨‍👩‍👧' }
-]
 
 function TimelineCard({ topic, i }) {
   const revs = [...(topic.revisions || [])].sort((a, b) => (a.scheduled_date < b.scheduled_date ? -1 : 1))
@@ -154,13 +145,12 @@ function TimelineCard({ topic, i }) {
 }
 
 export default function Home() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const { student, loading: studentLoading, refreshStudent } = useStudentProfile()
   const navigate = useNavigate()
   const [topics, setTopics] = useState([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('due')
-  const [menuOpen, setMenuOpen] = useState(false)
   const [streakOpen, setStreakOpen] = useState(false)
   const [gemsOpen, setGemsOpen] = useState(false)
 
@@ -262,13 +252,13 @@ export default function Home() {
             <Link to="/settings/notifications" aria-label="Notifications" className="text-[var(--slate-txt)] active:scale-90 transition-transform">
               <HugeiconsIcon icon={Notification01Icon} size={22} strokeWidth={2} />
             </Link>
-            <button
-              onClick={() => setMenuOpen(v => !v)}
+            <Link
+              to="/settings"
               className="w-9 h-9 rounded-full bg-brand-500 text-white text-[12px] font-bold flex items-center justify-center active:scale-90 transition-transform"
-              aria-label="Menu"
+              aria-label="Settings"
             >
               {initials(student?.name)}
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -314,45 +304,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {/* Avatar dropdown menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-40"
-            />
-            <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
-              className="fixed z-50 top-16 right-5 w-52 bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-2"
-              style={{ boxShadow: '0 12px 40px rgba(0,0,0,0.16)' }}
-            >
-              {MENU_LINKS.map(l => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[14px] font-bold text-[var(--slate-txt)] active:bg-[var(--card-alt)] transition-colors"
-                >
-                  <span aria-hidden>{l.emoji}</span> {l.label}
-                </Link>
-              ))}
-              <button
-                onClick={() => { setMenuOpen(false); logout() }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[14px] font-bold text-red-500 active:bg-red-500/10 transition-colors"
-              >
-                <span aria-hidden>↩︎</span> Log out
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       <StreakSheet open={streakOpen} onClose={() => setStreakOpen(false)} student={student} topics={topics} onChanged={refreshStudent} />
       <GemsSheet open={gemsOpen} onClose={() => setGemsOpen(false)} student={student} />
