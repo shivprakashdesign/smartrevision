@@ -11,12 +11,14 @@ import {
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import AppShell from '../lib/AppShell'
+import LottieEmpty from '../lib/LottieEmpty'
+import topicsAnim from '../assets/lottie/topics.lottie?url'
 import { completion, computeMemory, topicBucket, nextRevision } from '../lib/metrics'
 import { subjectColor, subjectTint } from '../lib/subjects'
 
 const BUCKET_STYLE = {
   due: { label: 'Due today', cls: 'text-emerald-600 bg-emerald-500/12' },
-  missed: { label: 'Missed', cls: 'text-red-500 bg-red-500/12' },
+  missed: { label: 'To review', cls: 'text-orange-600 bg-orange-500/12' },
   upcoming: { label: 'Upcoming', cls: 'text-[var(--slate-txt)] bg-[var(--card-alt)]' },
   done: { label: 'Complete', cls: 'text-brand-500 bg-brand-500/12' }
 }
@@ -300,7 +302,11 @@ export default function Topics() {
 
         {list.length === 0 ? (
           <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
-            <p className="text-3xl mb-2">{q ? '🔍' : view === 'archived' ? '🗂️' : '📚'}</p>
+            {q || view === 'archived' ? (
+              <p className="text-3xl mb-2">{q ? '🔍' : '🗂️'}</p>
+            ) : (
+              <LottieEmpty src={topicsAnim} size={140} className="mb-2" />
+            )}
             <p className="text-[15px] text-[var(--muted)]">
               {q ? `No topics match “${query.trim()}”`
                 : view === 'archived' ? 'Nothing archived'

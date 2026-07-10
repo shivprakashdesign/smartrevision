@@ -18,9 +18,10 @@ import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../lib/metrics'
 
-const TAB_LABELS = { due: 'Due Today', missed: 'Missed', upcoming: 'Upcoming' }
-// Active-tab colour per bucket: green = on time, red = overdue, blue = ahead (theme brand).
-const TAB_ACTIVE_BG = { due: 'bg-emerald-500', missed: 'bg-red-500', upcoming: 'bg-brand-500' }
+const TAB_LABELS = { due: 'Due Today', missed: 'To review', upcoming: 'Upcoming' }
+// Active-tab colour per bucket: green = on time, orange = behind (a nudge, not
+// an alarm), blue = ahead (theme brand).
+const TAB_ACTIVE_BG = { due: 'bg-emerald-500', missed: 'bg-orange-500', upcoming: 'bg-brand-500' }
 
 function ordinal(n) {
   const s = ['th', 'st', 'nd', 'rd']
@@ -136,7 +137,7 @@ function TimelineCard({ topic, i }) {
         <span className={memTone}>
           {memory == null ? 'New' : `${memory}%`} <span className="text-[var(--muted)] font-semibold">Memory</span>
         </span>
-        <span className={`ml-auto ${onTrack ? 'text-emerald-600' : 'text-red-500'}`}>
+        <span className={`ml-auto ${onTrack ? 'text-emerald-600' : 'text-orange-600'}`}>
           {onTrack ? 'On track' : 'Behind'}
         </span>
       </div>
@@ -204,14 +205,14 @@ export default function Home() {
   const { buckets, counts } = summarize(topics)
   const list = buckets[tab]
 
-  // Lead with the achievable action; missed lives (softly) in its own tab, and
-  // becomes a positive, tappable "catch up" only when nothing is due today.
+  // Lead with the achievable action; behind-schedule items live (softly) in
+  // their own tab, and become a positive, tappable nudge when nothing's due today.
   let summaryNode
   if (counts.due > 0) {
     summaryNode = <>You've got <b className="text-[var(--ink)]">{counts.due} revision{counts.due > 1 ? 's' : ''}</b> to revise today — steady wins the streak. 💪</>
   } else if (counts.missed > 0) {
     summaryNode = <>Nothing due today — a good moment to{' '}
-      <button onClick={() => setTab('missed')} className="text-brand-500 font-bold underline underline-offset-2 active:opacity-70">catch up on {counts.missed}</button>.
+      <button onClick={() => setTab('missed')} className="text-brand-500 font-bold underline underline-offset-2 active:opacity-70">review {counts.missed}</button>.
     </>
   } else if (counts.upcoming > 0) {
     summaryNode = <>All caught up — nothing due today. 🎉</>
@@ -221,7 +222,7 @@ export default function Home() {
 
   const emptyCopy = {
     due: { emoji: '🎉', text: 'Nothing due today' },
-    missed: { emoji: '✅', text: 'No missed topics — nice!' },
+    missed: { emoji: '✅', text: 'Nothing to review — nice!' },
     upcoming: { emoji: '📭', text: 'Nothing scheduled ahead' }
   }[tab]
 

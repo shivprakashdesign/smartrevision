@@ -85,7 +85,9 @@ function countdownLabel(iso) {
 }
 function countdownCls(iso) {
   const n = daysUntil(iso)
-  if (n < 0) return 'text-red-500 bg-red-500/12'
+  // Overdue is orange here too, matching REV_STYLE.overdue on the timeline
+  // below — the hero countdown was the one place still using alarm red.
+  if (n < 0) return 'text-orange-600 bg-orange-500/12'
   if (n === 0) return 'text-amber-600 bg-amber-500/12'
   return 'text-[var(--slate-txt)] bg-[var(--card-alt)]'
 }
