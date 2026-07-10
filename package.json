@@ -17,6 +17,7 @@
     "@capacitor/share": "^6.0.2",
     "@hugeicons/core-free-icons": "^1.0.0",
     "@hugeicons/react": "^1.0.0",
+    "@lottiefiles/dotlottie-react": "^0.19.9",
     "@number-flow/react": "^0.6.1",
     "@supabase/supabase-js": "^2.45.0",
     "framer-motion": "^11.3.24",

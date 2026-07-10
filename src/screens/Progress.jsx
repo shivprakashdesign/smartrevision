@@ -6,6 +6,8 @@ import { Fire02Icon, Diamond02Icon, ChampionIcon } from '@hugeicons/core-free-ic
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import AppShell from '../lib/AppShell'
+import LottieEmpty from '../lib/LottieEmpty'
+import progressAnim from '../assets/lottie/progress.lottie?url'
 import {
   computeMemory, isOnTrack, activeDates, longestStreak,
   completedByDay, recallBreakdown, memoryBySubject, studyBalance
@@ -340,7 +342,7 @@ export default function Progress() {
         <div className="max-w-sm mx-auto">
           <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight mb-5">Progress</h1>
           <Card className="py-14 text-center px-6">
-            <p className="text-4xl mb-3">🌱</p>
+            <LottieEmpty src={progressAnim} size={140} className="mb-3" />
             <p className="text-[16px] font-bold text-[var(--ink)]">No progress yet</p>
             <p className="text-[13px] text-[var(--muted)] mt-1 mb-5">
               Add a topic and complete your first revision to watch your memory grow.
