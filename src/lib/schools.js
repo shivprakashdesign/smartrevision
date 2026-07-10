@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
 
 // The district we've seeded from UDISE+. Used only to rank local schools above
@@ -90,4 +91,35 @@ export async function findOrCreateClass(schoolId, grade) {
 export function schoolSubtitle(s) {
   const range = s.grade_from && s.grade_to ? `Classes ${s.grade_from}–${s.grade_to}` : null
   return [range, s.address].filter(Boolean).join(' · ')
+}
+
+// The school and grade behind a student's class_id, for pre-filling settings.
+export async function classSchool(classId) {
+  if (!classId) return null
+  const { data } = await supabase
+    .from('classes')
+    .select('grade, schools(*)')
+    .eq('id', classId)
+    .maybeSingle()
+  return data?.schools ? { grade: Number(data.grade), school: data.schools } : null
+}
+
+// Debounced typeahead. `enabled` lets a caller pause it — while a school is
+// already chosen, say — without unmounting the input.
+export function useSchoolSearch(query, grade, enabled = true) {
+  const [results, setResults] = useState([])
+  const [searching, setSearching] = useState(false)
+
+  useEffect(() => {
+    const q = query.trim()
+    if (!enabled || q.length < 2) { setResults([]); setSearching(false); return }
+    setSearching(true)
+    const t = setTimeout(async () => {
+      setResults(await searchSchools(q, grade))
+      setSearching(false)
+    }, 250)
+    return () => clearTimeout(t)
+  }, [query, grade, enabled])
+
+  return { results, searching }
 }

@@ -10,7 +10,7 @@ import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { STANDARD_OFFSETS, labelForOffset } from '../lib/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
 const STEP_LABELS = ['Topic', 'Details', 'Schedule']
@@ -189,9 +189,11 @@ export default function AddTopic() {
       if (rows.length < photos.length) toast.error('Some photos could not be uploaded')
     }
 
+    // A standard schedule stops at the exam: a Day-120 review for a student
+    // sitting boards in six weeks isn't a review, it's a date after the fact.
     const offsets = scheduleType === 'custom'
       ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
-      : STANDARD_OFFSETS
+      : offsetsFor(student.exam_date, today)
 
     const revisionRows = offsets.map(({ label, days }) => {
       const d = new Date(today)
@@ -389,7 +391,7 @@ export default function AddTopic() {
                   </div>
 
                   {scheduleType === 'standard' && (
-                    <p className="text-[11px] text-[var(--muted)] mt-2">Same day, 1 day, 1 week, 1 month, 4 months</p>
+                    <p className="text-[11px] text-[var(--muted)] mt-2">{scheduleSummary(student?.exam_date)}</p>
                   )}
 
                   {scheduleType === 'custom' && (

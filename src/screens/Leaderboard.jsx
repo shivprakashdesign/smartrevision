@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AppShell from '../lib/AppShell'
 import NumberFlow from '@number-flow/react'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -110,9 +111,13 @@ export default function Leaderboard() {
           <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight mb-6">Class leaderboard</h1>
 
           {!student.class_id ? (
-            <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+            <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 px-6 text-center">
               <p className="text-3xl mb-2">🏫</p>
-              <p className="text-[15px] text-[var(--muted)]">You're not in a class yet.</p>
+              <p className="text-[15px] text-[var(--muted)] mb-4">You're not in a class yet.</p>
+              <Link to="/settings/study-plan"
+                className="inline-block px-5 py-2.5 rounded-2xl bg-brand-500 text-white text-[14px] font-bold active:scale-[0.97] transition-transform">
+                Pick your school
+              </Link>
             </div>
           ) : rows.length === 0 ? (
             <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
