@@ -19,6 +19,7 @@ import Learn from './screens/Learn'
 import NotificationSettings from './screens/NotificationSettings'
 import Referral from './screens/Referral'
 import ThemeSettings from './screens/ThemeSettings'
+import StudyPlanSettings from './screens/StudyPlanSettings'
 import Settings from './screens/Settings'
 import ManageSubjects from './screens/ManageSubjects'
 import SharedTopic from './screens/SharedTopic'
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
           <Route path="/settings/subjects" element={<PrivateRoute><ManageSubjects /></PrivateRoute>} />
           <Route path="/settings/theme" element={<PrivateRoute><ThemeSettings /></PrivateRoute>} />
+          <Route path="/settings/study-plan" element={<PrivateRoute><StudyPlanSettings /></PrivateRoute>} />
           <Route path="/pro" element={<PrivateRoute><Paywall /></PrivateRoute>} />
         </Routes>
         </UpsellProvider>

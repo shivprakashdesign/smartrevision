@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { subjectColor, subjectsForGoal } from '../lib/subjects'
-import { searchSchools, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
+import { useSchoolSearch, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
 import { STANDARD_OFFSETS, offsetsFor, offsetLabel, daysUntilExam } from '../lib/schedule'
 
 const easing = [0.23, 1, 0.32, 1]
@@ -156,8 +156,6 @@ export default function Onboarding() {
   const [studyDays, setStudyDays] = useState([1, 2, 3, 4, 5, 6])
   const [school, setSchool] = useState(null)      // the chosen row, or null
   const [schoolQuery, setSchoolQuery] = useState('')
-  const [schoolResults, setSchoolResults] = useState([])
-  const [searching, setSearching] = useState(false)
   const [saving, setSaving] = useState(false)
   const [hookPct, setHookPct] = useState(0)
   const [hookReveal, setHookReveal] = useState(0)
@@ -188,20 +186,7 @@ export default function Onboarding() {
     setSubjects(prev => prev.filter(s => offered.includes(s)))
   }, [goal])
 
-  // Debounced school typeahead. Changing grade re-runs it, since grade filters
-  // out schools that don't teach the student's class.
-  useEffect(() => {
-    if (step !== 'school' || school) return
-    const q = schoolQuery.trim()
-    if (q.length < 2) { setSchoolResults([]); setSearching(false); return }
-    setSearching(true)
-    const t = setTimeout(async () => {
-      const rows = await searchSchools(q, grade)
-      setSchoolResults(rows)
-      setSearching(false)
-    }, 250)
-    return () => clearTimeout(t)
-  }, [schoolQuery, grade, step, school])
+  const { results: schoolResults, searching } = useSchoolSearch(schoolQuery, grade, step === 'school' && !school)
 
   // The preview shows the schedule a topic added today would actually get, so
   // picking an exam date visibly removes the reviews that fall after it.
