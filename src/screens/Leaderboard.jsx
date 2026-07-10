@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AppShell from '../lib/AppShell'
+import LottieEmpty from '../lib/LottieEmpty'
+import leaderboardAnim from '../assets/lottie/leaderboard.lottie?url'
 import NumberFlow from '@number-flow/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Diamond02Icon } from '@hugeicons/core-free-icons'
@@ -121,7 +123,7 @@ export default function Leaderboard() {
             </div>
           ) : rows.length === 0 ? (
             <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
-              <p className="text-3xl mb-2">🏆</p>
+              <LottieEmpty src={leaderboardAnim} size={140} className="mb-2" />
               <p className="text-[15px] text-[var(--muted)]">No rankings yet — start revising to earn gems!</p>
             </div>
           ) : (
