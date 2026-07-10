@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Fire02Icon, Diamond02Icon, Notification01Icon } from '@hugeicons/core-free-icons'
+import { Fire02Icon, Diamond02Icon, Notification01Icon, Flag02Icon } from '@hugeicons/core-free-icons'
 import BrandLogo from '../lib/BrandLogo'
 import WeekStrip from '../lib/WeekStrip'
 import StreakSheet from '../lib/StreakSheet'
@@ -127,7 +127,7 @@ function TimelineCard({ topic, i }) {
             </div>
           )
         })}
-        <span className="text-[13px] leading-none mt-0.5" aria-hidden>🏁</span>
+        <HugeiconsIcon icon={Flag02Icon} size={16} strokeWidth={2} className="text-[var(--slate-txt)] mt-0.5 shrink-0" aria-hidden />
       </div>
 
       {/* stats */}
