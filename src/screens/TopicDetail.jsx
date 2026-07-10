@@ -18,7 +18,8 @@ import {
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 import { nextRevision, intervalToDays, computeMemory } from '../lib/metrics'
 import { subjectColor, subjectGradient } from '../lib/subjects'
-import { STANDARD_OFFSETS, labelForOffset } from '../lib/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
+import { useStudentProfile } from '../lib/useStudentProfile'
 
 function randomId() {
   return globalThis.crypto?.randomUUID
@@ -97,6 +98,7 @@ const PRIORITIES = ['high', 'medium', 'low']
 export default function TopicDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { student } = useStudentProfile()   // for exam_date — truncates a rebuilt schedule
   const [topic, setTopic] = useState(null)
   const [archiving, setArchiving] = useState(false)
   const [recallCards, setRecallCards] = useState([])
@@ -179,9 +181,11 @@ export default function TopicDetail() {
     // Replace only the upcoming (incomplete) revisions; keep completed history.
     await supabase.from('revisions').delete().eq('topic_id', id).eq('completed', false)
     const today = new Date()
+    // Switching back to the standard schedule rebuilds it from today, so it is
+    // truncated against the exam date just like a freshly added topic.
     const offsets = schedType === 'custom'
       ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
-      : STANDARD_OFFSETS
+      : offsetsFor(student?.exam_date, today)
     const rows = offsets.map(({ label, days }) => {
       const d = new Date(today)
       d.setDate(d.getDate() + days)
@@ -700,7 +704,7 @@ export default function TopicDetail() {
               </div>
 
               {schedType === 'standard' && (
-                <p className="text-[11px] text-[var(--muted)]">Same day, 1 day, 1 week, 1 month, 4 months</p>
+                <p className="text-[11px] text-[var(--muted)]">{scheduleSummary(student?.exam_date)}</p>
               )}
 
               {schedType === 'custom' && (
