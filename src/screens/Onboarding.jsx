@@ -51,6 +51,13 @@ const COPY = {
 
 const todayISO = () => new Date().toLocaleDateString('en-CA')
 
+// ISO day-of-week, matching `students.study_days` and Postgres' isodow.
+const STUDY_DAYS = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [7, 'Sun']]
+
+// "Sun", "Sat and Sun", "Fri, Sat and Sun"
+const listAnd = (xs) =>
+  xs.length <= 1 ? (xs[0] || '') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`
+
 const THEMES = [
   { id: 'chalk', name: 'Chalk', desc: 'Light, bright & white', swatch: 'bg-slate-100' },
   { id: 'parchment', name: 'Parchment', desc: 'Warm, crème & milky', swatch: 'bg-orange-50' },
@@ -146,6 +153,7 @@ export default function Onboarding() {
   const [referralCode, setReferralCode] = useState('')
   const [grade, setGrade] = useState(null)
   const [examDate, setExamDate] = useState('')
+  const [studyDays, setStudyDays] = useState([1, 2, 3, 4, 5, 6])
   const [school, setSchool] = useState(null)      // the chosen row, or null
   const [schoolQuery, setSchoolQuery] = useState('')
   const [schoolResults, setSchoolResults] = useState([])
@@ -202,6 +210,13 @@ export default function Onboarding() {
   const daysLeft = daysUntilExam(examDate || null)
   const whenExam = daysLeft === 0 ? 'today' : daysLeft === 1 ? 'tomorrow' : `in ${daysLeft} days`
 
+  // Name the rest days back to the student — the promise is the whole point of
+  // asking, and it's easier to trust when it's spelled out.
+  const restDays = STUDY_DAYS.filter(([d]) => !studyDays.includes(d)).map(([, l]) => l)
+  const restDayNote = restDays.length === 0
+    ? 'Studying every day — any day you miss will break your streak.'
+    : `${listAnd(restDays)} ${restDays.length === 1 ? 'is a rest day' : 'are rest days'} — missing ${restDays.length === 1 ? 'it' : 'them'} won't break your streak.`
+
   const copy = COPY[mode]
   const steps = stepsFor(mode)
   const progress = Math.round(((steps.indexOf(step) + 1) / steps.length) * 100)
@@ -236,6 +251,18 @@ export default function Onboarding() {
 
   function toggle(list, setList, item) {
     setList(list.includes(item) ? list.filter(x => x !== item) : [...list, item])
+  }
+
+  // Never let the last study day be turned off: an empty set would make every
+  // gap zero-length and the streak unbreakable. The migration fails closed the
+  // same way, but the UI shouldn't invite it.
+  function toggleStudyDay(d) {
+    if (studyDays.includes(d)) {
+      if (studyDays.length === 1) return
+      setStudyDays(studyDays.filter(x => x !== d))
+    } else {
+      setStudyDays([...studyDays, d].sort((a, b) => a - b))
+    }
   }
 
   // A custom subject is added already-selected — nobody types a subject name
@@ -300,7 +327,8 @@ export default function Onboarding() {
         name,
         class_grade: grade ? String(grade) : null,
         class_id: classId,
-        exam_date: examDate || null
+        exam_date: examDate || null,
+        study_days: studyDays
       })
     }
 
@@ -569,6 +597,29 @@ export default function Onboarding() {
                     : 'You can switch any topic to a custom schedule later.'}
                 </p>
               </div>
+
+              {mode === 'student' && (
+                <div className="mt-5">
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest mb-2">WHICH DAYS DO YOU STUDY?</p>
+                  <div className="flex gap-1.5">
+                    {STUDY_DAYS.map(([d, label]) => {
+                      const sel = studyDays.includes(d)
+                      return (
+                        <button key={d} onClick={() => toggleStudyDay(d)}
+                          style={sel ? {} : { borderColor: T.border, color: T.muted, transition: colorTransition }}
+                          className={`flex-1 py-2 rounded-xl text-[12px] font-bold border-2 transition-colors ${
+                            sel ? 'bg-brand-500 border-brand-500 text-white' : ''
+                          }`}>
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-2">
+                    {restDayNote}
+                  </p>
+                </div>
+              )}
             </Screen>
           )}
 
