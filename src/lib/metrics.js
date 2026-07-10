@@ -223,3 +223,69 @@ export function summarize(topics, today = todayISO()) {
     }
   }
 }
+
+// A calm read on whether the student's *pace* is sustainable — not how much
+// they've done, but whether the load has tipped into backlog or cramming. Every
+// signal is derived from the revision rows we already store; nothing is
+// self-reported. Returns null when there isn't enough happening to have an
+// honest opinion, so the caller can simply hide the card.
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n))
+
+export function studyBalance(topics, now = new Date()) {
+  const today = todayISO()
+
+  // 1. Backlog pressure — topics whose next actionable revision is already past.
+  const overdue = topics.filter(t => topicBucket(t.revisions || [], today) === 'missed').length
+
+  // 2 & 3. One pass over completed revisions for late-night load + day bunching.
+  const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 6)
+  const twoWeeksAgo = new Date(now); twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 13)
+  const perDay = {}
+  let lateNight = 0
+  let completedRecent = 0
+
+  for (const t of topics) {
+    for (const r of t.revisions || []) {
+      if (!r.completed || !r.completed_at) continue
+      const raw = String(r.completed_at)
+      const when = new Date(raw)
+      if (isNaN(when.getTime())) continue
+
+      // Bunching: reviews per calendar day over the last 14 days.
+      if (when >= twoWeeksAgo) {
+        const iso = raw.slice(0, 10)
+        perDay[iso] = (perDay[iso] || 0) + 1
+        completedRecent++
+      }
+
+      // Late-night: only rows with a real time component (11pm–5am, last 7 days).
+      if (raw.includes('T') && when >= weekAgo) {
+        const h = when.getHours()
+        if (h >= 23 || h < 5) lateNight++
+      }
+    }
+  }
+
+  // Busiest single day in the window (drives the cramming signal).
+  let busiest = { count: 0, day: null }
+  for (const [iso, count] of Object.entries(perDay)) {
+    if (count > busiest.count) {
+      busiest = { count, day: WEEKDAYS[new Date(`${iso}T00:00:00`).getDay()] }
+    }
+  }
+
+  // Not enough load to say anything meaningful — let the caller skip the card.
+  if (overdue === 0 && completedRecent < 4) return null
+
+  // Score = 100 minus gentle, capped penalties. Higher = more balanced. Bands
+  // share the 67/40 thresholds the rest of Progress uses for memory colour.
+  const overduePenalty = clamp(overdue * 6, 0, 45)
+  const lateNightPenalty = clamp(lateNight * 5, 0, 25)
+  const bunchingPenalty = clamp((busiest.count - 6) * 3, 0, 20)
+  const score = clamp(Math.round(100 - overduePenalty - lateNightPenalty - bunchingPenalty), 0, 100)
+  const band = score >= 67 ? 'balanced' : score >= 40 ? 'busy' : 'overloaded'
+
+  return { score, band, overdue, lateNight, busiest }
+}
