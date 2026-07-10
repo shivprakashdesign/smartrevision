@@ -1,12 +1,5 @@
 import { supabase } from './supabase'
-
-const STANDARD_OFFSETS = [
-  { label: 'same_day', days: 0 },
-  { label: '1_day', days: 1 },
-  { label: '1_week', days: 7 },
-  { label: '1_month', days: 30 },
-  { label: '4_months', days: 120 }
-]
+import { STANDARD_OFFSETS } from './schedule'
 
 // Clone a shared topic into `studentId`'s account: the topic itself, its recall
 // cards, its photos (same public URLs — no re-upload) and a fresh standard

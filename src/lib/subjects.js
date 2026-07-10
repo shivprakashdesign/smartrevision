@@ -46,6 +46,24 @@ export function colorClassForKey(key) {
   return (BY_KEY[key] || GENERAL).cls
 }
 
+// Subjects offered during onboarding, keyed by the goal the student picked.
+// A Class 9 student never studies Physics as its own subject; a JEE aspirant
+// never studies History. Anything not listed here is reachable via Add custom.
+const BY_GOAL = {
+  'Class 6–8':   ['Maths', 'Science', 'Social Science', 'English', 'Hindi', 'Computer Sci.'],
+  'Class 9–10':  ['Maths', 'Science', 'Social Science', 'English', 'Hindi'],
+  'Class 11–12': ['Physics', 'Chemistry', 'Maths', 'Biology', 'English'],
+  'JEE / NEET':  ['Physics', 'Chemistry', 'Maths', 'Biology']
+}
+const EXPLORING = ['Maths', 'Science', 'English', 'Computer Sci.', 'History']
+
+// Parent copy says "JEE / NEET prep" where student copy says "JEE / NEET";
+// both mean the same syllabus.
+export function subjectsForGoal(goal) {
+  if (!goal) return EXPLORING
+  return BY_GOAL[goal.replace(/ prep$/, '')] || EXPLORING
+}
+
 // Top-down colour wash for the large hero card, matching the gems/streak
 // sheet treatment: a soft tint at the top fading to transparent partway down.
 export function subjectGradient(name, alpha = 0.16, stop = '58%', dir = '180deg') {
