@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { subjectColor, subjectsForGoal } from '../lib/subjects'
+import { searchSchools, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
 
 const easing = [0.23, 1, 0.32, 1]
 const colorTransition = 'background-color .35s cubic-bezier(0.23,1,0.32,1), border-color .35s cubic-bezier(0.23,1,0.32,1), color .35s cubic-bezier(0.23,1,0.32,1)'
@@ -54,8 +55,16 @@ const THEMES = [
   { id: 'slate', name: 'Slate', desc: 'Gray, hazy & dim', swatch: 'bg-slate-700' },
   { id: 'blackboard', name: 'Blackboard', desc: 'Dark, deep & midnight', swatch: 'bg-slate-950' }
 ]
-const STEPS = ['hook', 'curve', 'type', 'name', 'blockers', 'goal', 'schedule', 'subjects', 'theme', 'auth']
-const SKIP_TARGET = { hook: 'type', curve: 'type', blockers: 'goal', subjects: 'theme' }
+// Grades a student can pick, highest first — most of our users are in the
+// exam years, and a horizontal list should open on them rather than on Class 1.
+const GRADES = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
+// `school` is student-only: a parent's children each have their own school, so
+// asking once here would be wrong. See `stepsFor`.
+const STEPS = ['hook', 'curve', 'type', 'name', 'blockers', 'goal', 'school', 'schedule', 'subjects', 'theme', 'auth']
+const SKIP_TARGET = { hook: 'type', curve: 'type', blockers: 'goal', school: 'schedule', subjects: 'theme' }
+
+const stepsFor = (mode) => STEPS.filter(s => s !== 'school' || mode === 'student')
 
 function TopRow({ id, onBack, muted }) {
   const isFirst = STEPS.indexOf(id) === 0
@@ -132,10 +141,12 @@ export default function Onboarding() {
   const [theme, setTheme] = useState('chalk')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [school, setSchool] = useState('')
-  const [classGrade, setClassGrade] = useState('')
   const [referralCode, setReferralCode] = useState('')
-  const [schoolSuggestions, setSchoolSuggestions] = useState([])
+  const [grade, setGrade] = useState(null)
+  const [school, setSchool] = useState(null)      // the chosen row, or null
+  const [schoolQuery, setSchoolQuery] = useState('')
+  const [schoolResults, setSchoolResults] = useState([])
+  const [searching, setSearching] = useState(false)
   const [saving, setSaving] = useState(false)
   const [hookPct, setHookPct] = useState(0)
   const [hookReveal, setHookReveal] = useState(0)
@@ -166,8 +177,24 @@ export default function Onboarding() {
     setSubjects(prev => prev.filter(s => offered.includes(s)))
   }, [goal])
 
+  // Debounced school typeahead. Changing grade re-runs it, since grade filters
+  // out schools that don't teach the student's class.
+  useEffect(() => {
+    if (step !== 'school' || school) return
+    const q = schoolQuery.trim()
+    if (q.length < 2) { setSchoolResults([]); setSearching(false); return }
+    setSearching(true)
+    const t = setTimeout(async () => {
+      const rows = await searchSchools(q, grade)
+      setSchoolResults(rows)
+      setSearching(false)
+    }, 250)
+    return () => clearTimeout(t)
+  }, [schoolQuery, grade, step, school])
+
   const copy = COPY[mode]
-  const progress = Math.round(((STEPS.indexOf(step) + 1) / STEPS.length) * 100)
+  const steps = stepsFor(mode)
+  const progress = Math.round(((steps.indexOf(step) + 1) / steps.length) * 100)
   const T = THEME_COLORS[theme]
 
   // On mobile the onboarding card is full-bleed and should read as the whole
@@ -187,9 +214,13 @@ export default function Onboarding() {
     }
   }, [T.card])
 
+  // Navigate through the mode-filtered list, so a parent never lands on (or
+  // reverses into) the student-only school step.
+  const next = (from) => steps[Math.min(steps.length - 1, steps.indexOf(from) + 1)]
+
   function goBack() {
-    const i = STEPS.indexOf(step)
-    if (i > 0) setStep(STEPS[i - 1])
+    const i = steps.indexOf(step)
+    if (i > 0) setStep(steps[i - 1])
   }
   goBack.skip = (target) => setStep(target)
 
@@ -213,11 +244,13 @@ export default function Onboarding() {
     setSubjects([...subjects, name])
   }
 
-  async function onSchoolType(v) {
-    setSchool(v)
-    if (v.length < 2) { setSchoolSuggestions([]); return }
-    const { data } = await supabase.from('classes').select('school_name').ilike('school_name', `%${v}%`).limit(5)
-    if (data) setSchoolSuggestions([...new Set(data.map(d => d.school_name))])
+  // "Can't find your school" — hold the name, don't write it. The insert policy
+  // on `schools` requires auth.uid(), and this step runs before signup. The row
+  // is created in handleSignup once a session exists.
+  function addSchool() {
+    const name = schoolQuery.trim().replace(/\s+/g, ' ')
+    if (name.length < 2) return
+    setSchool({ pending: true, name })
   }
 
   async function handleSignup(e) {
@@ -239,24 +272,23 @@ export default function Onboarding() {
     if (acctError) { toast.error(acctError.message); setSaving(false); return }
 
     if (mode === 'student') {
-      let classId = null
-      if (school.trim() && classGrade.trim()) {
-        const key = `${school.trim().toLowerCase().replace(/\s+/g, ' ')}|${classGrade.trim().toLowerCase().replace(/\s+/g, ' ')}`
-        const { data: existing } = await supabase.from('classes').select('id').eq('normalized_key', key).maybeSingle()
-        if (existing) {
-          classId = existing.id
-        } else {
-          const { data: created } = await supabase.from('classes')
-            .insert({ school_name: school.trim(), class_name: classGrade.trim(), normalized_key: key })
-            .select().single()
-          classId = created?.id || null
-        }
+      // A school typed into the escape hatch is only written now that we have a
+      // session — the `schools` insert policy requires one.
+      let schoolId = school?.id || null
+      if (school?.pending) {
+        const row = await createSchool(school.name)
+        if (!row) toast.error(`Couldn't add ${school.name} — you can set it later`)
+        schoolId = row?.id || null
       }
+
+      // Both are optional — a student who skipped the school step still gets a
+      // profile, just without a class leaderboard until they pick one.
+      const classId = await findOrCreateClass(schoolId, grade)
       await supabase.from('students').insert({
         owner_account_id: authData.user.id,
         managed_by_parent: false,
         name,
-        class_grade: classGrade.trim() || null,
+        class_grade: grade ? String(grade) : null,
         class_id: classId
       })
     }
@@ -412,7 +444,7 @@ export default function Onboarding() {
           )}
 
           {step === 'goal' && (
-            <Screen id="goal" onBack={goBack} muted={T.muted} center={false} footer={<Btn disabled={!goal} onClick={() => setStep('schedule')}>Continue</Btn>}>
+            <Screen id="goal" onBack={goBack} muted={T.muted} center={false} footer={<Btn disabled={!goal} onClick={() => setStep(next('goal'))}>Continue</Btn>}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">{copy.goalQ}</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">This helps us personalise your experience.</p>
               <div className="space-y-2">
@@ -428,6 +460,70 @@ export default function Onboarding() {
                   )
                 })}
               </div>
+            </Screen>
+          )}
+
+          {step === 'school' && (
+            <Screen id="school" onBack={goBack} muted={T.muted} center={false} footer={<Btn onClick={() => setStep('schedule')}>Continue</Btn>}>
+              <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Join your class leaderboard</h1>
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">See how your class is doing. Skip this and you can add it later.</p>
+
+              <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest mb-2">YOUR CLASS</p>
+              <div className="flex gap-2 overflow-x-auto -mx-6 px-6 pb-1 mb-5">
+                {GRADES.map(g => {
+                  const sel = grade === g
+                  return (
+                    <button key={g} onClick={() => { setGrade(sel ? null : g); setSchool(null) }}
+                      style={sel ? {} : { borderColor: T.border, color: T.ink, transition: colorTransition }}
+                      className={`flex-shrink-0 w-12 h-12 rounded-2xl text-[15px] font-bold border-2 transition-colors ${
+                        sel ? 'bg-brand-500 border-brand-500 text-white' : ''
+                      }`}>
+                      {g}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {school ? (
+                <div className="border-2 border-brand-500 bg-brand-50 rounded-2xl p-3.5 flex items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[14.5px] font-bold text-brand-600 truncate">{school.name}</p>
+                    <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] truncate">{schoolSubtitle(school) || 'Added by you'}</p>
+                  </div>
+                  <button onClick={() => { setSchool(null); setSchoolQuery('') }} className="text-[12px] font-bold text-brand-500 flex-shrink-0">Change</button>
+                </div>
+              ) : (
+                <>
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest mb-2">YOUR SCHOOL</p>
+                  <input value={schoolQuery} onChange={e => setSchoolQuery(e.target.value)}
+                    placeholder={grade ? 'Search your school' : 'Pick your class first'} disabled={!grade} style={inputStyle}
+                    className="w-full border-2 rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:border-brand-500 transition-colors disabled:opacity-50" />
+
+                  <div className="mt-2 space-y-2">
+                    {schoolResults.map(s => (
+                      <button key={s.id} onClick={() => setSchool(s)}
+                        style={{ borderColor: T.border, transition: colorTransition }}
+                        className="w-full text-left border-2 rounded-2xl p-3 active:border-brand-500 transition-colors">
+                        <p style={{ color: T.ink, transition: colorTransition }} className="text-[14px] font-bold">{s.name}</p>
+                        <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px]">{schoolSubtitle(s)}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Only offer the escape hatch when the search comes up empty.
+                      Offering it beside a match invites a school named "machhi". */}
+                  {grade && schoolQuery.trim().length >= 2 && !searching && !schoolResults.length && (
+                    <div className="mt-3">
+                      <p style={{ color: T.muted, transition: colorTransition }} className="text-[13px]">
+                        No school found for Class {grade}.
+                      </p>
+                      <button onClick={addSchool} className="text-[13px] font-bold text-brand-500 mt-1">
+                        Add "{schoolQuery.trim()}"
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </Screen>
           )}
 
@@ -512,24 +608,15 @@ export default function Onboarding() {
             <Screen id="auth" onBack={goBack} muted={T.muted} center={false}>
               <h1 style={{ color: T.ink, transition: colorTransition }} className="text-[23px] font-bold tracking-tight mb-1">Almost there, {name}!</h1>
               <p style={{ color: T.muted, transition: colorTransition }} className="text-[14.5px] mb-4">
-                {mode === 'student' ? 'Your school & class connect you to your class leaderboard.' : "Create your account — you'll add your child right after."}
+                {mode === 'student'
+                  ? school ? `We'll put you on the Class ${grade} leaderboard at ${school.name}.` : 'Create your account to save your revisions.'
+                  : "Create your account — you'll add your child right after."}
               </p>
               <form onSubmit={handleSignup} className="space-y-2.5">
                 <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle}
                   className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                 <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={inputStyle}
                   className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
-                {mode === 'student' && (
-                  <>
-                    <input placeholder="School name" value={school} onChange={e => onSchoolType(e.target.value)} list="school-suggestions" style={inputStyle}
-                      className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
-                    <datalist id="school-suggestions">
-                      {schoolSuggestions.map(s => <option key={s} value={s} />)}
-                    </datalist>
-                    <input placeholder="Class (e.g. Class 11)" value={classGrade} onChange={e => setClassGrade(e.target.value)} style={inputStyle}
-                      className="w-full border rounded-2xl px-4 py-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
-                  </>
-                )}
                 <input placeholder="Referral code (optional)" value={referralCode} onChange={e => setReferralCode(e.target.value)} style={inputStyle}
                   className="w-full border rounded-2xl px-4 py-3 text-[15px] uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors" />
                 <Btn type="submit" disabled={saving}>{saving ? 'Creating account...' : 'Start revising'}</Btn>
