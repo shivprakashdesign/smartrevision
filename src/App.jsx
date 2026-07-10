@@ -20,6 +20,7 @@ import NotificationSettings from './screens/NotificationSettings'
 import Referral from './screens/Referral'
 import ThemeSettings from './screens/ThemeSettings'
 import Settings from './screens/Settings'
+import ManageSubjects from './screens/ManageSubjects'
 import SharedTopic from './screens/SharedTopic'
 import Paywall from './screens/Paywall'
 import { UpsellProvider } from './lib/ProUpsell'
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettings /></PrivateRoute>} />
           <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+          <Route path="/settings/subjects" element={<PrivateRoute><ManageSubjects /></PrivateRoute>} />
           <Route path="/settings/theme" element={<PrivateRoute><ThemeSettings /></PrivateRoute>} />
           <Route path="/pro" element={<PrivateRoute><Paywall /></PrivateRoute>} />
         </Routes>
