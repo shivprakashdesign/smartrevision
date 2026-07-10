@@ -223,9 +223,9 @@ export default function ManageSubjects() {
               className="fixed inset-0 z-40 bg-black/40"
             />
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98, x: '-50%' }} animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }} exit={{ opacity: 0, y: 20, scale: 0.98, x: '-50%' }}
               transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              className="fixed z-50 left-1/2 -translate-x-1/2 bottom-6 w-[calc(100%-2.5rem)] max-w-sm bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-5"
+              className="fixed z-50 left-1/2 bottom-6 w-[calc(100%-2.5rem)] max-w-sm bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-5"
             >
               <h2 className="text-[17px] font-bold text-[var(--ink)] mb-1">Rename subject</h2>
               <p className="text-[13px] text-[var(--muted)] mb-4">Renaming to an existing subject merges the two.</p>
@@ -256,9 +256,9 @@ export default function ManageSubjects() {
               className="fixed inset-0 z-40 bg-black/40"
             />
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98, x: '-50%' }} animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }} exit={{ opacity: 0, y: 20, scale: 0.98, x: '-50%' }}
               transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              className="fixed z-50 left-1/2 -translate-x-1/2 bottom-6 w-[calc(100%-2.5rem)] max-w-sm bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-5"
+              className="fixed z-50 left-1/2 bottom-6 w-[calc(100%-2.5rem)] max-w-sm bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-5"
             >
               <div className="flex items-center gap-2 mb-2">
                 <HugeiconsIcon icon={Alert02Icon} size={22} strokeWidth={2} className="text-red-500" />
