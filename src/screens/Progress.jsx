@@ -341,7 +341,7 @@ export default function Progress() {
       <AppShell nav><div className="px-5 pt-6 pb-4">
         <div className="max-w-sm mx-auto">
           <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight mb-5">Progress</h1>
-          <Card className="py-14 text-center px-6">
+          <div className="py-14 text-center px-6 animate-enter">
             <LottieEmpty src={progressAnim} size={140} className="mb-3" />
             <p className="text-[16px] font-bold text-[var(--ink)]">No progress yet</p>
             <p className="text-[13px] text-[var(--muted)] mt-1 mb-5">
@@ -353,7 +353,7 @@ export default function Progress() {
             >
               Add a topic
             </Link>
-          </Card>
+          </div>
         </div>
       </div></AppShell>
     )
