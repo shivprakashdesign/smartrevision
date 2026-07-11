@@ -122,7 +122,7 @@ export default function Leaderboard() {
               </Link>
             </div>
           ) : rows.length === 0 ? (
-            <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+            <div className="py-12 text-center">
               <LottieEmpty src={leaderboardAnim} size={140} className="mb-2" />
               <p className="text-[15px] text-[var(--muted)]">No rankings yet — start revising to earn gems!</p>
             </div>
@@ -130,7 +130,7 @@ export default function Leaderboard() {
             // Extra bottom padding so the last row can scroll clear of the pinned "your rank" bar.
             <div className="space-y-3" style={{ paddingBottom: '130px' }}>
               {others.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+                <div className="py-12 text-center">
                   <LottieEmpty src={leaderboardAnim} size={140} className="mb-2" />
                   <p className="text-[15px] text-[var(--muted)] px-6">
                     You're the only one in your class so far — invite classmates to compete!

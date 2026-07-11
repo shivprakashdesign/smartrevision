@@ -301,7 +301,7 @@ export default function Topics() {
         )}
 
         {list.length === 0 ? (
-          <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+          <div className="py-12 text-center">
             {q || view === 'archived' ? (
               <p className="text-3xl mb-2">{q ? '🔍' : '🗂️'}</p>
             ) : (
