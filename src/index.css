@@ -93,6 +93,45 @@ body {
   animation: emoji-bob 3s ease-in-out infinite;
 }
 
+/* Bottom-nav tap reactions — each icon plays a one-shot animation when its tab
+   is tapped. The wrapping span is re-keyed on every tap so the animation
+   restarts even when the tab is already active. transform-box keeps the
+   transform-origin anchored to the icon's own box (SVGs default oddly). */
+.tab-anim { display: inline-block; transform-box: fill-box; }
+
+/* Home — a friendly little hop. */
+@keyframes tap-home {
+  0% { transform: translateY(0); }
+  35% { transform: translateY(-5px); }
+  60% { transform: translateY(1px); }
+  100% { transform: translateY(0); }
+}
+.tab-anim-home { animation: tap-home 480ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* Book — flips open around its spine (the left edge). */
+@keyframes tap-book {
+  0% { transform: perspective(300px) rotateY(0deg); }
+  45% { transform: perspective(300px) rotateY(-58deg); }
+  100% { transform: perspective(300px) rotateY(0deg); }
+}
+.tab-anim-book { transform-origin: left center; animation: tap-book 560ms ease-in-out; }
+
+/* Plant — springs up from its base as if growing. */
+@keyframes tap-plant {
+  0% { transform: scaleY(0.72) scaleX(1.06); }
+  55% { transform: scaleY(1.14) scaleX(0.94); }
+  100% { transform: scaleY(1) scaleX(1); }
+}
+.tab-anim-plant { transform-origin: bottom center; animation: tap-plant 560ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* Trophy — a celebratory spin. */
+@keyframes tap-trophy {
+  0% { transform: rotate(0deg) scale(1); }
+  55% { transform: rotate(360deg) scale(1.12); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.tab-anim-trophy { transform-origin: center; animation: tap-trophy 620ms cubic-bezier(0.5, 0, 0.2, 1); }
+
 /* Respect reduced-motion: strip movement/transitions but let content still
    change state instantly. Motion sickness is real; this is correctness. */
 @media (prefers-reduced-motion: reduce) {
