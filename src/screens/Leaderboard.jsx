@@ -136,9 +136,13 @@ export default function Leaderboard() {
               {others.length === 0 ? (
                 <div className="py-12 text-center">
                   <LottieEmpty src={leaderboardAnim} size={140} className="mb-2" />
-                  <p className="text-[15px] text-[var(--muted)] px-6">
-                    You're the only one in your class so far — invite classmates to compete!
+                  <p className="text-[15px] text-[var(--muted)] px-6 mb-4">
+                    You're the only one in your class so far. Invite classmates and race to the top.
                   </p>
+                  <Link to="/referral"
+                    className="inline-block px-5 py-2.5 rounded-2xl bg-brand-500 text-white text-[14px] font-bold active:scale-[0.97] transition-transform">
+                    Invite classmates
+                  </Link>
                 </div>
               ) : (
                 others.map(r => <Row key={r.student_id} r={r} you={false} />)
