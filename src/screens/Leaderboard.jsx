@@ -105,6 +105,9 @@ export default function Leaderboard() {
   const me = rows.find(r => r.student_id === student.id)
   // You always live in the pinned card below, so keep yourself out of the scrolling list.
   const others = rows.filter(r => r.student_id !== student.id)
+  // A rank only means something against someone else — alone in the class, the
+  // "invite classmates" empty state says all there is to say.
+  const showRank = me && others.length > 0
 
   return (
     <AppShell nav>
@@ -127,14 +130,19 @@ export default function Leaderboard() {
               <p className="text-[15px] text-[var(--muted)]">No rankings yet — start revising to earn gems!</p>
             </div>
           ) : (
-            // Extra bottom padding so the last row can scroll clear of the pinned "your rank" bar.
-            <div className="space-y-3" style={{ paddingBottom: '130px' }}>
+            // Extra bottom padding so the last row can scroll clear of the pinned
+            // "your rank" bar — only needed when that bar is actually shown.
+            <div className="space-y-3" style={{ paddingBottom: showRank ? '130px' : undefined }}>
               {others.length === 0 ? (
                 <div className="py-12 text-center">
                   <LottieEmpty src={leaderboardAnim} size={140} className="mb-2" />
-                  <p className="text-[15px] text-[var(--muted)] px-6">
-                    You're the only one in your class so far — invite classmates to compete!
+                  <p className="text-[15px] text-[var(--muted)] px-6 mb-4">
+                    You're the only one in your class so far. Invite classmates and race to the top.
                   </p>
+                  <Link to="/referral"
+                    className="inline-block px-5 py-2.5 rounded-2xl bg-brand-500 text-white text-[14px] font-bold active:scale-[0.97] transition-transform">
+                    Invite classmates
+                  </Link>
                 </div>
               ) : (
                 others.map(r => <Row key={r.student_id} r={r} you={false} />)
@@ -145,7 +153,7 @@ export default function Leaderboard() {
       </div>
 
       {/* Pinned "your live ranking" — stays docked above the bottom nav while the list scrolls behind it. */}
-      {me && (
+      {showRank && (
         <div className="sticky z-30" style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
           <div className="px-5 pt-5 pb-2 bg-gradient-to-t from-[var(--bg)] from-70% to-transparent">
             <div className="max-w-sm mx-auto">
