@@ -5,10 +5,13 @@ import {
   Home01Icon, BookOpen02Icon, PlusSignIcon, Plant01Icon, ChampionIcon
 } from '@hugeicons/core-free-icons'
 
-// Native-feeling bottom tab bar. Fixed to the bottom, floats above content,
-// and respects the iOS home-indicator safe area. The center "+" is a raised
-// brand action (Add topic); the four flanking tabs are Home/Topics · Progress/Rank.
-// Icons are HugeIcons (matching the design mockup).
+// Native-feeling bottom tab bar. Laid out in normal document flow as the last
+// child of AppShell's flex column and pinned to the viewport bottom with
+// `position: sticky`. Sticky (not fixed) sidesteps the iOS standalone-PWA bug
+// where position:fixed is painted against a not-yet-settled viewport on first
+// load and lands too high until a reflow. It respects the iOS home-indicator
+// safe area. The center "+" is a raised brand action (Add topic); the four
+// flanking tabs are Home/Topics · Progress/Rank. Icons are HugeIcons.
 
 const TABS = [
   { to: '/home', label: 'Home', icon: Home01Icon, anim: 'home' },
@@ -48,7 +51,7 @@ function Tab({ to, label, icon, anim }) {
 export default function BottomNav() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 pointer-events-none"
+      className="sticky bottom-0 z-40 pointer-events-none"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="max-w-sm mx-auto px-4 pb-2">

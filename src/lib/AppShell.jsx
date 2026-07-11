@@ -8,26 +8,28 @@ export default function AppShell({ children, nav = false }) {
   // min-height of 100dvh always reaches the true bottom, and the safe-area
   // insets keep content clear of the notch and home indicator.
   //
-  // `nav` opts a screen into the floating bottom tab bar. A spacer of the bar's
-  // height keeps the last content scrollable clear of it.
+  // `nav` opts a screen into the bottom tab bar. The shell is a flex column: the
+  // content area grows to fill, so a short page still pushes the bar to the true
+  // bottom, and a tall page lets the sticky bar pin to the viewport bottom while
+  // scrolling — all in normal flow, avoiding the iOS fixed-position first-paint
+  // bug. The content's bottom padding clears the raised center "+" that overhangs
+  // the bar. For nav screens the sticky bar owns the bottom safe-area (so there's
+  // no gap beneath it); plain screens keep it here to clear the home indicator.
   return (
     <div
       className="font-sans"
       style={{
         minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
         backgroundColor: 'var(--bg)',
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingBottom: nav ? 0 : 'env(safe-area-inset-bottom)',
         transition: 'background-color .35s cubic-bezier(0.23,1,0.32,1)'
       }}
     >
-      {children}
-      {nav && (
-        <>
-          <div aria-hidden style={{ height: 'calc(84px + env(safe-area-inset-bottom))' }} />
-          <BottomNav />
-        </>
-      )}
+      <div style={{ flex: '1 0 auto', paddingBottom: nav ? '2rem' : 0 }}>{children}</div>
+      {nav && <BottomNav />}
     </div>
   )
 }
