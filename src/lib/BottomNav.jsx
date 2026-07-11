@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -10,23 +11,35 @@ import {
 // Icons are HugeIcons (matching the design mockup).
 
 const TABS = [
-  { to: '/home', label: 'Home', icon: Home01Icon },
-  { to: '/topics', label: 'Topics', icon: BookOpen02Icon },
-  { to: '/progress', label: 'Progress', icon: Plant01Icon },
-  { to: '/leaderboard', label: 'Rank', icon: ChampionIcon }
+  { to: '/home', label: 'Home', icon: Home01Icon, anim: 'home' },
+  { to: '/topics', label: 'Topics', icon: BookOpen02Icon, anim: 'book' },
+  { to: '/progress', label: 'Progress', icon: Plant01Icon, anim: 'plant' },
+  { to: '/leaderboard', label: 'Rank', icon: ChampionIcon, anim: 'trophy' }
 ]
 
-function Tab({ to, label, icon }) {
+function Tab({ to, label, icon, anim }) {
   const { pathname } = useLocation()
   const active = pathname === to
+  // Bump on each tap so the icon replays even when the tab is already active.
+  // Each screen mounts its own AppShell/BottomNav, so navigating to a tab
+  // remounts this component fresh — the active tab then plays its animation on
+  // mount. The key combines `active` + `tick` so the wrapping span remounts (and
+  // the CSS one-shot restarts) both when this tab becomes active and on re-tap.
+  const [tick, setTick] = useState(0)
   return (
     <Link
       to={to}
+      onClick={() => setTick((t) => t + 1)}
       className="flex-1 flex flex-col items-center gap-1 py-1 active:scale-90 transition-transform"
       style={{ color: active ? 'hsl(213,96%,56%)' : 'var(--muted)' }}
       aria-current={active ? 'page' : undefined}
     >
-      <HugeiconsIcon icon={icon} size={24} strokeWidth={active ? 2.4 : 1.8} />
+      <span
+        key={`${active}-${tick}`}
+        className={active ? `tab-anim tab-anim-${anim}` : 'tab-anim'}
+      >
+        <HugeiconsIcon icon={icon} size={24} strokeWidth={active ? 2.4 : 1.8} />
+      </span>
       <span className="text-[10px] font-bold tracking-tight">{label}</span>
     </Link>
   )
