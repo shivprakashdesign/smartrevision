@@ -49,7 +49,15 @@ export default function BottomNav() {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 pointer-events-none"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      style={{
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        // iOS standalone PWAs paint position:fixed against a not-yet-settled
+        // viewport on first load, dropping the bar too high until the next
+        // reflow (scroll/tap). Promoting it to its own compositing layer makes
+        // iOS anchor it to the true viewport bottom from the first frame.
+        transform: 'translateZ(0)',
+        willChange: 'transform'
+      }}
     >
       <div className="max-w-sm mx-auto px-4 pb-2">
         <div
