@@ -12,9 +12,9 @@ export default function AppShell({ children, nav = false }) {
   // content area grows to fill, so a short page still pushes the bar to the true
   // bottom, and a tall page lets the sticky bar pin to the viewport bottom while
   // scrolling — all in normal flow, avoiding the iOS fixed-position first-paint
-  // bug. The content's bottom padding clears the raised center "+" that overhangs
-  // the bar. For nav screens the sticky bar owns the bottom safe-area (so there's
-  // no gap beneath it); plain screens keep it here to clear the home indicator.
+  // bug. The content's bottom padding is breathing room above the flat bar. For
+  // nav screens the sticky bar owns the bottom safe-area (so there's no gap
+  // beneath it); plain screens keep it here to clear the home indicator.
   return (
     <div
       className="font-sans"
@@ -28,7 +28,7 @@ export default function AppShell({ children, nav = false }) {
         transition: 'background-color .35s cubic-bezier(0.23,1,0.32,1)'
       }}
     >
-      <div style={{ flex: '1 0 auto', paddingBottom: nav ? '2rem' : 0 }}>{children}</div>
+      <div style={{ flex: '1 0 auto', paddingBottom: nav ? '1rem' : 0 }}>{children}</div>
       {nav && <BottomNav />}
     </div>
   )
