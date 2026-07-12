@@ -619,12 +619,18 @@ export default function TopicDetail() {
           {!editingTopic && <>
           <div className="flex gap-2 mt-4">
             {next ? (
-              <Link
-                to={`/revise/${next.id}`}
-                className="flex-1 py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform"
-              >
-                <HugeiconsIcon icon={FlashIcon} size={16} strokeWidth={2} /> Revise now
-              </Link>
+              next.scheduled_date > todayISO() ? (
+                <div className="flex-1 py-2.5 rounded-2xl bg-[var(--card-alt)] text-[var(--muted)] text-[13px] font-bold inline-flex items-center justify-center gap-1.5">
+                  <HugeiconsIcon icon={AlarmClockIcon} size={16} strokeWidth={2} /> Next revision {dayMonth(next.scheduled_date)}
+                </div>
+              ) : (
+                <Link
+                  to={`/revise/${next.id}`}
+                  className="flex-1 py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform"
+                >
+                  <HugeiconsIcon icon={FlashIcon} size={16} strokeWidth={2} /> Revise now
+                </Link>
+              )
             ) : (
               <div className="flex-1 py-2.5 rounded-2xl bg-[var(--card-alt)] text-[var(--muted)] text-[13px] font-bold inline-flex items-center justify-center gap-1.5">
                 All revisions done 🎉

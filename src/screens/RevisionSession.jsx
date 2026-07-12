@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 
+const todayISO = () => new Date().toISOString().slice(0, 10)
+const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+
 export default function RevisionSession() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -118,6 +121,33 @@ export default function RevisionSession() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Loading...</div>
   if (!revision) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Revision not found</div>
+
+  // Guard the flow itself, not just the entry buttons: a future-dated revision
+  // stays locked (revising early defeats the spacing interval), and a completed
+  // one can't be re-done for extra gems.
+  const isLocked = !revision.completed && revision.scheduled_date > todayISO()
+  if (revision.completed || isLocked) {
+    return (
+      <AppShell><div className="px-6 flex items-center justify-center" style={{ minHeight: '100dvh' }}>
+        <div className="w-full max-w-sm bg-[var(--card)] rounded-3xl shadow-sm border border-[var(--border)] p-6 text-center">
+          <p className="text-3xl mb-3">{isLocked ? '🔒' : '✅'}</p>
+          <p className="text-[12px] text-[var(--muted)] mb-1">{revision.topics.subject}</p>
+          <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight mb-3">{revision.topics.topic_name}</h1>
+          <p className="text-[14px] text-[var(--slate-txt)] mb-6">
+            {isLocked
+              ? <>This revision unlocks on <b className="text-[var(--ink)]">{longDate(revision.scheduled_date)}</b>. The gap is what makes it stick — see you then!</>
+              : 'This revision is already done — nothing more to log here.'}
+          </p>
+          <button
+            onClick={() => navigate(`/topic/${revision.topics.id}`)}
+            className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
+          >
+            Back to topic
+          </button>
+        </div>
+      </div></AppShell>
+    )
+  }
 
   const easing = [0.23, 1, 0.32, 1]
 

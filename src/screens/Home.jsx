@@ -78,6 +78,8 @@ function TimelineCard({ topic, i }) {
   const memory = computeMemory(revs)
   const onTrack = isOnTrack(revs)
   const next = nextRevision(revs)
+  // Future revisions stay locked — revising early defeats the spacing interval.
+  const nextIsLocked = next && next.scheduled_date > todayISO()
   // Colour the memory % so a low score reads as "revise me", not failure.
   // ~37% is the forgetting-curve point where a revision is due.
   const memTone = memory == null ? 'text-[var(--slate-txt)]'
@@ -103,14 +105,18 @@ function TimelineCard({ topic, i }) {
         <Link to={`/topic/${topic.id}`} className="text-[19px] font-bold text-[var(--ink)] tracking-tight leading-tight">
           {topic.topic_name}
         </Link>
-        {next && (
+        {next && (nextIsLocked ? (
+          <span className="shrink-0 px-4 py-2 rounded-2xl bg-[var(--card-alt)] text-[var(--muted)] text-[13px] font-bold">
+            Unlocks {shortDate(next.scheduled_date)}
+          </span>
+        ) : (
           <Link
             to={`/revise/${next.id}`}
             className="shrink-0 px-4 py-2 rounded-2xl bg-brand-500 text-white text-[13px] font-bold active:scale-95 transition-transform"
           >
             Revise
           </Link>
-        )}
+        ))}
       </div>
 
       {/* 5-stage revision timeline */}
