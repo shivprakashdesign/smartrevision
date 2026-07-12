@@ -5,10 +5,18 @@ import {
   Home01Icon, BookOpen02Icon, PlusSignIcon, Plant01Icon, ChampionIcon
 } from '@hugeicons/core-free-icons'
 
-// Native-feeling bottom tab bar. Fixed to the bottom, floats above content,
-// and respects the iOS home-indicator safe area. The center "+" is a raised
-// brand action (Add topic); the four flanking tabs are Home/Topics · Progress/Rank.
-// Icons are HugeIcons (matching the design mockup).
+// Native-feeling bottom tab bar. Laid out in normal document flow as the last
+// child of AppShell's flex column and pinned to the viewport bottom with
+// `position: sticky`. Sticky (not fixed) sidesteps the iOS standalone-PWA bug
+// where position:fixed is painted against a not-yet-settled viewport on first
+// load and lands too high until a reflow. It respects the iOS home-indicator
+// safe area. Five equal slots: Home · Topics · Add · Progress · Rank. The Add
+// action is a brand-filled chip sitting inline with the others (no raised FAB —
+// keeps the bar flat and avoids overhanging content). Icons are HugeIcons.
+
+// Fixed-height icon row so the 24px outline icons and the Add chip share a
+// baseline and every label lines up.
+const ICON_SLOT = 'h-7 flex items-center justify-center'
 
 const TABS = [
   { to: '/home', label: 'Home', icon: Home01Icon, anim: 'home' },
@@ -34,13 +42,35 @@ function Tab({ to, label, icon, anim }) {
       style={{ color: active ? 'hsl(213,96%,56%)' : 'var(--muted)' }}
       aria-current={active ? 'page' : undefined}
     >
-      <span
-        key={`${active}-${tick}`}
-        className={active ? `tab-anim tab-anim-${anim}` : 'tab-anim'}
-      >
-        <HugeiconsIcon icon={icon} size={24} strokeWidth={active ? 2.4 : 1.8} />
+      <span className={ICON_SLOT}>
+        <span
+          key={`${active}-${tick}`}
+          className={active ? `tab-anim tab-anim-${anim}` : 'tab-anim'}
+        >
+          <HugeiconsIcon icon={icon} size={24} strokeWidth={active ? 2.4 : 1.8} />
+        </span>
       </span>
       <span className="text-[10px] font-bold tracking-tight">{label}</span>
+    </Link>
+  )
+}
+
+// Add: the primary create action, styled as a flat brand-filled chip that lives
+// inline in the row (same slot width and label baseline as the tabs).
+function AddTab() {
+  return (
+    <Link
+      to="/add-topic"
+      aria-label="Add topic"
+      className="flex-1 flex flex-col items-center gap-1 py-1 active:scale-90 transition-transform"
+      style={{ color: 'var(--muted)' }}
+    >
+      <span className={ICON_SLOT}>
+        <span className="w-7 h-7 rounded-full bg-brand-500 text-white flex items-center justify-center">
+          <HugeiconsIcon icon={PlusSignIcon} size={18} strokeWidth={2.8} />
+        </span>
+      </span>
+      <span className="text-[10px] font-bold tracking-tight">Add</span>
     </Link>
   )
 }
@@ -48,31 +78,17 @@ function Tab({ to, label, icon, anim }) {
 export default function BottomNav() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 pointer-events-none"
+      className="sticky bottom-0 z-40 pointer-events-none"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="max-w-sm mx-auto px-4 pb-2">
         <div
-          className="pointer-events-auto relative flex items-center rounded-[28px] bg-[var(--card)] border border-[var(--border)] px-3 py-2"
+          className="pointer-events-auto flex items-center rounded-[28px] bg-[var(--card)] border border-[var(--border)] px-3 py-2"
           style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
         >
           <Tab {...TABS[0]} />
           <Tab {...TABS[1]} />
-
-          {/* Center Add action — a raised FAB that floats above the bar. The
-              translate lifts the whole slot (layout untouched) while the Link keeps
-              its own press-scale; the bg-coloured ring cuts it out of the bar. */}
-          <div className="flex-1 flex justify-center items-center" style={{ transform: 'translateY(-30px)' }}>
-            <Link
-              to="/add-topic"
-              aria-label="Add topic"
-              className="w-14 h-14 rounded-full bg-brand-500 text-white flex items-center justify-center ring-4 ring-[var(--bg)] active:scale-90 transition-transform"
-              style={{ boxShadow: '0 10px 22px rgba(37,99,235,0.42)' }}
-            >
-              <HugeiconsIcon icon={PlusSignIcon} size={26} strokeWidth={2.6} />
-            </Link>
-          </div>
-
+          <AddTab />
           <Tab {...TABS[2]} />
           <Tab {...TABS[3]} />
         </div>
