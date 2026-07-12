@@ -14,6 +14,8 @@ import { useAuth } from '../lib/AuthContext'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { applyPendingShare } from '../lib/sharing'
 import AppShell from '../lib/AppShell'
+import LottieEmpty from '../lib/LottieEmpty'
+import allDoneAnim from '../assets/lottie/all-done.lottie?url'
 import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../lib/metrics'
@@ -226,6 +228,12 @@ export default function Home() {
     upcoming: { emoji: '📭', text: 'Nothing scheduled ahead' }
   }[tab]
 
+  // Did they actually clear today's work (vs nothing having been due)? Only then
+  // is the empty "Due Today" tab a celebration worth animating.
+  const clearedDueToday = topics.some(t =>
+    (t.revisions || []).some(r => r.scheduled_date === todayISO() && r.completed)
+  )
+
   return (
     <AppShell nav><div className="px-5 pt-6 pb-4">
       <div className="max-w-sm mx-auto">
@@ -295,10 +303,18 @@ export default function Home() {
 
         {/* List */}
         {list.length === 0 ? (
-          <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
-            <p className="text-3xl mb-2">{emptyCopy.emoji}</p>
-            <p className="text-[15px] text-[var(--muted)]">{emptyCopy.text}</p>
-          </div>
+          tab === 'due' && clearedDueToday ? (
+            <div className="py-10 text-center">
+              <LottieEmpty src={allDoneAnim} size={160} />
+              <p className="text-[16px] font-bold text-[var(--ink)] mt-1">All done for today!</p>
+              <p className="text-[13px] text-[var(--muted)] mt-1">You've cleared every revision due today. See you tomorrow. 👋</p>
+            </div>
+          ) : (
+            <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+              <p className="text-3xl mb-2">{emptyCopy.emoji}</p>
+              <p className="text-[15px] text-[var(--muted)]">{emptyCopy.text}</p>
+            </div>
+          )
         ) : (
           <div className="space-y-3">
             {list.map((t, i) => <TimelineCard key={t.id} topic={t} i={i} />)}
