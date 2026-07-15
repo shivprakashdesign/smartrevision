@@ -9,6 +9,7 @@ import BrandLogo from '../lib/BrandLogo'
 import WeekStrip from '../lib/WeekStrip'
 import StreakSheet from '../lib/StreakSheet'
 import GemsSheet from '../lib/GemsSheet'
+import ForecastSheet from '../lib/ForecastSheet'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { useStudentProfile } from '../lib/useStudentProfile'
@@ -19,6 +20,7 @@ import allDoneAnim from '../assets/lottie/all-done.lottie?url'
 import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../lib/metrics'
+import { forecastCard, forecastBySubject } from '../lib/forecast'
 
 const TAB_LABELS = { due: 'Due Today', missed: 'To review', upcoming: 'Upcoming' }
 // Active-tab colour per bucket: green = on time, orange = behind (a nudge, not
@@ -72,6 +74,97 @@ function HomeSkeleton() {
   )
 }
 
+// Same 67/40 bands the memory% stat uses: green = holding, amber = fading,
+// red = revise me. Low is a nudge, never a verdict.
+const toneText = m => (m >= 67 ? 'text-emerald-600' : m >= 40 ? 'text-amber-600' : 'text-red-500')
+const toneBar = m => (m >= 67 ? 'bg-emerald-500' : m >= 40 ? 'bg-amber-500' : 'bg-red-500')
+
+function examKicker(daysLeft, examISO) {
+  const when = daysLeft === 0 ? 'Exam today' : daysLeft === 1 ? 'Exam tomorrow' : `Exam in ${daysLeft} days`
+  return `${when} · ${shortDate(examISO)}`
+}
+
+// The Memory Forecast hero: where you're headed on exam day, and what today's
+// session is worth. All numbers come from forecastCard() — this just renders
+// its four states. The % is deliberately "~" and capped at 90+ so the model
+// never over-promises. Exported so it can render outside Home (harness/tests).
+export function ForecastCard({ topics, examDate, onToday, onOpen }) {
+  const card = forecastCard(topics, examDate)
+  if (card.state === 'hidden') return null
+
+  const shell = 'bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)] shadow-sm mb-4 animate-enter'
+
+  if (card.state === 'no-exam') {
+    return (
+      <Link to="/settings/study-plan" className={`block ${shell} active:scale-[0.98] transition-transform`}>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">Memory forecast</p>
+        <p className="text-[15px] font-bold text-[var(--ink)] mt-1">
+          When's your exam? <span className="text-brand-500">Set the date →</span>
+        </p>
+        <p className="text-[12px] text-[var(--muted)] mt-0.5">See how much you'll remember on exam day.</p>
+      </Link>
+    )
+  }
+
+  if (card.state === 'locked') {
+    return (
+      <div className={shell}>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">{examKicker(card.daysLeft, examDate)}</p>
+        <p className="text-[13px] text-[var(--slate-txt)] mt-1">
+          Revise <b className="text-[var(--ink)]">{card.needed} more topic{card.needed > 1 ? 's' : ''}</b> to unlock your memory forecast.
+        </p>
+      </div>
+    )
+  }
+
+  const capped = card.planned > 90
+  // Today's reps only get the headline when they truly move the number;
+  // otherwise the keep-vs-stop gap is the honest motivator.
+  const showToday = card.today && card.today.count > 0 && card.today.delta >= 3
+  const showGap = !showToday && card.ifStopped != null && card.planned - card.ifStopped >= 5
+  // Final week: surface the per-subject triage right on the card, weakest first.
+  const subjects = card.daysLeft <= 7
+    ? forecastBySubject(topics, examDate).filter(s => s.planned != null).slice(0, 4)
+    : []
+
+  return (
+    <div className={`${shell} cursor-pointer active:scale-[0.99] transition-transform`} onClick={onOpen}>
+      <div className="flex justify-between items-center">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">{examKicker(card.daysLeft, examDate)}</p>
+        <span className="text-[11px] font-bold text-[var(--muted)]">Details ›</span>
+      </div>
+      <p className={`text-[32px] font-bold tracking-tight leading-none mt-1.5 ${toneText(card.planned)}`}>
+        ~<NumberFlow value={Math.min(card.planned, 90)} />%{capped ? '+' : ''}
+        <span className="text-[13px] font-semibold text-[var(--muted)] tracking-normal ml-2">you'll remember on exam day</span>
+      </p>
+      {showToday ? (
+        <button type="button" onClick={e => { e.stopPropagation(); onToday() }} className="mt-2 text-[12.5px] font-bold text-brand-500 active:opacity-70">
+          Today's {card.today.count} revision{card.today.count > 1 ? 's' : ''} → +{card.today.delta}% ↗
+        </button>
+      ) : showGap ? (
+        <p className="mt-2 text-[12.5px] text-[var(--muted)]">
+          If you stop revising now, this drops to <b className="text-[var(--slate-txt)]">~{card.ifStopped}%</b>.
+        </p>
+      ) : (
+        <p className="mt-2 text-[12.5px] text-[var(--muted)]">Keep revising to stay here.</p>
+      )}
+      {subjects.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {subjects.map(s => (
+            <div key={s.subject} className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-[var(--slate-txt)] w-20 truncate shrink-0">{s.subject}</span>
+              <div className="flex-1 h-1.5 rounded-full bg-[var(--card-alt)] overflow-hidden">
+                <div className={`h-full rounded-full ${toneBar(s.planned)}`} style={{ width: `${Math.min(s.planned, 100)}%` }} />
+              </div>
+              <span className={`text-[11px] font-bold w-8 text-right ${toneText(s.planned)}`}>{s.planned}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function TimelineCard({ topic, i }) {
   const revs = [...(topic.revisions || [])].sort((a, b) => (a.scheduled_date < b.scheduled_date ? -1 : 1))
   const { done, total } = completion(revs)
@@ -82,10 +175,7 @@ function TimelineCard({ topic, i }) {
   const nextIsLocked = next && next.scheduled_date > todayISO()
   // Colour the memory % so a low score reads as "revise me", not failure.
   // ~37% is the forgetting-curve point where a revision is due.
-  const memTone = memory == null ? 'text-[var(--slate-txt)]'
-    : memory >= 67 ? 'text-emerald-600'
-    : memory >= 40 ? 'text-amber-600'
-    : 'text-red-500'
+  const memTone = memory == null ? 'text-[var(--slate-txt)]' : toneText(memory)
 
   return (
     <div
@@ -162,6 +252,7 @@ export default function Home() {
   const [tab, setTab] = useState('due')
   const [streakOpen, setStreakOpen] = useState(false)
   const [gemsOpen, setGemsOpen] = useState(false)
+  const [forecastOpen, setForecastOpen] = useState(false)
 
   useEffect(() => {
     if (!student) return
@@ -281,7 +372,15 @@ export default function Home() {
         <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight leading-tight">
           {greeting()}, {student?.name?.split(' ')[0] || 'there'} <span className="wave-hand" aria-hidden>👋</span>
         </h1>
-        <p className="text-[14px] text-[var(--muted)] mt-1 mb-5">{summaryNode}</p>
+        <p className="text-[14px] text-[var(--muted)] mt-1 mb-4">{summaryNode}</p>
+
+        {/* Memory forecast hero */}
+        <ForecastCard
+          topics={topics}
+          examDate={student?.exam_date}
+          onToday={() => setTab(counts.due > 0 ? 'due' : 'missed')}
+          onOpen={() => setForecastOpen(true)}
+        />
 
         {/* Calendar week strip */}
         <WeekStrip topics={topics} studyDays={student?.study_days} />
@@ -330,6 +429,7 @@ export default function Home() {
 
       <StreakSheet open={streakOpen} onClose={() => setStreakOpen(false)} student={student} topics={topics} onChanged={refreshStudent} />
       <GemsSheet open={gemsOpen} onClose={() => setGemsOpen(false)} student={student} />
+      <ForecastSheet open={forecastOpen} onClose={() => setForecastOpen(false)} topics={topics} examDate={student?.exam_date} />
     </div></AppShell>
   )
 }

@@ -3,10 +3,65 @@ import AppShell from '../lib/AppShell'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
+import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
+import { sessionResult } from '../lib/forecast'
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
 const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+
+// Ticks from the pre-session memory% to 100 shortly after mount — the visible
+// "recharge" that makes the session feel like it did something.
+function MemoryTick({ from, to }) {
+  const [value, setValue] = useState(from)
+  useEffect(() => {
+    const t = setTimeout(() => setValue(to), 650)
+    return () => clearTimeout(t)
+  }, [to])
+  return <NumberFlow value={value} />
+}
+
+// The post-session reward screen. After a struggled rep it leads with the
+// rescue review, not the (deliberately low, lapse-semantics) forecast number —
+// that triage signal belongs on the Home card, not in this vulnerable moment.
+// Exported so the harness can render it without an authenticated session.
+export function SessionResult({ subject, topicName, result, onDone }) {
+  const showForecast = result.forecast != null && !result.extraDate
+  return (
+    <div className="text-center">
+      <p className="text-[12px] text-[var(--muted)] mb-1">{subject}</p>
+      <h1 className="text-[18px] font-bold text-[var(--ink)] tracking-tight mb-6">{topicName}</h1>
+
+      <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)] mb-1">Memory recharged</p>
+      <p className="text-[44px] font-bold tracking-tight leading-none text-emerald-600">
+        <MemoryTick from={result.memBefore ?? 0} to={result.memAfter} />%
+      </p>
+      <p className="text-[12px] text-[var(--muted)] mt-1.5 mb-5">
+        {result.memBefore == null
+          ? 'First revision done — great start!'
+          : `It was down to ${result.memBefore}% — good thing you revised.`}
+      </p>
+
+      {showForecast && (
+        <p className="text-[13px] text-[var(--slate-txt)] bg-[var(--card-alt)] rounded-2xl px-4 py-3 mb-2">
+          You'll remember about <b className="text-[var(--ink)]">{result.forecast}%</b> of this on exam day.
+        </p>
+      )}
+      {result.extraDate && (
+        <p className="text-[13px] text-[var(--slate-txt)] bg-[var(--card-alt)] rounded-2xl px-4 py-3 mb-2">
+          Tough one — we added an <b className="text-[var(--ink)]">extra review on {longDate(result.extraDate)}</b> so it sticks. 💪
+        </p>
+      )}
+
+      <button
+        onClick={onDone}
+        className="w-full mt-3 py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
+      >
+        Done
+      </button>
+    </div>
+  )
+}
 
 export default function RevisionSession() {
   const { id } = useParams()
@@ -17,15 +72,18 @@ export default function RevisionSession() {
   const [step, setStep] = useState('confirm')
   const [timeSpent, setTimeSpent] = useState(null)
   const [customTime, setCustomTime] = useState('')
+  const [result, setResult] = useState(null)
 
   useEffect(() => {
     loadRevision()
   }, [id])
 
   async function loadRevision() {
+    // Sibling revisions + exam date ride along so the result screen can show
+    // the memory recharge and exam-day forecast without extra round-trips.
     const { data } = await supabase
       .from('revisions')
-      .select('*, topics(id, topic_name, subject, student_id)')
+      .select('*, topics(id, topic_name, subject, student_id, students(exam_date), revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality))')
       .eq('id', id)
       .single()
     setRevision(data)
@@ -76,6 +134,7 @@ export default function RevisionSession() {
       }
     }
 
+    let extraDate = null
     if (quality === 'struggled') {
       const { data: nextRevision } = await supabase
         .from('revisions')
@@ -95,12 +154,13 @@ export default function RevisionSession() {
         if (gapDays > 1) {
           let extraOffset = Math.floor(gapDays / 2)
           extraOffset = Math.max(1, Math.min(14, extraOffset))
-          const extraDate = new Date(todayDate)
-          extraDate.setDate(extraDate.getDate() + extraOffset)
+          const extra = new Date(todayDate)
+          extra.setDate(extra.getDate() + extraOffset)
+          extraDate = extra.toISOString().slice(0, 10)
 
           await supabase.from('revisions').insert({
             topic_id: revision.topics.id,
-            scheduled_date: extraDate.toISOString().slice(0, 10),
+            scheduled_date: extraDate,
             interval_label: 'extra'
           })
         }
@@ -116,7 +176,24 @@ export default function RevisionSession() {
     } else {
       toast.success('Revision logged 🎉')
     }
-    navigate('/home')
+
+    // The reward moment: memory recharge + exam-day forecast, computed locally
+    // from the sibling rows we already fetched (plus the extra review, if any).
+    // If the sibling rows didn't come back, skip the moment rather than show
+    // a broken one — the old straight-to-home flow is the fallback.
+    const res = sessionResult(
+      revision.topics.revisions || [],
+      revision.id,
+      quality,
+      revision.topics.students?.exam_date || null,
+      extraDate
+    )
+    if (res.memAfter == null) {
+      navigate('/home')
+      return
+    }
+    setResult({ ...res, extraDate })
+    setStep('done')
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-[var(--muted)] font-sans text-sm">Loading...</div>
@@ -240,6 +317,17 @@ export default function RevisionSession() {
             <motion.p key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[14px] text-[var(--muted)] text-center py-8">
               Saving...
             </motion.p>
+          )}
+
+          {step === 'done' && result && (
+            <motion.div key="done" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2, ease: easing }}>
+              <SessionResult
+                subject={revision.topics.subject}
+                topicName={revision.topics.topic_name}
+                result={result}
+                onDone={() => navigate('/home')}
+              />
+            </motion.div>
           )}
 
         </AnimatePresence>
