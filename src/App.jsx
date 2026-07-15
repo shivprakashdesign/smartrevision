@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { MotionConfig } from 'framer-motion'
 import { AuthProvider, useAuth } from './lib/AuthContext'
 import { ProProvider } from './lib/ProContext'
@@ -26,6 +27,24 @@ import SharedTopic from './screens/SharedTopic'
 import Paywall from './screens/Paywall'
 import { UpsellProvider } from './lib/ProUpsell'
 
+// Routes the app when a notification is tapped while it's already open.
+// The service worker can't navigate an existing window on iOS (Safari has no
+// WindowClient.navigate), so sw.js posts { type: 'open-url', url } instead
+// and this component runs the client-side router.
+function PushNavigator() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+    const onMessage = (e) => {
+      const url = e.data?.type === 'open-url' ? e.data.url : null
+      if (typeof url === 'string' && url.startsWith('/')) navigate(url)
+    }
+    navigator.serviceWorker.addEventListener('message', onMessage)
+    return () => navigator.serviceWorker.removeEventListener('message', onMessage)
+  }, [navigate])
+  return null
+}
+
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>
@@ -40,6 +59,7 @@ export default function App() {
       <MotionConfig reducedMotion="user">
       <AppToaster />
       <BrowserRouter>
+        <PushNavigator />
         <UpsellProvider>
         <Routes>
           <Route path="/" element={<Onboarding />} />

@@ -92,6 +92,10 @@ async function run(req, res) {
   if (missing.length) return res.status(500).json({ error: 'missing env vars', missing })
 
   const dry = req.query?.dry === '1'
+  // ?test=1 sends the daily question NOW to every subscribed device, ignoring
+  // time windows and the once-a-day dedup, and never marks the day as sent.
+  // For smoke-testing delivery after a change; still behind CRON_SECRET.
+  const test = req.query?.test === '1'
 
   webpush.setVapidDetails(
     process.env.VAPID_SUBJECT || 'mailto:hello@smartrevision.app',
@@ -117,10 +121,12 @@ async function run(req, res) {
     const { date: localDate, time: localTime } = localClock(tz)
 
     const dailyDue =
-      pref.daily_reminder_enabled &&
-      pref.last_daily_sent_on !== localDate &&
-      inWindow(localTime, pref.daily_reminder_time || '18:00')
+      test ||
+      (pref.daily_reminder_enabled &&
+        pref.last_daily_sent_on !== localDate &&
+        inWindow(localTime, pref.daily_reminder_time || '18:00'))
     const streakDue =
+      !test &&
       pref.streak_nudge_enabled &&
       pref.last_streak_sent_on !== localDate &&
       inWindow(localTime, pref.streak_nudge_time || '21:00')
@@ -160,10 +166,12 @@ async function run(req, res) {
         if (dry) results.would.push({ account: pref.account_id, ...payload })
         else {
           await sendToAccount(byAccount[pref.account_id], payload, results)
-          await db(`notification_preferences?account_id=eq.${pref.account_id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ last_daily_sent_on: localDate })
-          })
+          if (!test) {
+            await db(`notification_preferences?account_id=eq.${pref.account_id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ last_daily_sent_on: localDate })
+            })
+          }
         }
       }
     }

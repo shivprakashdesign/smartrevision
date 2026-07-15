@@ -27,10 +27,13 @@ self.addEventListener('notificationclick', (event) => {
   const url = event.notification.data?.url || '/home'
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((tabs) => {
-      // Reuse an open app window if there is one; otherwise open fresh.
+      // Reuse an open app window if there is one. Safari has no
+      // WindowClient.navigate(), so the app routes itself: it listens for
+      // this message (PushNavigator in App.jsx) and runs the client-side
+      // router — calling navigate() here would silently do nothing on iOS.
       const existing = tabs.find((t) => 'focus' in t)
       if (existing) {
-        existing.navigate(url)
+        existing.postMessage({ type: 'open-url', url })
         return existing.focus()
       }
       return self.clients.openWindow(url)
