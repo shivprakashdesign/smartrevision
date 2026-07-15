@@ -74,6 +74,23 @@ export default async function handler(req, res) {
   if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'unauthorized' })
   }
+  try {
+    return await run(req, res)
+  } catch (e) {
+    // Names the failure (missing env, bad key, db error) without leaking values.
+    return res.status(500).json({ error: String(e.message || e) })
+  }
+}
+
+async function run(req, res) {
+  const missing = [
+    'VITE_SUPABASE_URL',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'VAPID_PUBLIC_KEY',
+    'VAPID_PRIVATE_KEY'
+  ].filter((k) => !process.env[k])
+  if (missing.length) return res.status(500).json({ error: 'missing env vars', missing })
+
   const dry = req.query?.dry === '1'
 
   webpush.setVapidDetails(
