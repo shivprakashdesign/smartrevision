@@ -3,11 +3,78 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, AlarmClockIcon, Fire02Icon } from '@hugeicons/core-free-icons'
+import { ArrowLeft01Icon, AlarmClockIcon, Fire02Icon, SmartPhone01Icon } from '@hugeicons/core-free-icons'
 import AppShell from '../lib/AppShell'
 import Toggle from '../lib/Toggle'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
+import { getPushState, subscribePush, unsubscribePush } from '../lib/push'
+
+// The per-device on/off card. Push needs the permission prompt to happen
+// inside a tap (iOS rule), so this is a real button, not a background ask.
+// Exported for the design-review harness.
+export function DeviceCard({ state, busy, onEnable, onDisable }) {
+  const copy = {
+    'need-install': {
+      title: 'Add SmartRevision to your Home Screen first',
+      desc: 'Notifications only work from the installed app. Share → Add to Home Screen, then come back here.'
+    },
+    unsupported: {
+      title: "This browser can't get notifications",
+      desc: 'Open SmartRevision on your phone to turn them on there.'
+    },
+    denied: {
+      title: 'Notifications are blocked',
+      desc: 'Allow notifications for SmartRevision in your phone settings, then come back.'
+    },
+    off: {
+      title: 'Turn on notifications on this phone',
+      desc: "You'll get one quick memory question a day — nothing spammy."
+    },
+    subscribed: {
+      title: 'This phone gets your reminders ✓',
+      desc: 'One quick memory question a day, at the times below.'
+    }
+  }[state] || { title: 'Checking this device…', desc: '' }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+      className="bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-sm p-5"
+    >
+      <div className="flex items-start gap-3">
+        <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-emerald-500/15">
+          <HugeiconsIcon icon={SmartPhone01Icon} size={20} strokeWidth={2} color="#059669" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[15px] font-bold text-[var(--ink)] leading-tight">{copy.title}</p>
+          <p className="text-[12.5px] text-[var(--muted)] mt-1 leading-snug">{copy.desc}</p>
+          {state === 'off' && (
+            <button
+              type="button"
+              onClick={onEnable}
+              disabled={busy}
+              className="mt-3 px-4 py-2.5 rounded-2xl bg-brand-500 text-white text-[13px] font-bold active:scale-[0.97] transition-transform disabled:opacity-50"
+            >
+              {busy ? 'Turning on…' : 'Turn on'}
+            </button>
+          )}
+          {state === 'subscribed' && (
+            <button
+              type="button"
+              onClick={onDisable}
+              disabled={busy}
+              className="mt-3 text-[12px] font-bold text-[var(--muted)] underline underline-offset-2 active:opacity-70"
+            >
+              Turn off on this phone
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
 // '18:00:00' | '18:00' -> '6:00 PM' (locale-aware)
 function prettyTime(value) {
@@ -81,11 +148,16 @@ export default function NotificationSettings() {
   const navigate = useNavigate()
   const [prefs, setPrefs] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [pushState, setPushState] = useState(null)
+  const [pushBusy, setPushBusy] = useState(false)
 
   useEffect(() => {
     if (!user) return
     loadPrefs()
+    getPushState().then(setPushState)
   }, [user])
+
+  const deviceTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone
 
   async function loadPrefs() {
     const { data } = await supabase
@@ -99,7 +171,7 @@ export default function NotificationSettings() {
     } else {
       const { data: created } = await supabase
         .from('notification_preferences')
-        .insert({ account_id: user.id })
+        .insert({ account_id: user.id, timezone: deviceTimezone() })
         .select()
         .single()
       setPrefs(created)
@@ -108,18 +180,40 @@ export default function NotificationSettings() {
   }
 
   // Optimistic: flip locally, then roll back if the write fails so the UI never
-  // claims a setting that didn't persist.
+  // claims a setting that didn't persist. Every write also refreshes the
+  // timezone — the sender fires on the student's local clock.
   async function updatePref(field, value) {
     const previous = prefs[field]
     setPrefs(p => ({ ...p, [field]: value }))
     const { error } = await supabase
       .from('notification_preferences')
-      .update({ [field]: value })
+      .update({ [field]: value, timezone: deviceTimezone() })
       .eq('account_id', user.id)
     if (error) {
       setPrefs(p => ({ ...p, [field]: previous }))
       toast.error(error.message)
     }
+  }
+
+  async function enablePush() {
+    setPushBusy(true)
+    const result = await subscribePush(user.id)
+    setPushBusy(false)
+    if (result === 'subscribed') {
+      setPushState('subscribed')
+      toast.success('This phone will get your reminders 🎉')
+    } else if (result === 'denied') {
+      setPushState('denied')
+    } else {
+      toast.error("Couldn't turn notifications on — please try again.")
+    }
+  }
+
+  async function disablePush() {
+    setPushBusy(true)
+    await unsubscribePush()
+    setPushBusy(false)
+    setPushState('off')
   }
 
   if (loading) return <Skeleton />
@@ -145,12 +239,14 @@ export default function NotificationSettings() {
         </p>
 
         <div className="space-y-3">
+          <DeviceCard state={pushState} busy={pushBusy} onEnable={enablePush} onDisable={disablePush} />
+
           <ReminderCard
             icon={AlarmClockIcon}
             tint="bg-brand-500/15"
             iconColor="hsl(213,96%,56%)"
-            title="Daily due reminder"
-            desc="One reminder listing everything that's due today."
+            title="Daily memory question"
+            desc={'A question from your most overdue topic — like "Can you still explain Laws of Motion?"'}
             everyLabel="Every day at"
             enabled={prefs.daily_reminder_enabled}
             time={prefs.daily_reminder_time || '18:00'}
@@ -175,7 +271,7 @@ export default function NotificationSettings() {
         </div>
 
         <p className="text-[11px] text-[var(--slate-txt)] text-center mt-5 leading-relaxed">
-          Reminders will arrive once the mobile app is installed. Times use your device’s timezone.
+          Times use your phone's clock. Reminders only send when something is actually due.
         </p>
       </div>
     </div></AppShell>

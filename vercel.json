@@ -2,5 +2,8 @@
   "rewrites": [
     { "source": "/s/:token", "destination": "/api/og?token=:token" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/notify", "schedule": "30 12 * * *" }
   ]
 }
