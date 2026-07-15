@@ -83,19 +83,19 @@ export default async function handler(req, res) {
 }
 
 async function run(req, res) {
-  const missing = [
-    'VITE_SUPABASE_URL',
-    'SUPABASE_SERVICE_ROLE_KEY',
-    'VAPID_PUBLIC_KEY',
-    'VAPID_PRIVATE_KEY'
-  ].filter((k) => !process.env[k])
+  // The public key is the same one the client bundles; reuse VITE_VAPID_PUBLIC_KEY
+  // so setup needs only one copy of it.
+  const vapidPublic = process.env.VAPID_PUBLIC_KEY || process.env.VITE_VAPID_PUBLIC_KEY
+  const missing = ['VITE_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VAPID_PRIVATE_KEY']
+    .filter((k) => !process.env[k])
+  if (!vapidPublic) missing.push('VITE_VAPID_PUBLIC_KEY')
   if (missing.length) return res.status(500).json({ error: 'missing env vars', missing })
 
   const dry = req.query?.dry === '1'
 
   webpush.setVapidDetails(
     process.env.VAPID_SUBJECT || 'mailto:hello@smartrevision.app',
-    process.env.VAPID_PUBLIC_KEY,
+    vapidPublic,
     process.env.VAPID_PRIVATE_KEY
   )
 
