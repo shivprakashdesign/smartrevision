@@ -16,7 +16,7 @@ export function dailyReminder(dueTopics) {
   const parts = [hero.subject || 'Revision', 'takes about 3 minutes']
   if (more > 0) parts.push(`+${more} more due today`)
   return {
-    title: `Can you still explain ${hero.topic_name}?`,
+    title: `Can you still explain ${String(hero.topic_name || '').trim()}?`,
     body: parts.join(' · '),
     url: `/revise/${hero.revision_id}`,
     tag: 'daily-reminder'
