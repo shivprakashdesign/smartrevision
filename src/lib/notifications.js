@@ -1,12 +1,9 @@
-import { Capacitor } from '@capacitor/core'
+// Called once from Home on app start. Web push replaced the old OneSignal
+// plan: no native SDK needed — the installed PWA subscribes itself (see
+// push.js) and api/notify.js sends. This just keeps the subscription row
+// fresh; it never prompts the user.
+import { syncPush } from './push'
 
-// OneSignal's native SDK will be added here once we build the real Android app
-// (it needs Capacitor 7, which we'll upgrade to at that point — see project notes).
-// Until then, this safely does nothing in the browser.
 export async function initNotifications(accountId) {
-  if (!Capacitor.isNativePlatform()) {
-    console.log('OneSignal: skipped — not running in a native app yet')
-    return
-  }
-  // Real OneSignal wiring goes here later.
+  await syncPush(accountId)
 }
