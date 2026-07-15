@@ -14,7 +14,9 @@ export function dailyReminder(dueTopics) {
   const hero = dueTopics[0]
   const more = dueTopics.length - 1
   const parts = [hero.subject || 'Revision', 'takes about 3 minutes']
-  if (more > 0) parts.push(`+${more} more due today`)
+  // "waiting", not "due today" — the list includes overdue topics, which the
+  // app files under "To review" rather than "Due Today".
+  if (more > 0) parts.push(`+${more} more waiting`)
   return {
     title: `Can you still explain ${String(hero.topic_name || '').trim()}?`,
     body: parts.join(' · '),

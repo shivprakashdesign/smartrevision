@@ -11,7 +11,7 @@ describe('dailyReminder', () => {
   it('leads with the most-overdue topic as a question and deep-links its revision', () => {
     const n = dailyReminder(topics)
     expect(n.title).toBe('Can you still explain Laws of Motion?')
-    expect(n.body).toBe('Physics · takes about 3 minutes · +2 more due today')
+    expect(n.body).toBe('Physics · takes about 3 minutes · +2 more waiting')
     expect(n.url).toBe('/revise/r1')
     expect(n.tag).toBe('daily-reminder')
   })

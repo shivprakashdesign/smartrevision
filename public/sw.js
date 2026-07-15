@@ -36,7 +36,13 @@ self.addEventListener('notificationclick', (event) => {
         existing.postMessage({ type: 'open-url', url })
         return existing.focus()
       }
-      return self.clients.openWindow(url)
+      // Cold start. iOS often opens the PWA at its start URL and ignores the
+      // path passed to openWindow, so post the URL to the new window too —
+      // the browser buffers the message until the app boots and starts
+      // listening, then PushNavigator routes to it.
+      return self.clients.openWindow(url).then((client) => {
+        if (client) client.postMessage({ type: 'open-url', url })
+      })
     })
   )
 })
