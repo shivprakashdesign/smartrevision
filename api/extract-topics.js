@@ -104,6 +104,12 @@ export default async function handler(req, res) {
     return res.json({ ...result, remaining: SCANS_PER_DAY - used - 1 })
   } catch (e) {
     console.error('extract-topics:', e)
-    return res.status(500).json({ error: 'extraction failed — please try again' })
+    // `detail` names the real failure (bad key, db error, Gemini rejection)
+    // without leaking secrets — the Gemini key travels in a header, never in
+    // the URL or error text.
+    return res.status(500).json({
+      error: 'extraction failed — please try again',
+      detail: String(e.message || e).slice(0, 300)
+    })
   }
 }
