@@ -55,45 +55,33 @@ const CANT_READ = {
   page_type: 'other'
 }
 
-// Free-tier Gemini throws transient 503 "high demand" errors (seen live on
-// device). Capacity rejections return fast, so retrying and falling back is
-// cheap: try 3.5-flash twice, then 2.5-flash (same key, less contended,
-// nearly as good on printed pages). Note the thinking knob differs by
-// generation: 3.x takes thinkingLevel, 2.5 takes thinkingBudget.
+// Free-tier Gemini throws transient 503 "high demand" errors and sometimes
+// hangs outright (both seen live). Retry 3.5-flash once, then fall back to
+// 3.1-flash-lite — NOT 2.5-flash, which 404s ("no longer available to new
+// users") despite appearing in this key's model list.
 const ATTEMPTS = [
   { model: EXTRACT_MODEL, thinking: { thinkingLevel: 'low' }, delayMs: 0 },
   { model: EXTRACT_MODEL, thinking: { thinkingLevel: 'low' }, delayMs: 2000 },
-  { model: 'gemini-2.5-flash', thinking: { thinkingBudget: 0 }, delayMs: 1000 }
+  { model: 'gemini-3.1-flash-lite', thinking: { thinkingLevel: 'low' }, delayMs: 1000 }
 ]
 const RETRYABLE = new Set([429, 500, 503])
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// One extraction call. `image` is base64 (no data: prefix), `mediaType` like
-// "image/jpeg". `subjects` is the student's existing subject names.
-export async function extractTopics({ image, mediaType, subjects = [], apiKey }) {
+// One schema-constrained Gemini call with the retry/fallback chain. Returns
+// the parsed JSON object, or null when the response was blocked/empty/
+// unparseable (callers turn that into their own friendly shape). Shared by
+// extraction (vision) and sub-topic suggestions (text).
+export async function geminiJson({ system, userParts, schema, apiKey }) {
   const request = (thinking) => ({
-    systemInstruction: { parts: [{ text: SYSTEM }] },
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          { inlineData: { mimeType: mediaType, data: image } },
-          {
-            text:
-              subjects.length > 0
-                ? `The student's existing subjects are: ${subjects.join(', ')}. Extract the topics from this photo.`
-                : 'Extract the topics from this photo.'
-          }
-        ]
-      }
-    ],
+    systemInstruction: { parts: [{ text: system }] },
+    contents: [{ role: 'user', parts: userParts }],
     generationConfig: {
       responseMimeType: 'application/json',
-      responseJsonSchema: SCHEMA,
+      responseJsonSchema: schema,
       // Gemini counts thinking tokens against this limit — leave headroom.
       maxOutputTokens: 16384,
-      // Reading a list off a page needs no deep reasoning; default thinking
-      // tripled latency (36s → unusable scan UX) with no quality gain.
+      // These tasks need no deep reasoning; default thinking tripled latency
+      // (36s → unusable UX) with no quality gain.
       thinkingConfig: thinking
     }
   })
@@ -101,35 +89,62 @@ export async function extractTopics({ image, mediaType, subjects = [], apiKey })
   let r
   for (let i = 0; i < ATTEMPTS.length; i++) {
     const attempt = ATTEMPTS[i]
-    if (attempt.delayMs) await sleep(attempt.delayMs)
-    r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${attempt.model}:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify(request(attempt.thinking))
-      }
-    )
-    if (r.ok) break
     const isLast = i === ATTEMPTS.length - 1
+    if (attempt.delayMs) await sleep(attempt.delayMs)
+    try {
+      r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${attempt.model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify(request(attempt.thinking)),
+          // Free-tier Gemini sometimes HANGS instead of erroring (seen in the
+          // eval: no headers for 5 minutes). Healthy calls finish well under
+          // 35s; a hang feeds the same retry/fallback chain as a 503.
+          signal: AbortSignal.timeout(35000)
+        }
+      )
+    } catch (e) {
+      if (isLast) throw new Error(`gemini network: ${String(e.cause?.code || e.message).slice(0, 200)}`)
+      continue
+    }
+    if (r.ok) break
     if (!RETRYABLE.has(r.status) || isLast) {
       throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 500)}`)
     }
   }
   const data = await r.json()
 
-  // Safety-blocked or empty responses become a friendly retry message, not a crash.
-  if (data.promptFeedback?.blockReason) return CANT_READ
+  if (data.promptFeedback?.blockReason) return null
   const candidate = data.candidates?.[0]
   const text = (candidate?.content?.parts || []).map((p) => p.text || '').join('')
-  if (!candidate || !text) return CANT_READ
-
-  let parsed
+  if (!candidate || !text) return null
   try {
-    parsed = JSON.parse(text) // structured output should guarantee this; guard anyway
+    return JSON.parse(text) // structured output should guarantee this; guard anyway
   } catch {
-    return CANT_READ
+    return null
   }
+}
+
+// One extraction call. `image` is base64 (no data: prefix), `mediaType` like
+// "image/jpeg". `subjects` is the student's existing subject names.
+export async function extractTopics({ image, mediaType, subjects = [], apiKey }) {
+  const parsed = await geminiJson({
+    system: SYSTEM,
+    schema: SCHEMA,
+    apiKey,
+    userParts: [
+      { inlineData: { mimeType: mediaType, data: image } },
+      {
+        text:
+          subjects.length > 0
+            ? `The student's existing subjects are: ${subjects.join(', ')}. Extract the topics from this photo.`
+            : 'Extract the topics from this photo.'
+      }
+    ]
+  })
+  // Safety-blocked or empty responses become a friendly retry message, not a crash.
+  if (!parsed) return CANT_READ
 
   // Belt-and-braces tidy: trim, drop empties, dedupe, cap.
   const seen = new Set()

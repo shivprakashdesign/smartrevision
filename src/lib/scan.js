@@ -26,6 +26,23 @@ export function resizeImage(file, maxEdge = 1600) {
   })
 }
 
+// Sub-topics for a plan chapter. Resolves to string[] (possibly empty) or
+// throws with a student-friendly message.
+export async function suggestSubtopics(chapter, subject) {
+  const { data } = await supabase.auth.getSession()
+  const token = data?.session?.access_token
+  if (!token) throw new Error('Please log in again, then retry.')
+
+  const r = await fetch('/api/suggest-subtopics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ chapter, subject })
+  })
+  const body = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error(body.error || "Couldn't get suggestions — type it in for now.")
+  return body.subtopics || []
+}
+
 // One scan. Resolves to { topics, note, page_type, remaining } or throws
 // with a student-friendly message.
 export async function scanPhoto(file, subjects = []) {
