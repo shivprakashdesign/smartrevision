@@ -15,6 +15,7 @@ import Progress from './screens/Progress'
 import AddTopic from './screens/AddTopic'
 import ScanSyllabus from './screens/ScanSyllabus'
 import Plan from './screens/Plan'
+import ExamRecap from './screens/ExamRecap'
 import TopicDetail from './screens/TopicDetail'
 import RevisionSession from './screens/RevisionSession'
 import Leaderboard from './screens/Leaderboard'
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/add-topic" element={<PrivateRoute><AddTopic /></PrivateRoute>} />
           <Route path="/scan" element={<PrivateRoute><ScanSyllabus /></PrivateRoute>} />
           <Route path="/plan" element={<PrivateRoute><Plan /></PrivateRoute>} />
+          <Route path="/exam-recap" element={<PrivateRoute><ExamRecap /></PrivateRoute>} />
           <Route path="/topic/:id" element={<PrivateRoute><TopicDetail /></PrivateRoute>} />
           <Route path="/revise/:id" element={<PrivateRoute><RevisionSession /></PrivateRoute>} />
           <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />

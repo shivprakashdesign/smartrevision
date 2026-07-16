@@ -21,6 +21,8 @@ import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../lib/metrics'
 import { forecastCard, forecastBySubject } from '../lib/forecast'
+import { receiptStats } from '../lib/receipt'
+import { daysUntilExam } from '../lib/schedule'
 
 const TAB_LABELS = { due: 'Due Today', missed: 'To review', upcoming: 'Upcoming' }
 // Active-tab colour per bucket: green = on time, orange = behind (a nudge, not
@@ -86,13 +88,38 @@ function examKicker(daysLeft, examISO) {
 
 // The Memory Forecast hero: where you're headed on exam day, and what today's
 // session is worth. All numbers come from forecastCard() — this just renders
-// its four states. The % is deliberately "~" and capped at 90+ so the model
-// never over-promises. Exported so it can render outside Home (harness/tests).
-export function ForecastCard({ topics, examDate, onToday, onOpen }) {
+// its states. The % is deliberately "~" and capped at 90+ so the model never
+// over-promises. After the exam it becomes the receipt moment (`recap` is the
+// student's saved tagging, or null). Exported for the harness.
+export function ForecastCard({ topics, examDate, onToday, onOpen, recap }) {
   const card = forecastCard(topics, examDate)
   if (card.state === 'hidden') return null
 
   const shell = 'bg-[var(--card)] rounded-3xl p-4 border border-[var(--border)] shadow-sm mb-4 animate-enter'
+
+  if (card.state === 'post-exam') {
+    if (recap) {
+      const stats = receiptStats(topics, recap.appeared_topic_ids)
+      return (
+        <Link to="/exam-recap" className={`block ${shell} active:scale-[0.98] transition-transform`}>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">Your exam receipt 🧾</p>
+          <p className="text-[15px] font-bold text-[var(--ink)] mt-1">
+            <span className="text-emerald-600">{stats.revised} of {stats.appeared}</span> topics on your paper — already revised
+          </p>
+          <p className="text-[12px] text-[var(--muted)] mt-0.5">Tap to see or share it.</p>
+        </Link>
+      )
+    }
+    return (
+      <Link to="/exam-recap" className={`block ${shell} active:scale-[0.98] transition-transform`}>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">Exam done 🧾</p>
+        <p className="text-[15px] font-bold text-[var(--ink)] mt-1">
+          How did it go? <span className="text-brand-500">Tag what came up →</span>
+        </p>
+        <p className="text-[12px] text-[var(--muted)] mt-0.5">We'll show you how ready you were.</p>
+      </Link>
+    )
+  }
 
   if (card.state === 'no-exam') {
     return (
@@ -253,6 +280,22 @@ export default function Home() {
   const [streakOpen, setStreakOpen] = useState(false)
   const [gemsOpen, setGemsOpen] = useState(false)
   const [forecastOpen, setForecastOpen] = useState(false)
+  const [recap, setRecap] = useState(null)
+
+  // Just after the exam, the forecast card becomes the receipt moment — it
+  // needs to know whether this exam's tagging already exists.
+  useEffect(() => {
+    if (!student?.exam_date) return
+    const left = daysUntilExam(student.exam_date)
+    if (left == null || left >= 0 || left < -14) return
+    supabase
+      .from('exam_recaps')
+      .select('appeared_topic_ids')
+      .eq('student_id', student.id)
+      .eq('exam_date', student.exam_date)
+      .maybeSingle()
+      .then(({ data }) => setRecap(data))
+  }, [student])
 
   useEffect(() => {
     if (!student) return
@@ -380,6 +423,7 @@ export default function Home() {
           examDate={student?.exam_date}
           onToday={() => setTab(counts.due > 0 ? 'due' : 'missed')}
           onOpen={() => setForecastOpen(true)}
+          recap={recap}
         />
 
         {/* Calendar week strip */}

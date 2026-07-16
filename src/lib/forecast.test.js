@@ -246,8 +246,10 @@ describe('forecastCard', () => {
     expect(forecastCard([], null, NOW)).toEqual({ state: 'no-exam' })
   })
 
-  it('hides itself once the exam has passed', () => {
-    expect(forecastCard([], '2026-07-01', NOW)).toEqual({ state: 'hidden' })
+  it('turns into the receipt moment for two weeks after the exam, then hides', () => {
+    expect(forecastCard([], '2026-07-14', NOW)).toEqual({ state: 'post-exam', daysSince: 1 })
+    expect(forecastCard([], '2026-07-01', NOW)).toEqual({ state: 'post-exam', daysSince: 14 })
+    expect(forecastCard([], '2026-06-30', NOW)).toEqual({ state: 'hidden' })
   })
 
   it('stays locked until 3 topics have been revised', () => {

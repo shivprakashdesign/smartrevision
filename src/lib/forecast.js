@@ -179,7 +179,11 @@ export const FORECAST_MIN_REVISED = 3
 export function forecastCard(topics, examISO, now = new Date()) {
   const daysLeft = daysUntilExam(examISO, now)
   if (daysLeft === null) return { state: 'no-exam' }
-  if (daysLeft < 0) return { state: 'hidden' }
+  // Just after the exam is the receipt moment ("what came up?"); after two
+  // weeks the date is simply stale and the card gets out of the way.
+  if (daysLeft < 0) {
+    return daysLeft >= -14 ? { state: 'post-exam', daysSince: -daysLeft } : { state: 'hidden' }
+  }
 
   const revised = topics.filter(t => (t.revisions || []).some(r => r.completed)).length
   if (revised < FORECAST_MIN_REVISED) {
