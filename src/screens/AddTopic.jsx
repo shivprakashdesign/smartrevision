@@ -247,6 +247,13 @@ export default function AddTopic() {
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }} className="space-y-3">
+                <Link
+                  to="/scan"
+                  className="block rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform"
+                >
+                  <p className="text-[12px] font-bold text-brand-500">📸 Have your syllabus? Scan it</p>
+                  <p className="text-[11px] text-[var(--muted)] mt-0.5">One photo of the index page builds your chapter plan.</p>
+                </Link>
                 {atTopicLimit && (
                   <button type="button" onClick={() => showUpsell({ title: 'Topic limit reached', desc: `Free plans include ${FREE_TOPIC_LIMIT} topics. Upgrade to Pro for unlimited topics.` })}
                     className="w-full text-left rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform">

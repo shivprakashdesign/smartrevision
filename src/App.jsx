@@ -13,6 +13,7 @@ import Home from './screens/Home'
 import Topics from './screens/Topics'
 import Progress from './screens/Progress'
 import AddTopic from './screens/AddTopic'
+import ScanSyllabus from './screens/ScanSyllabus'
 import TopicDetail from './screens/TopicDetail'
 import RevisionSession from './screens/RevisionSession'
 import Leaderboard from './screens/Leaderboard'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="/topics" element={<PrivateRoute><Topics /></PrivateRoute>} />
           <Route path="/progress" element={<PrivateRoute><Progress /></PrivateRoute>} />
           <Route path="/add-topic" element={<PrivateRoute><AddTopic /></PrivateRoute>} />
+          <Route path="/scan" element={<PrivateRoute><ScanSyllabus /></PrivateRoute>} />
           <Route path="/topic/:id" element={<PrivateRoute><TopicDetail /></PrivateRoute>} />
           <Route path="/revise/:id" element={<PrivateRoute><RevisionSession /></PrivateRoute>} />
           <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
