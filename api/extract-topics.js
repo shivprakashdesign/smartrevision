@@ -31,14 +31,18 @@ async function verifyUser(token) {
 }
 
 async function db(path, init = {}) {
+  // headers must merge LAST — spreading `init` after them would let
+  // init.headers replace the whole object and drop the auth (a 401 we
+  // debugged on-device; notify.js has the same helper with correct order).
+  const { headers, ...rest } = init
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...rest,
     headers: {
       apikey: SERVICE_KEY,
       Authorization: `Bearer ${SERVICE_KEY}`,
       'Content-Type': 'application/json',
-      ...init.headers
-    },
-    ...init
+      ...headers
+    }
   })
   if (!r.ok) throw new Error(`db ${path}: ${r.status}`)
   return r
