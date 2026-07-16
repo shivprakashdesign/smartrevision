@@ -223,10 +223,10 @@ export default function ScanSyllabus() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => navigate('/home')}
+                  onClick={() => navigate('/plan')}
                   className="w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
                 >
-                  Done
+                  See my plan
                 </button>
               </motion.div>
             )}

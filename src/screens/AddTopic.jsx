@@ -11,9 +11,91 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
+import { suggestSubtopics } from '../lib/scan'
+import { subjectColor } from '../lib/subjects'
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
 const STEP_LABELS = ['Topic', 'Details', 'Schedule']
+
+// "What did you study today?" — the plan's chapters as tap targets, so logging
+// a day's study starts from the syllabus instead of a blank field. Exported
+// for the design-review harness.
+export function PlanPicker({ items, selected, onSelect, suggestions, suggesting, onSuggest, onPick, topicName }) {
+  if (!items.length) return null
+  const groups = {}
+  for (const it of items) (groups[it.subject] || (groups[it.subject] = [])).push(it)
+
+  return (
+    <div className="rounded-2xl border border-[var(--border)] p-3">
+      <div className="flex items-baseline justify-between mb-2">
+        <p className="text-[12px] font-bold text-[var(--ink)]">What did you study today?</p>
+        <Link to="/plan" className="text-[11px] font-bold text-brand-500">My plan →</Link>
+      </div>
+
+      {selected == null ? (
+        <div className="space-y-2">
+          {Object.entries(groups).map(([subj, rows]) => (
+            <div key={subj}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: subjectColor(subj) }}>{subj}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {rows.map((it) => (
+                  <button
+                    key={it.id}
+                    type="button"
+                    onClick={() => onSelect(it)}
+                    className="px-3 py-1.5 rounded-full text-[12px] font-semibold border border-[var(--border)] bg-[var(--card)] text-[var(--slate-txt)] active:scale-95 transition-transform"
+                  >
+                    {it.chapter_name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          <p className="text-[11px] text-[var(--muted)]">Tap a chapter, or just fill the form below.</p>
+        </div>
+      ) : (
+        <div>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="px-3 py-1.5 rounded-full text-[12px] font-bold bg-brand-500 text-white truncate">{selected.chapter_name}</span>
+            <button type="button" onClick={() => onSelect(null)} className="text-[11px] font-bold text-[var(--muted)] underline underline-offset-2 shrink-0">
+              change
+            </button>
+          </div>
+          <p className="text-[11px] text-[var(--muted)] mt-2">
+            {suggestions.length ? 'Tap the part you studied, or type it below:' : 'Type the part you studied in "Topic name" below, or:'}
+          </p>
+          {suggestions.length === 0 ? (
+            <button
+              type="button"
+              onClick={onSuggest}
+              disabled={suggesting}
+              className="mt-1.5 text-[12px] font-bold text-brand-500 active:opacity-70 disabled:opacity-50"
+            >
+              {suggesting ? 'Thinking…' : '✨ Suggest sub-topics'}
+            </button>
+          ) : (
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => onPick(s)}
+                  className={`px-3 py-1.5 rounded-full text-[12px] font-semibold border active:scale-95 transition-transform ${
+                    topicName === s
+                      ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]'
+                      : 'border-[var(--border)] bg-[var(--card)] text-[var(--slate-txt)]'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function randomId() {
   return globalThis.crypto?.randomUUID
@@ -44,12 +126,18 @@ export default function AddTopic() {
   const [customOffsets, setCustomOffsets] = useState([])
   const [offsetInput, setOffsetInput] = useState('')
   const [saving, setSaving] = useState(false)
+  const [planItems, setPlanItems] = useState([])
+  const [planItem, setPlanItem] = useState(null)
+  const [suggestions, setSuggestions] = useState([])
+  const [suggesting, setSuggesting] = useState(false)
 
   const fileInputRef = useRef(null)
   const photosRef = useRef([])
   photosRef.current = photos
 
-  const subjectOptions = [...new Set([...pastSubjects, ...DEFAULT_SUBJECTS])]
+  // A chapter picked from the plan may carry a subject the student hasn't
+  // used yet — it must still render as a selectable pill.
+  const subjectOptions = [...new Set([...(planItem ? [planItem.subject] : []), ...pastSubjects, ...DEFAULT_SUBJECTS])]
 
   useEffect(() => {
     if (!student) return
@@ -63,7 +151,38 @@ export default function AddTopic() {
           setTopicCount(data.length)
         }
       })
+    // Unfinished plan chapters power the "What did you study today?" picker.
+    supabase
+      .from('plan_items')
+      .select('id, subject, chapter_name, status')
+      .eq('student_id', student.id)
+      .neq('status', 'done')
+      .order('subject')
+      .order('position')
+      .then(({ data }) => setPlanItems(data || []))
   }, [student])
+
+  function selectPlanItem(item) {
+    setPlanItem(item)
+    setSuggestions([])
+    if (item) {
+      setSubject(item.subject)
+      setCustomSubject(false)
+    }
+  }
+
+  async function loadSuggestions() {
+    if (!planItem || suggesting) return
+    setSuggesting(true)
+    try {
+      const list = await suggestSubtopics(planItem.chapter_name, planItem.subject)
+      if (list.length === 0) toast("We don't know this chapter's parts — type what you studied.")
+      setSuggestions(list)
+    } catch (e) {
+      toast.error(e.message)
+    }
+    setSuggesting(false)
+  }
 
   const atTopicLimit = !isPro && topicCount >= FREE_TOPIC_LIMIT
 
@@ -168,7 +287,8 @@ export default function AddTopic() {
         notes,
         schedule_type: scheduleType,
         shared,
-        share_token: shared ? randomId() : null
+        share_token: shared ? randomId() : null,
+        plan_item_id: planItem?.id ?? null
       })
       .select()
       .single()
@@ -206,6 +326,12 @@ export default function AddTopic() {
       toast.error(revisionsError.message)
       setSaving(false)
       return
+    }
+
+    // First topic from a chapter flips it pending → started on the plan.
+    // Best-effort: a failure here shouldn't block the topic that just saved.
+    if (planItem && planItem.status === 'pending') {
+      await supabase.from('plan_items').update({ status: 'started' }).eq('id', planItem.id)
     }
 
     toast.success('Topic added & revisions scheduled')
@@ -247,13 +373,26 @@ export default function AddTopic() {
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }} className="space-y-3">
-                <Link
-                  to="/scan"
-                  className="block rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform"
-                >
-                  <p className="text-[12px] font-bold text-brand-500">📸 Have your syllabus? Scan it</p>
-                  <p className="text-[11px] text-[var(--muted)] mt-0.5">One photo of the index page builds your chapter plan.</p>
-                </Link>
+                {planItems.length > 0 ? (
+                  <PlanPicker
+                    items={planItems}
+                    selected={planItem}
+                    onSelect={selectPlanItem}
+                    suggestions={suggestions}
+                    suggesting={suggesting}
+                    onSuggest={loadSuggestions}
+                    onPick={(s) => setTopicName(s)}
+                    topicName={topicName}
+                  />
+                ) : (
+                  <Link
+                    to="/scan"
+                    className="block rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform"
+                  >
+                    <p className="text-[12px] font-bold text-brand-500">📸 Have your syllabus? Scan it</p>
+                    <p className="text-[11px] text-[var(--muted)] mt-0.5">One photo of the index page builds your chapter plan.</p>
+                  </Link>
+                )}
                 {atTopicLimit && (
                   <button type="button" onClick={() => showUpsell({ title: 'Topic limit reached', desc: `Free plans include ${FREE_TOPIC_LIMIT} topics. Upgrade to Pro for unlimited topics.` })}
                     className="w-full text-left rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform">

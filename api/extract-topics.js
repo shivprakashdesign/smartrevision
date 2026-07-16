@@ -9,7 +9,7 @@
 import { extractTopics } from './_lib/extract.js'
 
 export const config = {
-  maxDuration: 60 // vision calls can take 10-20s; Hobby's 10s default would kill them
+  maxDuration: 120 // worst case: 3 attempts × 35s timeout + delays (free-tier Gemini is slow)
 }
 
 const SCANS_PER_DAY = 10
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
     // 3. Daily cap.
     const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString()
     const countRes = await db(
-      `scan_log?account_id=eq.${accountId}&created_at=gte.${since}&select=id`,
+      `scan_log?account_id=eq.${accountId}&kind=eq.scan&created_at=gte.${since}&select=id`,
       { method: 'HEAD', headers: { Prefer: 'count=exact' } }
     )
     const used = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0', 10)
@@ -100,6 +100,7 @@ export default async function handler(req, res) {
       method: 'POST',
       body: JSON.stringify({
         account_id: accountId,
+        kind: 'scan',
         topic_count: result.topics.length,
         note: result.note || null
       })
