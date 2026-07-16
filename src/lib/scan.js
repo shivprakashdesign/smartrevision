@@ -40,12 +40,13 @@ export async function scanPhoto(file, subjects = []) {
     body: JSON.stringify({ image: base64, media_type: mediaType, subjects })
   })
   const body = await r.json().catch(() => ({}))
-  if (r.status === 429) throw new Error(body.error || 'Scan limit reached for today — try again tomorrow.')
   if (!r.ok) {
-    // Surface the server's `detail` while the feature is young — a student
-    // sees one extra technical line; we see the actual failure.
+    // The server's `error` is already student-voice (limit reached, reader
+    // busy). Append `detail` while the feature is young — a student sees one
+    // extra technical line; we see the actual failure.
+    const friendly = body.error || "We couldn't read the photo — please try again."
     const detail = body.detail ? ` (${body.detail})` : ''
-    throw new Error(`We couldn't read the photo — please try again.${detail}`)
+    throw new Error(`${friendly}${detail}`)
   }
   return body
 }

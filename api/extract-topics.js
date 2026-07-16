@@ -108,12 +108,21 @@ export default async function handler(req, res) {
     return res.json({ ...result, remaining: SCANS_PER_DAY - used - 1 })
   } catch (e) {
     console.error('extract-topics:', e)
+    const detail = String(e.message || e).slice(0, 300)
+    // Gemini capacity errors survive our retry+fallback chain only on a bad
+    // minute — tell the student to try again shortly, in their language.
+    if (/^gemini (503|429)/.test(detail)) {
+      return res.status(503).json({
+        error: 'Our photo reader is really busy right now — please try again in a minute.',
+        detail
+      })
+    }
     // `detail` names the real failure (bad key, db error, Gemini rejection)
     // without leaking secrets — the Gemini key travels in a header, never in
     // the URL or error text.
     return res.status(500).json({
       error: 'extraction failed — please try again',
-      detail: String(e.message || e).slice(0, 300)
+      detail
     })
   }
 }
