@@ -389,8 +389,8 @@ export default function AddTopic() {
                     to="/scan"
                     className="block rounded-2xl p-3 bg-[rgba(37,99,235,0.08)] active:scale-[0.99] transition-transform"
                   >
-                    <p className="text-[12px] font-bold text-brand-500">📸 Have your syllabus? Scan it</p>
-                    <p className="text-[11px] text-[var(--muted)] mt-0.5">One photo of the index page builds your chapter plan.</p>
+                    <p className="text-[12px] font-bold text-brand-500">📸 Scan your syllabus or today's notes</p>
+                    <p className="text-[11px] text-[var(--muted)] mt-0.5">A syllabus page builds your plan. Notes add today's topics.</p>
                   </Link>
                 )}
                 {atTopicLimit && (
