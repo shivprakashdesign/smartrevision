@@ -224,6 +224,7 @@ export default function Onboarding() {
   const summaryRows = mode === 'parent'
     ? [['NEXT UP', "Add your child's profile"]]
     : [
+        ['NEXT UP', 'Scan your syllabus — one photo builds your plan 📸'],
         grade && school && ['CLASS & SCHOOL', `Class ${grade} · ${school.name}`],
         grade && !school && ['CLASS', `Class ${grade}`],
         examDate && ['EXAM', `${whenExam.replace(/^in /, 'In ')} · ${plannedOffsets.length} reviews per topic`],
@@ -718,7 +719,7 @@ export default function Onboarding() {
           {step === 'summary' && (
             <Screen id="summary" onBack={goBack} muted={T.muted} center={false}
               footer={<Btn onClick={() => navigate(mode === 'parent' ? '/profiles' : '/home')}>
-                {mode === 'parent' ? 'Add your child' : 'Start revising'}
+                {mode === 'parent' ? 'Add your child' : 'Set up my plan'}
               </Btn>}
               overlay={<>
                 <FloatingEmoji className="top-[6%] left-[10%] text-[34px]" delay={0.5} dur={2.9} phase={-0.3}>⭐</FloatingEmoji>
