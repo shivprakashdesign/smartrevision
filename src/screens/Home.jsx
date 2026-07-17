@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Fire02Icon, Diamond02Icon, Notification01Icon, Flag02Icon } from '@hugeicons/core-free-icons'
+import { Fire02Icon, Diamond02Icon, Notification01Icon, Flag02Icon, Calendar03Icon } from '@hugeicons/core-free-icons'
 import BrandLogo from '../lib/BrandLogo'
 import WeekStrip from '../lib/WeekStrip'
 import StreakSheet from '../lib/StreakSheet'
@@ -500,6 +500,15 @@ export default function Home() {
 
             {/* Calendar week strip */}
             <WeekStrip topics={topics} studyDays={student?.study_days} />
+
+            {/* Weekly study plan — only once chapters have been picked */}
+            {planCount > 0 && (
+              <Link to="/calendar" className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm active:scale-[0.98] transition-transform">
+                <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} className="text-brand-500 shrink-0" />
+                <span className="text-[13.5px] font-bold text-[var(--ink)] flex-1">Your weekly study plan</span>
+                <span className="text-[12px] font-bold text-[var(--muted)]">Open ›</span>
+              </Link>
+            )}
 
             {/* Tabs */}
             <div className="flex items-center gap-1.5 mb-4">

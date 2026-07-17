@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, Tick02Icon, Camera01Icon } from '@hugeicons/core-free-icons'
+import { ArrowLeft01Icon, Tick02Icon, Camera01Icon, BookOpen01Icon, Calendar03Icon } from '@hugeicons/core-free-icons'
 import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
@@ -75,12 +75,15 @@ export default function Plan() {
 
           {items.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-[14px] text-[var(--slate-txt)] mb-4">No chapters yet — scan your syllabus to build your plan.</p>
+              <p className="text-[14px] text-[var(--slate-txt)] mb-4">No chapters yet — pick them from your syllabus, or scan the page.</p>
               <Link
-                to="/scan"
+                to="/pick-syllabus"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
               >
-                <HugeiconsIcon icon={Camera01Icon} size={18} strokeWidth={2} /> Scan your syllabus
+                <HugeiconsIcon icon={BookOpen01Icon} size={18} strokeWidth={2} /> Pick your chapters
+              </Link>
+              <Link to="/scan" className="mt-3 flex items-center justify-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
+                <HugeiconsIcon icon={Camera01Icon} size={15} strokeWidth={2} /> Or scan your syllabus
               </Link>
             </div>
           ) : (
@@ -88,6 +91,13 @@ export default function Plan() {
               <p className="text-[13px] text-[var(--muted)] mt-1 mb-4">
                 <b className="text-[var(--ink)]">{started}</b> of {items.length} chapters started{done > 0 ? <> · <b className="text-emerald-600">{done} done</b></> : null}
               </p>
+
+              <Link to="/calendar"
+                className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-2xl bg-brand-500 text-white active:scale-[0.98] transition-transform">
+                <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} />
+                <span className="text-[14px] font-bold flex-1 text-left">See your weekly plan</span>
+                <span className="text-[18px] leading-none">→</span>
+              </Link>
 
               <div className="space-y-4">
                 {Object.entries(groups).map(([subject, rows]) => (
@@ -127,12 +137,14 @@ export default function Plan() {
                 ))}
               </div>
 
-              <Link
-                to="/scan"
-                className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70"
-              >
-                <HugeiconsIcon icon={Camera01Icon} size={15} strokeWidth={2} /> Scan another page
-              </Link>
+              <div className="mt-5 flex items-center gap-4">
+                <Link to="/pick-syllabus" className="inline-flex items-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
+                  <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} /> Add chapters
+                </Link>
+                <Link to="/scan" className="inline-flex items-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
+                  <HugeiconsIcon icon={Camera01Icon} size={15} strokeWidth={2} /> Scan a page
+                </Link>
+              </div>
             </>
           )}
         </motion.div>
