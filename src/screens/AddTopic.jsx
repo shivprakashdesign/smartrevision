@@ -135,9 +135,18 @@ export default function AddTopic() {
   const photosRef = useRef([])
   photosRef.current = photos
 
-  // A chapter picked from the plan may carry a subject the student hasn't
-  // used yet — it must still render as a selectable pill.
-  const subjectOptions = [...new Set([...(planItem ? [planItem.subject] : []), ...pastSubjects, ...DEFAULT_SUBJECTS])]
+  // Priority order: the chapter picked from the plan (may carry a subject the
+  // student hasn't used yet), then subjects from their existing topics, then
+  // what they told us during onboarding, then generic defaults. Without the
+  // onboarding set, a new student who said "Physics, Chemistry, Biology" five
+  // minutes ago would be offered "Maths, Science, Computer Sci." instead.
+  const [accountSubjects, setAccountSubjects] = useState([])
+  const subjectOptions = [...new Set([
+    ...(planItem ? [planItem.subject] : []),
+    ...pastSubjects,
+    ...accountSubjects,
+    ...DEFAULT_SUBJECTS
+  ])]
 
   useEffect(() => {
     if (!student) return
@@ -151,6 +160,12 @@ export default function AddTopic() {
           setTopicCount(data.length)
         }
       })
+    supabase
+      .from('accounts')
+      .select('subjects')
+      .eq('id', student.owner_account_id)
+      .single()
+      .then(({ data }) => setAccountSubjects((data?.subjects || []).filter(Boolean)))
     // Unfinished plan chapters power the "What did you study today?" picker.
     supabase
       .from('plan_items')

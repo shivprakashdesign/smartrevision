@@ -20,7 +20,7 @@ import allDoneAnim from '../assets/lottie/all-done.lottie?url'
 import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../lib/metrics'
-import { forecastCard, forecastBySubject } from '../lib/forecast'
+import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../lib/forecast'
 import { receiptStats } from '../lib/receipt'
 import { daysUntilExam } from '../lib/schedule'
 
@@ -137,11 +137,13 @@ export function ForecastCard({ topics, examDate, onToday, onOpen, recap }) {
   }
 
   if (card.state === 'locked') {
+    // "more" only makes sense once they've revised something.
+    const started = card.needed < FORECAST_MIN_REVISED
     return (
       <div className={shell}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">{examKicker(card.daysLeft, examDate)}</p>
         <p className="text-[13px] text-[var(--slate-txt)] mt-1">
-          Revise <b className="text-[var(--ink)]">{card.needed} more topic{card.needed > 1 ? 's' : ''}</b> to unlock your memory forecast.
+          Revise <b className="text-[var(--ink)]">{card.needed}{started ? ' more' : ''} topic{card.needed > 1 ? 's' : ''}</b> to unlock your memory forecast.
         </p>
       </div>
     )
@@ -191,6 +193,52 @@ export function ForecastCard({ topics, examDate, onToday, onOpen, recap }) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// What a brand-new student sees instead of empty tabs: the fastest path to a
+// working plan. Two variants — no plan yet (scan is the hero) and plan-but-no-
+// topics (logging today's study is the hero). Exported for the harness.
+export function FirstRunHero({ planCount }) {
+  if (planCount > 0) {
+    return (
+      <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-sm p-6 text-center animate-enter">
+        <p className="text-4xl mb-3">📚</p>
+        <h2 className="text-[18px] font-bold text-[var(--ink)] tracking-tight">
+          Your plan is ready — {planCount} chapter{planCount === 1 ? '' : 's'}
+        </h2>
+        <p className="text-[13px] text-[var(--muted)] mt-1.5 mb-5">
+          Add what you studied today and your revisions begin.
+        </p>
+        <Link
+          to="/add-topic"
+          className="block w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
+        >
+          Log today's study
+        </Link>
+        <Link to="/plan" className="inline-block mt-3 text-[12px] font-bold text-[var(--muted)] underline underline-offset-2 active:opacity-70">
+          See my plan
+        </Link>
+      </div>
+    )
+  }
+  return (
+    <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-sm p-6 text-center animate-enter">
+      <p className="text-4xl mb-3">📸</p>
+      <h2 className="text-[18px] font-bold text-[var(--ink)] tracking-tight">Set up your plan in 30 seconds</h2>
+      <p className="text-[13px] text-[var(--muted)] mt-1.5 mb-5">
+        Take one photo of your syllabus or your textbook's index page — we'll turn it into your revision plan.
+      </p>
+      <Link
+        to="/scan"
+        className="block w-full py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
+      >
+        Scan your syllabus
+      </Link>
+      <Link to="/add-topic" className="inline-block mt-3 text-[12px] font-bold text-[var(--muted)] underline underline-offset-2 active:opacity-70">
+        or add a topic by hand
+      </Link>
     </div>
   )
 }
@@ -284,6 +332,18 @@ export default function Home() {
   const [gemsOpen, setGemsOpen] = useState(false)
   const [forecastOpen, setForecastOpen] = useState(false)
   const [recap, setRecap] = useState(null)
+  const [planCount, setPlanCount] = useState(0)
+
+  // First-run hero needs to know whether a plan already exists (scanned but
+  // nothing logged yet) — only relevant while there are no topics.
+  useEffect(() => {
+    if (!student) return
+    supabase
+      .from('plan_items')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', student.id)
+      .then(({ count }) => setPlanCount(count || 0))
+  }, [student])
 
   // Just after the exam, the forecast card becomes the receipt moment — it
   // needs to know whether this exam's tagging already exists.
@@ -361,8 +421,10 @@ export default function Home() {
     </>
   } else if (counts.upcoming > 0) {
     summaryNode = <>All caught up — nothing due today. 🎉</>
+  } else if (planCount > 0) {
+    summaryNode = 'Your plan is in — time to log your first topic.'
   } else {
-    summaryNode = "You're all caught up — add a topic to get started."
+    summaryNode = 'One photo of your syllabus sets up your whole plan.'
   }
 
   const emptyCopy = {
@@ -420,57 +482,66 @@ export default function Home() {
         </h1>
         <p className="text-[14px] text-[var(--muted)] mt-1 mb-4">{summaryNode}</p>
 
-        {/* Memory forecast hero */}
-        <ForecastCard
-          topics={topics}
-          examDate={student?.exam_date}
-          onToday={() => setTab(counts.due > 0 ? 'due' : 'missed')}
-          onOpen={() => setForecastOpen(true)}
-          recap={recap}
-        />
-
-        {/* Calendar week strip */}
-        <WeekStrip topics={topics} studyDays={student?.study_days} />
-
-        {/* Tabs */}
-        <div className="flex items-center gap-1.5 mb-4">
-          {['due', 'missed', 'upcoming'].map(t => {
-            const active = tab === t
-            return (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12.5px] font-bold whitespace-nowrap transition-colors ${
-                  active ? `${TAB_ACTIVE_BG[t]} text-white` : 'text-[var(--muted)]'
-                }`}
-              >
-                {TAB_LABELS[t]}
-                <span className={`min-w-5 px-1.5 py-0.5 rounded-full text-[11px] leading-none ${active ? 'bg-white/25' : 'bg-[var(--card-alt)] text-[var(--slate-txt)]'}`}>
-                  {counts[t]}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* List */}
-        {list.length === 0 ? (
-          tab === 'due' && clearedDueToday ? (
-            <div className="py-10 text-center">
-              <LottieEmpty src={allDoneAnim} size={160} />
-              <p className="text-[16px] font-bold text-[var(--ink)] mt-1">All done for today!</p>
-              <p className="text-[13px] text-[var(--muted)] mt-1">You've cleared every revision due today. See you tomorrow. 👋</p>
-            </div>
-          ) : (
-            <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
-              <p className="text-3xl mb-2">{emptyCopy.emoji}</p>
-              <p className="text-[15px] text-[var(--muted)]">{emptyCopy.text}</p>
-            </div>
-          )
+        {topics.length === 0 ? (
+          /* First run: no topics yet. Everything below (forecast, week strip,
+             tabs) is noise or nonsense at zero — the setup hero owns the screen
+             until the first topic exists. */
+          <FirstRunHero planCount={planCount} />
         ) : (
-          <div className="space-y-3">
-            {list.map((t, i) => <TimelineCard key={t.id} topic={t} i={i} />)}
-          </div>
+          <>
+            {/* Memory forecast hero */}
+            <ForecastCard
+              topics={topics}
+              examDate={student?.exam_date}
+              onToday={() => setTab(counts.due > 0 ? 'due' : 'missed')}
+              onOpen={() => setForecastOpen(true)}
+              recap={recap}
+            />
+
+            {/* Calendar week strip */}
+            <WeekStrip topics={topics} studyDays={student?.study_days} />
+
+            {/* Tabs */}
+            <div className="flex items-center gap-1.5 mb-4">
+              {['due', 'missed', 'upcoming'].map(t => {
+                const active = tab === t
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setTab(t)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12.5px] font-bold whitespace-nowrap transition-colors ${
+                      active ? `${TAB_ACTIVE_BG[t]} text-white` : 'text-[var(--muted)]'
+                    }`}
+                  >
+                    {TAB_LABELS[t]}
+                    <span className={`min-w-5 px-1.5 py-0.5 rounded-full text-[11px] leading-none ${active ? 'bg-white/25' : 'bg-[var(--card-alt)] text-[var(--slate-txt)]'}`}>
+                      {counts[t]}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* List */}
+            {list.length === 0 ? (
+              tab === 'due' && clearedDueToday ? (
+                <div className="py-10 text-center">
+                  <LottieEmpty src={allDoneAnim} size={160} />
+                  <p className="text-[16px] font-bold text-[var(--ink)] mt-1">All done for today!</p>
+                  <p className="text-[13px] text-[var(--muted)] mt-1">You've cleared every revision due today. See you tomorrow. 👋</p>
+                </div>
+              ) : (
+                <div className="bg-[var(--card)] rounded-3xl border border-[var(--border)] py-12 text-center">
+                  <p className="text-3xl mb-2">{emptyCopy.emoji}</p>
+                  <p className="text-[15px] text-[var(--muted)]">{emptyCopy.text}</p>
+                </div>
+              )
+            ) : (
+              <div className="space-y-3">
+                {list.map((t, i) => <TimelineCard key={t.id} topic={t} i={i} />)}
+              </div>
+            )}
+          </>
         )}
       </div>
 

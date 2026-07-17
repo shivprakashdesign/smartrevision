@@ -140,10 +140,17 @@ export default function ScanSyllabus() {
     setError('')
     setStep('reading')
     try {
-      // Their existing subjects help the AI match spellings.
-      const { data: topicRows } = await supabase
-        .from('topics').select('subject').eq('student_id', student.id).not('archived', 'is', true)
-      const subjects = [...new Set((topicRows || []).map((t) => t.subject).filter(Boolean))]
+      // Existing subjects help the AI match spellings. For a brand-new student
+      // the onboarding picks are the only signal — a first scan without them
+      // would invent its own subject names.
+      const [{ data: topicRows }, { data: account }] = await Promise.all([
+        supabase.from('topics').select('subject').eq('student_id', student.id).not('archived', 'is', true),
+        supabase.from('accounts').select('subjects').eq('id', student.owner_account_id).single()
+      ])
+      const subjects = [...new Set([
+        ...(topicRows || []).map((t) => t.subject),
+        ...(account?.subjects || [])
+      ].filter(Boolean))]
 
       const result = await scanPhoto(file, subjects)
       if (!result.topics?.length) {
