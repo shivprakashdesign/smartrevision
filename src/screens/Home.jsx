@@ -99,7 +99,10 @@ export function ForecastCard({ topics, examDate, onToday, onOpen, recap }) {
 
   if (card.state === 'post-exam') {
     if (recap) {
-      const stats = receiptStats(topics, recap.appeared_topic_ids)
+      // Same scoping rule as the recap screen: only topics learned before
+      // the exam could plausibly have been on it.
+      const inScope = topics.filter((t) => t.date_learned && t.date_learned <= examDate)
+      const stats = receiptStats(inScope, recap.appeared_topic_ids)
       return (
         <Link to="/exam-recap" className={`block ${shell} active:scale-[0.98] transition-transform`}>
           <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">Your exam receipt 🧾</p>

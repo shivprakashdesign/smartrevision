@@ -1,6 +1,7 @@
 // The exam receipt. After the exam: tag which topics came up on the paper →
-// see proof the system worked ("9 of 11 — already revised"). The tagging is
-// stored (exam_recaps); the receipt is recomputed from live topic data.
+// see proof the system worked ("9 of 11 — already revised") plus how good
+// your aim was ("prepped 14, 9 showed up") and how the revisions felt. The
+// tagging is stored (exam_recaps); the receipt is recomputed from live data.
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,9 +15,12 @@ import { subjectColor } from '../lib/subjects'
 import { receiptStats, receiptShareText } from '../lib/receipt'
 
 const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+const CONFIDENCE_EMOJI = { good: '😊', okay: '😐', struggled: '😓' }
 
 // The receipt itself — the screenshot-worthy part. Exported for the harness.
 export function Receipt({ stats, examDate, onShare, onEdit }) {
+  const confidenceTotal = stats.confidence.good + stats.confidence.okay + stats.confidence.struggled
+
   return (
     <div className="text-center">
       <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">
@@ -29,12 +33,37 @@ export function Receipt({ stats, examDate, onShare, onEdit }) {
         topics on your paper — already revised
       </p>
       {stats.reps > 0 && (
-        <p className="text-[12px] text-[var(--muted)] mt-1 mb-5">
+        <p className="text-[12px] text-[var(--muted)] mt-1">
           backed by <b className="text-[var(--slate-txt)]">{stats.reps} revision{stats.reps === 1 ? '' : 's'}</b> before exam day
         </p>
       )}
 
-      <div className="text-left rounded-2xl border border-[var(--border)] p-4 space-y-2 mb-4">
+      {stats.aim != null && (
+        <div className="text-left rounded-2xl bg-[var(--card-alt)] px-4 py-3 mt-4">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">Your aim</p>
+          <p className="text-[13px] text-[var(--ink)] mt-0.5">
+            You prepped <b>{stats.prepared} topic{stats.prepared === 1 ? '' : 's'}</b> for this exam —{' '}
+            <b className="text-brand-500">{stats.aim}%</b> of them actually showed up.
+          </p>
+        </div>
+      )}
+
+      {confidenceTotal > 0 && (
+        <div className="text-left rounded-2xl bg-[var(--card-alt)] px-4 py-3 mt-2 mb-4">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">How the revisions felt</p>
+          <div className="flex items-center gap-4 mt-1">
+            {(['good', 'okay', 'struggled']).map((k) =>
+              stats.confidence[k] > 0 ? (
+                <span key={k} className="text-[13px] text-[var(--ink)]">
+                  {CONFIDENCE_EMOJI[k]} <b>{stats.confidence[k]}</b>
+                </span>
+              ) : null
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="text-left rounded-2xl border border-[var(--border)] p-4 space-y-2 mt-4 mb-4">
         {stats.rows.map((row) => (
           <div key={row.id} className="flex items-center gap-2.5">
             <span
@@ -76,6 +105,7 @@ export default function ExamRecap() {
   const [tagged, setTagged] = useState(new Set())
   const [view, setView] = useState('loading') // loading | pick | receipt
   const [saving, setSaving] = useState(false)
+  const [autoPicked, setAutoPicked] = useState(false)
 
   useEffect(() => {
     if (!student) return
@@ -87,7 +117,7 @@ export default function ExamRecap() {
     const [{ data: topicRows }, { data: recap }] = await Promise.all([
       supabase
         .from('topics')
-        .select('id, subject, topic_name, revisions(completed)')
+        .select('id, subject, topic_name, date_learned, priority, revisions(completed, recall_quality, scheduled_date)')
         .eq('student_id', student.id)
         .not('archived', 'is', true),
       supabase
@@ -97,13 +127,24 @@ export default function ExamRecap() {
         .eq('exam_date', student.exam_date)
         .maybeSingle()
     ])
-    setTopics(topicRows || [])
+    // Only what could plausibly have been on THIS exam — a topic logged
+    // after exam day belongs to the next one, not this receipt.
+    const inScope = (topicRows || []).filter((t) => t.date_learned && t.date_learned <= student.exam_date)
+    setTopics(inScope)
+
     if (recap) {
       setTagged(new Set(recap.appeared_topic_ids))
       setView('receipt')
-    } else {
-      setView('pick')
+      return
     }
+    // Auto-suggest: pre-tick what the student themselves flagged as
+    // important when they added it. That's the closest thing we have to
+    // their own prediction of what would matter — tagging becomes "confirm
+    // your guess" instead of hunting through a blank list.
+    const highPriority = inScope.filter((t) => t.priority === 'high').map((t) => t.id)
+    setTagged(new Set(highPriority))
+    setAutoPicked(highPriority.length > 0)
+    setView('pick')
   }
 
   function toggle(id) {
@@ -165,12 +206,18 @@ export default function ExamRecap() {
             {view === 'pick' && (
               <motion.div key="pick" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
                 <h1 className="text-[20px] font-bold text-[var(--ink)] tracking-tight">How did it go?</h1>
-                <p className="text-[13px] text-[var(--slate-txt)] mt-1 mb-4">
+                <p className="text-[13px] text-[var(--slate-txt)] mt-1 mb-1">
                   Tap the topics that <b className="text-[var(--ink)]">came up in your exam</b> — we'll show you how ready you were.
                 </p>
+                {autoPicked && (
+                  <p className="text-[11px] text-[var(--muted)] mb-4">
+                    We've pre-picked what you marked high priority — that's your own best guess. Adjust as needed.
+                  </p>
+                )}
+                {!autoPicked && <div className="mb-4" />}
 
                 {topics.length === 0 ? (
-                  <p className="text-[13px] text-[var(--muted)] py-6 text-center">No topics yet — nothing to make a receipt from.</p>
+                  <p className="text-[13px] text-[var(--muted)] py-6 text-center">No topics from before your exam — nothing to make a receipt from.</p>
                 ) : (
                   <div className="space-y-4 mb-5">
                     {Object.entries(groups).map(([subject, rows]) => (
