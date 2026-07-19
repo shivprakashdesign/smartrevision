@@ -14,9 +14,7 @@ import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
-import { syllabusSubjects, chaptersFor, chapterWeight } from '../lib/syllabus'
-
-const BOARD = 'CBSE' // the only board with hardcoded data today
+import { syllabusSubjects, chaptersFor, chapterWeight, boardName } from '../lib/syllabus'
 
 // A 1–3 "importance" reading for a chapter under the active lens, so the student
 // sees why some chapters will get more time. 0 (dropped from this exam) reads as
@@ -40,8 +38,9 @@ export default function SyllabusPicker() {
   const [saving, setSaving] = useState(false)
 
   const cls = student?.class_grade ? Number(student.class_grade) : null
+  const board = student?.board || 'CBSE'
   const lens = student?.exam_lens || 'jee'
-  const covered = cls ? syllabusSubjects(BOARD, cls) : []
+  const covered = cls ? syllabusSubjects(board, cls) : []
 
   useEffect(() => {
     if (!student) return
@@ -73,7 +72,7 @@ export default function SyllabusPicker() {
 
   // Whole-subject: pick every chapter not already added, or clear them all.
   function toggleSubject(subject) {
-    const chs = chaptersFor(BOARD, cls, subject)
+    const chs = chaptersFor(board, cls, subject)
     const keys = chs.map(c => key(subject, c.chapter)).filter(k => !existing.has(k))
     const allPicked = keys.every(k => picked.has(k))
     setPicked(prev => {
@@ -86,7 +85,7 @@ export default function SyllabusPicker() {
   async function save() {
     const rows = []
     for (const subject of subjects) {
-      chaptersFor(BOARD, cls, subject).forEach((ch, i) => {
+      chaptersFor(board, cls, subject).forEach((ch, i) => {
         const k = key(subject, ch.chapter)
         if (picked.has(k) && !existing.has(k)) {
           rows.push({ student_id: student.id, subject, chapter_name: ch.chapter, position: i })
@@ -119,7 +118,7 @@ export default function SyllabusPicker() {
 
         <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight mb-1">Pick your chapters</h1>
         <p className="text-[14px] text-[var(--muted)] mb-6">
-          {cls ? `Class ${cls} · ${BOARD}` : 'Set your class first'} — tap the chapters you're studying. The dots show how much they matter for {lens === 'board' ? 'your boards' : 'JEE'}.
+          {cls ? `Class ${cls} · ${boardName(board)}` : 'Set your class first'} — tap the chapters you're studying. The dots show how much they matter for {lens === 'board' ? 'your boards' : 'JEE'}.
         </p>
 
         {!loaded ? (
@@ -136,7 +135,7 @@ export default function SyllabusPicker() {
         ) : (
           <div className="space-y-5">
             {subjects.map((subject, si) => {
-              const chs = chaptersFor(BOARD, cls, subject)
+              const chs = chaptersFor(board, cls, subject)
               const selectable = chs.map(c => key(subject, c.chapter)).filter(k => !existing.has(k))
               const allPicked = selectable.length > 0 && selectable.every(k => picked.has(k))
               return (

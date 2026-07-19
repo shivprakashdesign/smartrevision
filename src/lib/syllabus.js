@@ -1,285 +1,121 @@
 // Hardcoded syllabus tree — the fast-start picker that sits ALONGSIDE photo-scan
 // and manual add (it never replaces them). Filtered to the student's board +
-// class + chosen subjects at runtime, so "other class / other subject" data is
-// never shown. This is the reference data behind the weighted study plan.
+// class + chosen subjects at runtime. Reference data behind the weighted plan.
 //
-// SCOPE (v1): Class 12 CBSE, Physics / Chemistry / Maths. The shape supports
-// adding Class 11/10/9 and other subjects later without touching the engine.
+// SCOPE:
+//   Class 11 — Physics / Chemistry / Maths / Biology / English. Real chapter +
+//     topic lists transcribed from the student's Gujarat Board (GSEB) textbooks,
+//     which are the NCERT titles — so the same tree serves GSEB and CBSE. Lives
+//     in ncert11.js (~400 topics).
+//   Class 12 — Physics / Chemistry / Maths / Biology / Computer Studies. Also
+//     real book contents, transcribed the same way, in ncert12.js. Computer
+//     Studies is a Gujarat-specific elective with no CBSE equivalent — see that
+//     file's header before assuming it applies outside GSEB.
+//   Boards: CBSE and Gujarat Board (GSEB); the shared science subjects differ
+//     only in board-exam marks, so chapters + JEE weightage live once in NCERT
+//     and each board overlays its own marks in BOARD_MARKS. Split a subject's
+//     tree per board if it ever turns out the two diverge on chapters.
 //
-// TWO IMPORTANCE LENSES, shown side by side for clarity:
-//   `jeeQ`       — average JEE Main questions a chapter draws per session (out
-//                  of ~25 for the subject). The weight the engine uses under the
-//                  JEE lens. Source: public JEE Main chapter-wise weightage
-//                  (eSaral / PW / Testbook, 2025–26).
-//   `boardMarks` — CBSE Class 12 board marks the chapter carries (Physics /
-//                  Chemistry out of 70, Maths out of 80). Board marks are
-//                  officially UNIT-level; where a unit spans chapters we split
-//                  its marks across them. Source: PW / CollegeDekho (2025–26).
+// TWO IMPORTANCE LENSES:
+//   `jeeQ`       — avg JEE Main questions a chapter draws per session (national,
+//                  same for every board). Source: public JEE Main weightage.
+//                  Class 12 PCM verified; Class 11 PCM are priors to tune. null
+//                  for Biology, English and Computer Studies — none is examined
+//                  by JEE, so they fall back to the engine's floor weight (even
+//                  split) until a NEET lens / board marks land.
+//   `boardMarks` — the board's own exam marks, attached per board via chaptersFor.
+//                  CBSE numbers are user-verified (Class 12 PCM) / priors (Class
+//                  11 PCM). GSEB uses 100-mark papers with its own blueprint —
+//                  PENDING, so the GSEB board lens stays unavailable until those
+//                  land.
 //
-// Both are session/year-averaged priors to be tuned, not gospel — they fluctuate.
-//
-// SYLLABUS DRIFT — the 2023 NCERT rationalization and the 2024 JEE syllabus cut
-// diverged, so a few chapters live in one lens but not the other:
-//   `jeeExcluded: true`   — in CBSE Class 12 but dropped from the JEE syllabus.
-//   `boardExcluded: true` — in the JEE syllabus but dropped from CBSE Class 12.
-// Chapters dropped from BOTH (Solid State, Surface Chemistry, Isolation of
-// Elements, Polymers, Chemistry in Everyday Life) are omitted entirely — they'd
-// be dead weight in the picker. p-Block is the one live split: JEE keeps it,
-// CBSE boards no longer test it.
-//
-// Subtopic `type` drives the per-item difficulty weight in the engine, mirroring
-// the student's own tracker: Derivation / Numerical are heavy, MCQ light.
+// A chapter absent from a board's BOARD_MARKS overlay isn't tested by that board
+// (board weight 0). Subtopic `type` drives the per-item difficulty weight in the
+// engine (Derivation / Numerical heavy, MCQ light) where the source data has it;
+// real book-topic rows carry no type and default to the Concept weight.
+
+import { CLASS_11 } from './ncert11'
+import { CLASS_12 } from './ncert12'
 
 export const SUBTOPIC_TYPES = ['Derivation', 'Concept', 'Numerical', 'MCQ']
 
-export const SYLLABUS = {
-  CBSE: {
-    12: {
-      Physics: [
-        { id: 'p1', chapter: 'Electric Charges & Fields', jeeQ: 1, boardMarks: 5, subtopics: [
-          { id: 'p1a', label: "Coulomb's law", type: 'Derivation' },
-          { id: 'p1b', label: 'Electric field & field lines', type: 'Concept' },
-          { id: 'p1c', label: 'Electric dipole & torque', type: 'Derivation' },
-          { id: 'p1d', label: "Gauss's law & applications", type: 'Derivation' },
-          { id: 'p1e', label: 'Force / field numericals', type: 'Numerical' }
-        ]},
-        { id: 'p2', chapter: 'Electrostatic Potential & Capacitance', jeeQ: 1, boardMarks: 5, subtopics: [
-          { id: 'p2a', label: 'Potential due to charge & dipole', type: 'Derivation' },
-          { id: 'p2b', label: 'Equipotential surfaces, E = -dV/dr', type: 'Concept' },
-          { id: 'p2c', label: 'Capacitors, series & parallel', type: 'Numerical' },
-          { id: 'p2d', label: 'Energy stored, dielectrics', type: 'Numerical' }
-        ]},
-        { id: 'p3', chapter: 'Current Electricity', jeeQ: 3, boardMarks: 6, subtopics: [
-          { id: 'p3a', label: 'Ohm’s law, drift velocity', type: 'Concept' },
-          { id: 'p3b', label: "Kirchhoff's laws", type: 'Derivation' },
-          { id: 'p3c', label: 'Wheatstone bridge & meter bridge', type: 'Derivation' },
-          { id: 'p3d', label: 'Potentiometer', type: 'Concept' },
-          { id: 'p3e', label: 'Resistance networks, EMF & internal R', type: 'Numerical' }
-        ]},
-        { id: 'p4', chapter: 'Moving Charges & Magnetism', jeeQ: 2, boardMarks: 8, subtopics: [
-          { id: 'p4a', label: 'Biot–Savart & Ampere’s law', type: 'Derivation' },
-          { id: 'p4b', label: 'Force on charge / wire, cyclotron', type: 'Concept' },
-          { id: 'p4c', label: 'Torque on loop, moving-coil galvanometer', type: 'Derivation' },
-          { id: 'p4d', label: 'Field numericals', type: 'Numerical' }
-        ]},
-        { id: 'p5', chapter: 'Magnetism & Matter', jeeQ: 1, boardMarks: 3, subtopics: [
-          { id: 'p5a', label: 'Bar magnet, magnetic dipole', type: 'Concept' },
-          { id: 'p5b', label: 'Dia / para / ferromagnetism', type: 'Concept' },
-          { id: 'p5c', label: 'Hysteresis, earth’s magnetism', type: 'Concept' }
-        ]},
-        { id: 'p6', chapter: 'Electromagnetic Induction', jeeQ: 1, boardMarks: 3, subtopics: [
-          { id: 'p6a', label: 'Faraday & Lenz law, motional EMF', type: 'Derivation' },
-          { id: 'p6b', label: 'Self & mutual inductance', type: 'Derivation' },
-          { id: 'p6c', label: 'Energy in inductor, AC generator', type: 'Concept' },
-          { id: 'p6d', label: 'Induced EMF numericals', type: 'Numerical' }
-        ]},
-        { id: 'p7', chapter: 'Alternating Current', jeeQ: 2, boardMarks: 3, subtopics: [
-          { id: 'p7a', label: 'AC through R, L, C', type: 'Concept' },
-          { id: 'p7b', label: 'LCR circuit, phasors, impedance', type: 'Derivation' },
-          { id: 'p7c', label: 'Resonance, quality factor', type: 'Concept' },
-          { id: 'p7d', label: 'Power, transformer', type: 'Numerical' }
-        ]},
-        { id: 'p8', chapter: 'Electromagnetic Waves', jeeQ: 1, boardMarks: 4, subtopics: [
-          { id: 'p8a', label: 'Displacement current', type: 'Concept' },
-          { id: 'p8b', label: 'EM wave properties', type: 'Concept' },
-          { id: 'p8c', label: 'EM spectrum', type: 'MCQ' }
-        ]},
-        { id: 'p9', chapter: 'Ray Optics & Optical Instruments', jeeQ: 2, boardMarks: 8, subtopics: [
-          { id: 'p9a', label: 'Reflection, mirrors', type: 'Numerical' },
-          { id: 'p9b', label: 'Refraction, lens & lensmaker', type: 'Derivation' },
-          { id: 'p9c', label: 'Prism, dispersion, TIR', type: 'Concept' },
-          { id: 'p9d', label: 'Microscope & telescope', type: 'Numerical' }
-        ]},
-        { id: 'p10', chapter: 'Wave Optics', jeeQ: 2, boardMarks: 6, subtopics: [
-          { id: 'p10a', label: "Huygens principle", type: 'Concept' },
-          { id: 'p10b', label: 'Young’s double slit', type: 'Derivation' },
-          { id: 'p10c', label: 'Diffraction, single slit', type: 'Concept' },
-          { id: 'p10d', label: 'Polarisation', type: 'MCQ' }
-        ]},
-        { id: 'p11', chapter: 'Dual Nature of Radiation & Matter', jeeQ: 1, boardMarks: 4, subtopics: [
-          { id: 'p11a', label: 'Photoelectric effect', type: 'Concept' },
-          { id: 'p11b', label: 'Einstein’s equation', type: 'Numerical' },
-          { id: 'p11c', label: 'de Broglie wavelength', type: 'Numerical' }
-        ]},
-        { id: 'p12', chapter: 'Atoms', jeeQ: 1, boardMarks: 4, subtopics: [
-          { id: 'p12a', label: 'Bohr model', type: 'Derivation' },
-          { id: 'p12b', label: 'Hydrogen spectrum', type: 'Numerical' },
-          { id: 'p12c', label: 'Rutherford scattering', type: 'Concept' }
-        ]},
-        { id: 'p13', chapter: 'Nuclei', jeeQ: 1, boardMarks: 4, subtopics: [
-          { id: 'p13a', label: 'Mass defect & binding energy', type: 'Numerical' },
-          { id: 'p13b', label: 'Radioactivity, decay law', type: 'Derivation' },
-          { id: 'p13c', label: 'Fission & fusion', type: 'Concept' }
-        ]},
-        { id: 'p14', chapter: 'Semiconductor Electronics', jeeQ: 1, boardMarks: 7, subtopics: [
-          { id: 'p14a', label: 'Intrinsic / extrinsic, p-n junction', type: 'Concept' },
-          { id: 'p14b', label: 'Diode, rectifier', type: 'Concept' },
-          { id: 'p14c', label: 'Logic gates', type: 'MCQ' }
-        ]}
-      ],
-      Chemistry: [
-        { id: 'c2', chapter: 'Solutions', jeeQ: 1, boardMarks: 7, subtopics: [
-          { id: 'c2a', label: "Raoult's law", type: 'Concept' },
-          { id: 'c2b', label: 'Colligative properties', type: 'Concept' },
-          { id: 'c2c', label: "van't Hoff factor", type: 'Concept' },
-          { id: 'c2d', label: 'Elevation / depression / osmosis', type: 'Numerical' }
-        ]},
-        { id: 'c3', chapter: 'Electrochemistry', jeeQ: 1, boardMarks: 9, subtopics: [
-          { id: 'c3a', label: 'Nernst equation', type: 'Derivation' },
-          { id: 'c3b', label: 'Conductance, Kohlrausch law', type: 'Concept' },
-          { id: 'c3c', label: 'EMF of cell, Faraday’s laws', type: 'Numerical' }
-        ]},
-        { id: 'c4', chapter: 'Chemical Kinetics', jeeQ: 1, boardMarks: 7, subtopics: [
-          { id: 'c4a', label: 'Rate law, order & molecularity', type: 'Concept' },
-          { id: 'c4b', label: 'Integrated rate (1st order), half-life', type: 'Derivation' },
-          { id: 'c4c', label: 'Arrhenius equation', type: 'Numerical' }
-        ]},
-        { id: 'c7', chapter: 'The p-Block Elements', jeeQ: 2, boardMarks: 0, boardExcluded: true, subtopics: [
-          { id: 'c7a', label: 'Group 15 (N family)', type: 'Concept' },
-          { id: 'c7b', label: 'Group 16 (O family)', type: 'Concept' },
-          { id: 'c7c', label: 'Group 17 & 18', type: 'Concept' },
-          { id: 'c7d', label: 'Oxoacids, structures', type: 'MCQ' }
-        ]},
-        { id: 'c8', chapter: 'The d & f Block Elements', jeeQ: 2, boardMarks: 7, subtopics: [
-          { id: 'c8a', label: 'Transition element trends', type: 'Concept' },
-          { id: 'c8b', label: 'KMnO4 / K2Cr2O7', type: 'Concept' },
-          { id: 'c8c', label: 'Lanthanoid contraction', type: 'MCQ' }
-        ]},
-        { id: 'c9', chapter: 'Coordination Compounds', jeeQ: 2, boardMarks: 7, subtopics: [
-          { id: 'c9a', label: 'Nomenclature, Werner theory', type: 'Concept' },
-          { id: 'c9b', label: 'VBT, CFT, hybridisation', type: 'Concept' },
-          { id: 'c9c', label: 'Isomerism', type: 'MCQ' },
-          { id: 'c9d', label: 'Magnetic moment / colour', type: 'Numerical' }
-        ]},
-        { id: 'c10', chapter: 'Haloalkanes & Haloarenes', jeeQ: 1, boardMarks: 6, subtopics: [
-          { id: 'c10a', label: 'SN1 vs SN2', type: 'Concept' },
-          { id: 'c10b', label: 'Elimination, reactivity order', type: 'Concept' },
-          { id: 'c10c', label: 'Optical isomerism (R/S)', type: 'MCQ' }
-        ]},
-        { id: 'c11', chapter: 'Alcohols, Phenols & Ethers', jeeQ: 1, boardMarks: 6, subtopics: [
-          { id: 'c11a', label: 'Preparation & properties', type: 'Concept' },
-          { id: 'c11b', label: 'Reactions of phenol', type: 'Concept' },
-          { id: 'c11c', label: 'Named reactions (Reimer–Tiemann, Kolbe)', type: 'MCQ' }
-        ]},
-        { id: 'c12', chapter: 'Aldehydes, Ketones & Carboxylic Acids', jeeQ: 2, boardMarks: 8, subtopics: [
-          { id: 'c12a', label: 'Nucleophilic addition', type: 'Concept' },
-          { id: 'c12b', label: 'Aldol, Cannizzaro', type: 'Concept' },
-          { id: 'c12c', label: 'Acidity of carboxylic acids', type: 'Concept' },
-          { id: 'c12d', label: 'Distinguishing tests', type: 'MCQ' }
-        ]},
-        { id: 'c13', chapter: 'Amines', jeeQ: 1, boardMarks: 6, subtopics: [
-          { id: 'c13a', label: 'Classification, basicity', type: 'Concept' },
-          { id: 'c13b', label: 'Preparation, diazonium salts', type: 'Concept' },
-          { id: 'c13c', label: 'Distinguishing 1°/2°/3°', type: 'MCQ' }
-        ]},
-        { id: 'c14', chapter: 'Biomolecules', jeeQ: 1, boardMarks: 7, subtopics: [
-          { id: 'c14a', label: 'Carbohydrates', type: 'Concept' },
-          { id: 'c14b', label: 'Proteins, enzymes', type: 'Concept' },
-          { id: 'c14c', label: 'Nucleic acids, vitamins', type: 'MCQ' }
-        ]}
-      ],
-      Maths: [
-        { id: 'm1', chapter: 'Relations & Functions', jeeQ: 1, boardMarks: 5, subtopics: [
-          { id: 'm1a', label: 'Types of relations', type: 'Concept' },
-          { id: 'm1b', label: 'One-one, onto, bijective, inverse', type: 'Concept' },
-          { id: 'm1c', label: 'Composition, binary operations', type: 'Numerical' }
-        ]},
-        { id: 'm2', chapter: 'Inverse Trigonometric Functions', jeeQ: 1, boardMarks: 3, subtopics: [
-          { id: 'm2a', label: 'Domain, range, principal value', type: 'Concept' },
-          { id: 'm2b', label: 'Properties, simplification', type: 'Numerical' }
-        ]},
-        { id: 'm3', chapter: 'Matrices', jeeQ: 1, boardMarks: 5, subtopics: [
-          { id: 'm3a', label: 'Types & operations', type: 'Concept' },
-          { id: 'm3b', label: 'Transpose, symmetric / skew', type: 'Concept' },
-          { id: 'm3c', label: 'Inverse by elementary operations', type: 'Numerical' }
-        ]},
-        { id: 'm4', chapter: 'Determinants', jeeQ: 1, boardMarks: 5, subtopics: [
-          { id: 'm4a', label: 'Properties of determinants', type: 'Derivation' },
-          { id: 'm4b', label: 'Adjoint & inverse', type: 'Concept' },
-          { id: 'm4c', label: 'System of equations, Cramer', type: 'Numerical' }
-        ]},
-        { id: 'm5', chapter: 'Continuity & Differentiability', jeeQ: 2, boardMarks: 8, subtopics: [
-          { id: 'm5a', label: 'Continuity, find k', type: 'Numerical' },
-          { id: 'm5b', label: 'Chain rule, implicit, log diff', type: 'Numerical' },
-          { id: 'm5c', label: 'Rolle’s & MVT', type: 'Concept' }
-        ]},
-        { id: 'm6', chapter: 'Application of Derivatives', jeeQ: 2, boardMarks: 7, subtopics: [
-          { id: 'm6a', label: 'Rate of change, approximation', type: 'Numerical' },
-          { id: 'm6b', label: 'Increasing / decreasing', type: 'Concept' },
-          { id: 'm6c', label: 'Maxima & minima', type: 'Numerical' },
-          { id: 'm6d', label: 'Tangents & normals', type: 'Numerical' }
-        ]},
-        { id: 'm7', chapter: 'Integrals', jeeQ: 2, boardMarks: 10, subtopics: [
-          { id: 'm7a', label: 'By substitution & parts (ILATE)', type: 'Numerical' },
-          { id: 'm7b', label: 'Partial fractions', type: 'Numerical' },
-          { id: 'm7c', label: 'Definite integral properties', type: 'Derivation' },
-          { id: 'm7d', label: 'Definite integrals', type: 'Numerical' }
-        ]},
-        { id: 'm8', chapter: 'Application of Integrals', jeeQ: 1, boardMarks: 4, subtopics: [
-          { id: 'm8a', label: 'Area under a curve', type: 'Numerical' },
-          { id: 'm8b', label: 'Area between curves', type: 'Numerical' }
-        ]},
-        { id: 'm9', chapter: 'Differential Equations', jeeQ: 1, boardMarks: 6, subtopics: [
-          { id: 'm9a', label: 'Order & degree', type: 'Concept' },
-          { id: 'm9b', label: 'Variable separable, homogeneous', type: 'Numerical' },
-          { id: 'm9c', label: 'Linear differential equations', type: 'Numerical' }
-        ]},
-        { id: 'm10', chapter: 'Vector Algebra', jeeQ: 2, boardMarks: 6, subtopics: [
-          { id: 'm10a', label: 'Dot & cross product', type: 'Numerical' },
-          { id: 'm10b', label: 'Scalar & vector triple product', type: 'Concept' },
-          { id: 'm10c', label: 'Projection, area', type: 'Numerical' }
-        ]},
-        { id: 'm11', chapter: 'Three Dimensional Geometry', jeeQ: 2, boardMarks: 8, subtopics: [
-          { id: 'm11a', label: 'Direction cosines & ratios', type: 'Concept' },
-          { id: 'm11b', label: 'Line in space, shortest distance', type: 'Numerical' },
-          { id: 'm11c', label: 'Plane, angle & distance', type: 'Numerical' }
-        ]},
-        { id: 'm12', chapter: 'Linear Programming', jeeQ: 1, boardMarks: 5, subtopics: [
-          { id: 'm12a', label: 'Formulation, feasible region', type: 'Concept' },
-          { id: 'm12b', label: 'Optimal solution (graphical)', type: 'Numerical' }
-        ]},
-        { id: 'm13', chapter: 'Probability', jeeQ: 2, boardMarks: 8, subtopics: [
-          { id: 'm13a', label: 'Conditional probability', type: 'Numerical' },
-          { id: 'm13b', label: "Bayes' theorem", type: 'Numerical' },
-          { id: 'm13c', label: 'Random variable, distributions', type: 'Concept' }
-        ]}
-      ]
-    }
-  }
+// ---- NCERT chapter trees (national: chapters + JEE weightage + subtopics) ----
+const NCERT = {
+  11: CLASS_11,
+  12: CLASS_12
 }
 
-// Boards / classes / subjects that actually have hardcoded data, for the picker
-// to offer. Anything not here falls back to scan / manual add.
-export const SYLLABUS_BOARDS = Object.keys(SYLLABUS)
+// ---- Board exam-marks overlay: board → class → { chapterId: marks } ----
+// A chapter absent here isn't tested by that board. CBSE Class 12 is
+// user-verified; CBSE Class 11 are priors to verify. GSEB (Gujarat) uses
+// 100-mark papers — blueprint PENDING, so its board lens is unavailable.
+const BOARD_MARKS = {
+  CBSE: {
+    11: {
+      p11_1: 2, p11_2: 5, p11_3: 5, p11_4: 7, p11_5: 5, p11_6: 6, p11_7: 5,
+      p11_8: 3, p11_9: 5, p11_10: 5, p11_11: 5, p11_12: 4, p11_13: 6, p11_14: 7,
+      // 9 chapters (rationalised NCERT dropped p-Block Gr.13–14 from Class 11).
+      c11_1: 7, c11_2: 8, c11_3: 6, c11_4: 9, c11_5: 7, c11_6: 10, c11_7: 5,
+      c11_8: 9, c11_9: 9,
+      // Biology / English Class 11 board marks not set yet — see header.
+      m11_1: 5, m11_2: 5, m11_3: 8, m11_4: 6, m11_5: 3, m11_6: 5, m11_7: 4,
+      m11_8: 6, m11_9: 6, m11_10: 6, m11_11: 4, m11_12: 8, m11_13: 6, m11_14: 8
+    },
+    12: {
+      p1: 5, p2: 5, p3: 6, p4: 8, p5: 3, p6: 3, p7: 3, p8: 4, p9: 8, p10: 6, p11: 4, p12: 4, p13: 4, p14: 7,
+      // Chemistry ids are the REAL book's own chapter numbers (1 Solutions … 10
+      // Biomolecules) — no p-Block chapter exists in the book at all (see
+      // ncert12.js header), so there's nothing to exclude here anymore.
+      c1: 7, c2: 9, c3: 7, c4: 7, c5: 7, c6: 6, c7: 6, c8: 8, c9: 6, c10: 7,
+      m1: 5, m2: 3, m3: 5, m4: 5, m5: 8, m6: 7, m7: 10, m8: 4, m9: 6, m10: 6, m11: 8, m12: 5, m13: 8
+    }
+  },
+  // GSEB science uses these same NCERT chapters; per-chapter board marks pending.
+  GSEB: { 11: {}, 12: {} }
+}
 
-export function syllabusClasses(board) {
-  return Object.keys(SYLLABUS[board] || {}).map(Number).sort((a, b) => b - a)
+const BOARD_META = { CBSE: { name: 'CBSE' }, GSEB: { name: 'Gujarat Board' } }
+
+// ---- Public API (signatures unchanged from the single-board version) ----
+export const SYLLABUS_BOARDS = Object.keys(BOARD_MARKS)
+
+export const boardName = (board) => BOARD_META[board]?.name || board
+
+// Classes with hardcoded data (same set for every board today).
+export function syllabusClasses() {
+  return Object.keys(NCERT).map(Number).sort((a, b) => b - a)
 }
 
 export function syllabusSubjects(board, cls) {
-  return Object.keys(SYLLABUS[board]?.[cls] || {})
+  return Object.keys(NCERT[cls] || {})
 }
 
-// The chapters for one board+class+subject, or [] when we have no hardcoded
-// data — the caller then points the student at scan / manual add instead.
+// Chapters for a board+class+subject, each with the board's own boardMarks
+// merged on (null when that board doesn't test / hasn't priced the chapter).
 export function chaptersFor(board, cls, subject) {
-  return SYLLABUS[board]?.[cls]?.[subject] || []
+  const chs = NCERT[cls]?.[subject] || []
+  const marks = BOARD_MARKS[board]?.[cls] || {}
+  return chs.map(c => ({ ...c, boardMarks: marks[c.id] ?? null }))
 }
 
-// Does the hardcoded tree cover this combination at all?
 export function hasSyllabus(board, cls, subject) {
   return chaptersFor(board, cls, subject).length > 0
 }
 
+// Does this board publish per-chapter marks for this class? (false → the board
+// lens is unavailable, e.g. GSEB until its blueprint lands.)
+export function hasBoardMarks(board, cls) {
+  return Object.keys(BOARD_MARKS[board]?.[cls] || {}).length > 0
+}
+
 // The tree chapter behind a plan_item's (subject, chapter_name), or null when
-// the plan_item came from a scan and isn't in the hardcoded syllabus. The picker
-// writes exact chapter strings, so an exact match is enough.
+// it came from a scan and isn't in the hardcoded syllabus.
 export function chapterByName(board, cls, subject, name) {
   return chaptersFor(board, cls, subject).find(c => c.chapter === name) || null
 }
 
-// The importance weight for a chapter under a given lens ('jee' | 'board').
-// The engine calls this so switching lenses is a one-line change everywhere.
+// Importance weight under a lens ('jee' | 'board'). Board marks are already
+// merged onto the chapter by chaptersFor.
 export function chapterWeight(chapter, lens = 'jee') {
   return lens === 'board' ? (chapter.boardMarks || 0) : (chapter.jeeQ || 0)
 }

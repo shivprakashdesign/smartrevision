@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { useSchoolSearch, createSchool, findOrCreateClass, classSchool, schoolSubtitle } from '../lib/schools'
 import { offsetsFor, offsetLabel, daysUntilExam, STANDARD_OFFSETS } from '../lib/schedule'
-import { syllabusSubjects } from '../lib/syllabus'
+import { syllabusSubjects, hasBoardMarks, boardName, SYLLABUS_BOARDS } from '../lib/syllabus'
 import { subjectColor } from '../lib/subjects'
 
 const GRADES = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -39,6 +39,7 @@ export default function StudyPlanSettings() {
   const { student, refreshStudent } = useStudentProfile()
 
   const [grade, setGrade] = useState(null)
+  const [board, setBoard] = useState('CBSE')
   const [school, setSchool] = useState(null)
   const [schoolQuery, setSchoolQuery] = useState('')
   const [examDate, setExamDate] = useState('')
@@ -51,9 +52,11 @@ export default function StudyPlanSettings() {
   const [saving, setSaving] = useState(false)
 
   // The lens choice (JEE vs board weightage) only means something where we have
-  // a hardcoded weighted syllabus — today, Class 12. Younger classes see no
-  // lens toggle because there's only one exam to plan against.
-  const lensRelevant = grade != null && syllabusSubjects('CBSE', grade).length > 0
+  // a hardcoded weighted syllabus (Class 11–12) AND the board actually prices its
+  // chapters — GSEB's board blueprint is pending, so only its JEE lens is offered.
+  const hasWeightedSyllabus = grade != null && syllabusSubjects(board, grade).length > 0
+  const boardLensAvailable = grade != null && hasBoardMarks(board, grade)
+  const lensRelevant = hasWeightedSyllabus && boardLensAvailable
 
   const { results, searching } = useSchoolSearch(schoolQuery, grade, !school)
 
@@ -70,6 +73,7 @@ export default function StudyPlanSettings() {
         .from('accounts').select('subjects').eq('id', student.owner_account_id).single()
       if (cancelled) return
       setGrade(current?.grade ?? (student.class_grade ? Number(student.class_grade) : null))
+      setBoard(student.board || 'CBSE')
       setSchool(current?.school ?? null)
       setExamDate(student.exam_date || '')
       setStudyDays(student.study_days?.length ? student.study_days : [1, 2, 3, 4, 5, 6])
@@ -121,11 +125,14 @@ export default function StudyPlanSettings() {
     const { error } = await supabase.from('students').update({
       class_id: classId,
       class_grade: grade ? String(grade) : null,
+      board,
       exam_date: examDate || null,
       study_days: studyDays,
       daily_study_min: dailyStudyMin,
       weak_subjects: weakSubjects,
-      exam_lens: lensRelevant ? examLens : null
+      // Weighted syllabus always plans against a lens; without a board blueprint
+      // (GSEB) that lens is forced to JEE. No weighted syllabus → no lens.
+      exam_lens: hasWeightedSyllabus ? (boardLensAvailable ? examLens : 'jee') : null
     }).eq('id', student.id)
 
     setSaving(false)
@@ -172,6 +179,24 @@ export default function StudyPlanSettings() {
             })}
           </div>
         </Section>
+
+        {SYLLABUS_BOARDS.length > 1 && (
+          <Section title="Board" delay={0.03}>
+            <div className="flex gap-2">
+              {SYLLABUS_BOARDS.map(b => {
+                const sel = board === b
+                return (
+                  <button key={b} onClick={() => setBoard(b)}
+                    className={`flex-1 py-2.5 rounded-xl text-[13.5px] font-bold border-2 transition-colors ${
+                      sel ? 'bg-brand-500 border-brand-500 text-white' : 'border-[var(--border)] text-[var(--ink)]'
+                    }`}>
+                    {boardName(b)}
+                  </button>
+                )
+              })}
+            </div>
+          </Section>
+        )}
 
         <Section title="School" delay={0.05}>
           {school ? (
@@ -297,7 +322,7 @@ export default function StudyPlanSettings() {
         {lensRelevant && (
           <Section title="Plan against" delay={0.3}>
             <div className="flex gap-2">
-              {[['jee', 'JEE weightage'], ['board', 'Board marks']].map(([id, label]) => {
+              {[['jee', 'JEE weightage'], ['board', `${boardName(board)} marks`]].map(([id, label]) => {
                 const sel = examLens === id
                 return (
                   <button key={id} onClick={() => setExamLens(id)}
@@ -312,7 +337,16 @@ export default function StudyPlanSettings() {
             <p className="text-[12px] text-[var(--muted)] mt-3">
               {examLens === 'jee'
                 ? 'Time follows JEE Main chapter weightage — e.g. Current Electricity and Coordination Compounds get more.'
-                : 'Time follows CBSE board marks — e.g. Optics and Electrochemistry get more.'}
+                : 'Time follows board marks — e.g. Optics and Electrochemistry get more.'}
+            </p>
+          </Section>
+        )}
+
+        {hasWeightedSyllabus && !boardLensAvailable && (
+          <Section title="Plan against" delay={0.3}>
+            <p className="text-[13px] font-bold text-[var(--ink)]">JEE weightage</p>
+            <p className="text-[12px] text-[var(--muted)] mt-1">
+              {boardName(board)} board weightage is coming soon — for now your plan follows JEE Main chapter weightage.
             </p>
           </Section>
         )}

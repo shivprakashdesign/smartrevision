@@ -11,11 +11,10 @@ import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
-import { chapterByName } from '../lib/syllabus'
+import { chapterByName, hasBoardMarks } from '../lib/syllabus'
 import { buildPlan } from '../lib/studyPlan'
 
-const BOARD = 'CBSE'
-const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const DOW =['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const parseYmd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d) }
 const fmtDay = (s) => { const d = parseYmd(s); return `${DOW[(d.getDay() + 6) % 7]} ${d.getDate()} ${MON[d.getMonth()]}` }
@@ -72,7 +71,9 @@ export default function StudyCalendar() {
   if (items === null) return frame(<p className="text-[14px] text-[var(--muted)]">Loading…</p>)
 
   const cls = student?.class_grade ? Number(student.class_grade) : null
-  const lens = student?.exam_lens || 'jee'
+  const board = student?.board || 'CBSE'
+  // Only honour a board lens the board actually prices (GSEB blueprint pending).
+  const lens = student?.exam_lens === 'board' && hasBoardMarks(board, cls) ? 'board' : 'jee'
 
   // Guidance states, in the order a student fills them in.
   if (!student?.exam_date)
@@ -85,7 +86,7 @@ export default function StudyCalendar() {
   // Map plan_items back to the tree for weights + subtopics. A scanned chapter
   // not in the tree becomes one generic block (floored weight, minimal time).
   const chapters = items.map(pi => {
-    const tree = chapterByName(BOARD, cls, pi.subject, pi.chapter_name)
+    const tree = chapterByName(board, cls, pi.subject, pi.chapter_name)
     if (tree) return { ...tree, subject: pi.subject }
     return {
       id: `pi-${pi.id}`, chapter: pi.chapter_name, subject: pi.subject,
