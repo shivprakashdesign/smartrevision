@@ -116,15 +116,21 @@ describe('multi-class / multi-board coverage', () => {
     expect(Math.abs(a - b)).toBeLessThanOrEqual(1) // even, modulo rounding residual
   })
 
-  it('GSEB shares NCERT chapters + JEE weights, but board marks are pending', () => {
+  it('GSEB shares NCERT chapters with CBSE; Class 12 now has its own board blueprint, Class 11 still pending', () => {
     // Same chapters as CBSE (NCERT), JEE weightage carries over…
     const cbse = chaptersFor('CBSE', 12, 'Physics').map(c => c.chapter)
     const gseb = chaptersFor('GSEB', 12, 'Physics').map(c => c.chapter)
     expect(gseb).toEqual(cbse)
-    // …but no board marks yet, so the board lens is unavailable for GSEB.
+    // …and Class 12 GSEB now has its own board marks (from the board's own
+    // blueprint), independent of CBSE's — while Class 11 GSEB is still pending.
     expect(hasBoardMarks('CBSE', 12)).toBe(true)
-    expect(hasBoardMarks('GSEB', 12)).toBe(false)
-    expect(chaptersFor('GSEB', 12, 'Physics')[0].boardMarks).toBeNull()
+    expect(hasBoardMarks('GSEB', 12)).toBe(true)
+    expect(hasBoardMarks('GSEB', 11)).toBe(false)
+    const cbsePhysics = chaptersFor('CBSE', 12, 'Physics').find(c => c.chapter === 'Current Electricity')
+    const gsebPhysics = chaptersFor('GSEB', 12, 'Physics').find(c => c.chapter === 'Current Electricity')
+    expect(gsebPhysics.boardMarks).toBe(9)
+    expect(gsebPhysics.boardMarks).not.toBe(cbsePhysics.boardMarks) // 9 (GSEB) vs 6 (CBSE) — genuinely different blueprints
+    expect(chaptersFor('GSEB', 11, 'Physics')[0].boardMarks).toBeNull()
 
     // The JEE lens still produces a full plan for a GSEB student.
     const chapters = chaptersFromPlanItems([
@@ -132,5 +138,44 @@ describe('multi-class / multi-board coverage', () => {
     ], 12).map(c => ({ ...c, ...chapterByName('GSEB', 12, 'Physics', 'Current Electricity') }))
     const plan = buildPlan({ chapters, examDate: '2026-09-15', dailyStudyMin: 120, studyDays: [1, 2, 3, 4, 5, 6, 7], lens: 'jee', now: NOW })
     expect(plan.feasible).toBe(true)
+  })
+
+  it('GSEB Class 12 board lens uses GSEB\'s own blueprint, not JEE weightage', () => {
+    // Same pair of GSEB Chemistry chapters under both lenses (so subtopic
+    // count — an independent driver of total chapter time — stays fixed and
+    // can't confound the comparison): JEE ranks d&f-Block above Alcohols
+    // (jeeQ 2 vs 1), GSEB's own board blueprint ranks them the other way
+    // round (9 vs 12) — a genuine flip from GSEB's real published marks.
+    const dfBlock = 'The d- and f-Block Elements'
+    const alcohols = 'Alcohols, Phenols and Ethers'
+    const chapters = [
+      chapterByName('GSEB', 12, 'Chemistry', dfBlock),
+      chapterByName('GSEB', 12, 'Chemistry', alcohols)
+    ]
+    const opts = { examDate: '2026-09-15', dailyStudyMin: 120, studyDays: [1, 2, 3, 4, 5, 6, 7], now: NOW }
+    const jee = buildPlan({ chapters, lens: 'jee', ...opts })
+    const board = buildPlan({ chapters, lens: 'board', ...opts })
+    const min = (p, name) => p.perChapter.find(c => c.chapter === name).minutes
+    expect(min(jee, dfBlock)).toBeGreaterThan(min(jee, alcohols))
+    expect(min(board, alcohols)).toBeGreaterThan(min(board, dfBlock))
+  })
+
+  it('GSEB Computer Studies has its own board weightage, with 3 chapters intentionally unexamined this year', () => {
+    const cs = chaptersFor('GSEB', 12, 'Computer Studies')
+    expect(cs).toHaveLength(13) // still in the picker for study, even where unweighted
+    const byName = Object.fromEntries(cs.map(c => [c.chapter, c.boardMarks]))
+    expect(byName['Cascading Style Sheets and Java script']).toBe(12)
+    // Exception handling, File handling, Publishing documents using LaTeX —
+    // absent from this year's board blueprint on purpose (confirmed by the
+    // other 10 chapters already summing to the full 100).
+    expect(byName['Exception handling in Java']).toBeNull()
+    expect(byName['File handling']).toBeNull()
+    expect(byName['Publishing documents using LaTeX']).toBeNull()
+    expect(cs.reduce((a, c) => a + (c.boardMarks || 0), 0)).toBe(100)
+    // The chapter LIST is shared architecture (same NCERT tree object regardless
+    // of board — see syllabus.js header), but CBSE has no board marks for it at
+    // all since Computer Studies is a GSEB-only elective with no CBSE exam.
+    const cbseCs = chaptersFor('CBSE', 12, 'Computer Studies')
+    expect(cbseCs.every(c => c.boardMarks === null)).toBe(true)
   })
 })

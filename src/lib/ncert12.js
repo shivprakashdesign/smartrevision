@@ -20,10 +20,10 @@
 //
 // Rows: [chapterNumber, 'Chapter name', jeeQ, [[topicCode, 'Topic title'], …]]
 //   `jeeQ` — avg JEE Main questions/session (national, board-independent).
-//     null for Biology and Computer Studies: neither is examined by JEE.
-//     Biology wants a NEET lens; Computer Studies has no competitive-exam lens
-//     at all. Both fall back to the engine's floor weight (even split) and have
-//     no board marks yet either — see BOARD_MARKS in syllabus.js.
+//     null for Biology and Computer Studies: neither is examined by JEE. Under
+//     the JEE lens both fall back to the engine's floor weight (even split).
+//     GSEB's own board blueprint DOES weight both — see BOARD_MARKS.GSEB[12]
+//     in syllabus.js (Computer Studies' 3 unexamined chapters are noted there).
 //
 // Chapters with no topic breakdown in the source book (Biology, Computer
 // Studies both list "topics": []) get one fallback subtopic — the chapter name
