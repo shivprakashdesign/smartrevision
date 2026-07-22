@@ -1,6 +1,6 @@
 // Builds the Curriculum Knowledge Base JSON from the transcribed textbook
-// trees (src/lib/ncert11.js / ncert12.js) and the board blueprints
-// (BOARD_MARKS in src/lib/syllabus.js).
+// trees (scripts/curriculum-src/ncert11.js / ncert12.js) and the board
+// blueprints (scripts/curriculum-src/boardMarks.js).
 //
 //   node scripts/build-curriculum.mjs
 //
@@ -20,9 +20,9 @@ import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
-import { CLASS_11 } from '../src/lib/ncert11.js'
-import { CLASS_12 } from '../src/lib/ncert12.js'
-import { BOARD_MARKS } from '../src/lib/syllabus.js'
+import { CLASS_11 } from './curriculum-src/ncert11.js'
+import { CLASS_12 } from './curriculum-src/ncert12.js'
+import { BOARD_MARKS } from './curriculum-src/boardMarks.js'
 
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/curriculum/data')
 const SCHEMA_VERSION = 1

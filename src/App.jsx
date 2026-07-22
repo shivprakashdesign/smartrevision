@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { MotionConfig } from 'framer-motion'
 import { AuthProvider, useAuth } from './lib/AuthContext'
@@ -15,8 +15,6 @@ import Progress from './screens/Progress'
 import AddTopic from './screens/AddTopic'
 import ScanSyllabus from './screens/ScanSyllabus'
 import Plan from './screens/Plan'
-import SyllabusPicker from './screens/SyllabusPicker'
-import StudyCalendar from './screens/StudyCalendar'
 import ExamRecap from './screens/ExamRecap'
 import TopicDetail from './screens/TopicDetail'
 import RevisionSession from './screens/RevisionSession'
@@ -25,12 +23,18 @@ import Learn from './screens/Learn'
 import NotificationSettings from './screens/NotificationSettings'
 import Referral from './screens/Referral'
 import ThemeSettings from './screens/ThemeSettings'
-import StudyPlanSettings from './screens/StudyPlanSettings'
 import Settings from './screens/Settings'
 import ManageSubjects from './screens/ManageSubjects'
 import SharedTopic from './screens/SharedTopic'
 import Paywall from './screens/Paywall'
 import { UpsellProvider } from './lib/ProUpsell'
+
+// The syllabus surfaces load lazily: they (and only they) import the eager
+// syllabus adapter, so the bundled curriculum JSON stays in their route chunks
+// instead of the main bundle.
+const SyllabusPicker = lazy(() => import('./screens/SyllabusPicker'))
+const StudyCalendar = lazy(() => import('./screens/StudyCalendar'))
+const StudyPlanSettings = lazy(() => import('./screens/StudyPlanSettings'))
 
 // Routes the app when a notification is tapped while it's already open.
 // The service worker can't navigate an existing window on iOS (Safari has no
@@ -66,6 +70,7 @@ export default function App() {
       <BrowserRouter>
         <PushNavigator />
         <UpsellProvider>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-400 font-sans text-sm">Loading...</div>}>
         <Routes>
           <Route path="/" element={<Onboarding />} />
           <Route path="/login" element={<Login />} />
@@ -92,6 +97,7 @@ export default function App() {
           <Route path="/settings/study-plan" element={<PrivateRoute><StudyPlanSettings /></PrivateRoute>} />
           <Route path="/pro" element={<PrivateRoute><Paywall /></PrivateRoute>} />
         </Routes>
+        </Suspense>
         </UpsellProvider>
       </BrowserRouter>
       </MotionConfig>
