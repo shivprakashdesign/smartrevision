@@ -55,6 +55,35 @@ export function buildRevisionRows(topicId, offsets, from = new Date()) {
   })
 }
 
+// Adaptive rescheduling: when a revision completes well past its window, the
+// remaining reviews shift so their SPACING is preserved from the day the
+// student actually came back — future work is computed from real behavior,
+// never from the missed dates. Reviews that would now land after the exam are
+// dropped (truncate, never compress — same rule as creation).
+// Returns { updates: [{ id, scheduled_date }], dropped: [id] }.
+export function rescheduleAfter(revisions, completedId, completedISO, examDate = null) {
+  const chain = [...revisions].sort((a, b) => (a.scheduled_date < b.scheduled_date ? -1 : 1))
+  const idx = chain.findIndex((r) => r.id === completedId)
+  if (idx === -1) return { updates: [], dropped: [] }
+  const remaining = chain.slice(idx + 1).filter((r) => !r.completed)
+  if (!remaining.length) return { updates: [], dropped: [] }
+
+  const day = (iso) => new Date(`${iso}T00:00:00`)
+  const updates = []
+  const dropped = []
+  let prevPlanned = day(chain[idx].scheduled_date)
+  let anchor = day(completedISO)
+  for (const r of remaining) {
+    const gap = Math.max(1, Math.round((day(r.scheduled_date) - prevPlanned) / DAY_MS))
+    prevPlanned = day(r.scheduled_date)
+    anchor = new Date(anchor.getTime() + gap * DAY_MS)
+    const iso = `${anchor.getFullYear()}-${String(anchor.getMonth() + 1).padStart(2, '0')}-${String(anchor.getDate()).padStart(2, '0')}`
+    if (examDate && iso > examDate) dropped.push(r.id)
+    else if (iso !== r.scheduled_date) updates.push({ id: r.id, scheduled_date: iso })
+  }
+  return { updates, dropped }
+}
+
 // "Same day, Day 1, Day 7, Day 30" — describes the schedule a topic would
 // actually get, so it stays honest once the exam date truncates it.
 export const scheduleSummary = (examDate, from) =>

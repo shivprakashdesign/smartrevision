@@ -144,6 +144,49 @@ describe('momentum / recovery', () => {
   })
 })
 
+describe('flexible windows in the split', () => {
+  it('a slightly-late revision is ordinary due work, not a recovery case', () => {
+    // 1_week interval, 2 days late → inside the ±2 window.
+    const slightlyLate = topic({ dates: ['2026-07-13', '2026-07-20'], done: 1 })
+    slightlyLate.revisions[1].interval_label = '1_week'
+    const m = buildMission({ availableMin: 30, topics: [slightlyLate], now: NOW })
+    expect(m.items[0].kind).toBe('revision')
+  })
+})
+
+describe('adaptive rescheduling', () => {
+  const chain = [
+    { id: 'r0', scheduled_date: '2026-07-01', completed: true },
+    { id: 'r1', scheduled_date: '2026-07-02', completed: true },
+    { id: 'r2', scheduled_date: '2026-07-08', completed: false }, // the one just done, late
+    { id: 'r3', scheduled_date: '2026-07-31', completed: false },
+    { id: 'r4', scheduled_date: '2026-10-29', completed: false }
+  ]
+
+  it('preserves spacing from the actual completion date, not the missed one', async () => {
+    const { rescheduleAfter } = await import('./schedule')
+    // r2 (planned Jul 8) done Jul 22 → r3 keeps its 23-day gap → Aug 14.
+    const { updates, dropped } = rescheduleAfter(chain, 'r2', '2026-07-22', null)
+    expect(updates).toEqual([
+      { id: 'r3', scheduled_date: '2026-08-14' },
+      { id: 'r4', scheduled_date: '2026-11-12' }
+    ])
+    expect(dropped).toEqual([])
+  })
+
+  it('drops (never compresses) reviews shifted past the exam', async () => {
+    const { rescheduleAfter } = await import('./schedule')
+    const { updates, dropped } = rescheduleAfter(chain, 'r2', '2026-07-22', '2026-09-15')
+    expect(updates.map((u) => u.id)).toEqual(['r3'])
+    expect(dropped).toEqual(['r4'])
+  })
+
+  it('on-time completion moves nothing', async () => {
+    const { rescheduleAfter } = await import('./schedule')
+    expect(rescheduleAfter(chain, 'r2', '2026-07-08', null)).toEqual({ updates: [], dropped: [] })
+  })
+})
+
 describe('regenerate & customize', () => {
   it('same seed → identical mission; different seed can rotate near-cut choices', () => {
     const m0a = buildMission({ ...base, availableMin: 70, topics: [], seed: 0 })

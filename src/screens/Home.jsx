@@ -22,6 +22,7 @@ import {
 } from '../engine/metrics'
 import { fetchTopicsWithRevisions } from '../data/topicsRepo'
 import { coachModeEnabled } from '../engine/mission'
+import { memoryHealth } from '../engine/recovery'
 import MissionCard from '../components/MissionCard'
 import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../engine/forecast'
 import { receiptStats } from '../engine/receipt'
@@ -408,12 +409,18 @@ export default function Home() {
   // Lead with the achievable action; behind-schedule items live (softly) in
   // their own tab, and become a positive, tappable nudge when nothing's due today.
   let summaryNode
+  const coach = coachModeEnabled(student)
+  const health = coach ? memoryHealth(topics) : null
   if (counts.due > 0) {
     summaryNode = <>You've got <b className="text-[var(--ink)]">{counts.due} revision{counts.due > 1 ? 's' : ''}</b> to revise today — steady wins the streak. 💪</>
   } else if (counts.missed > 0) {
-    summaryNode = <>Nothing due today — a good moment to{' '}
-      <button onClick={() => setTab('missed')} className="text-brand-500 font-bold underline underline-offset-2 active:opacity-70">review {counts.missed}</button>.
-    </>
+    // Coach mode never shows a backlog count — the mission absorbs missed work
+    // gradually and Memory Health is the honest number instead.
+    summaryNode = coach
+      ? <>Welcome back — today's mission has your catch-up built in.{health != null && <> Memory health <b className="text-[var(--ink)]">{health}%</b>.</>}</>
+      : <>Nothing due today — a good moment to{' '}
+          <button onClick={() => setTab('missed')} className="text-brand-500 font-bold underline underline-offset-2 active:opacity-70">review {counts.missed}</button>.
+        </>
   } else if (counts.upcoming > 0) {
     summaryNode = <>All caught up — nothing due today. 🎉</>
   } else if (planCount > 0) {

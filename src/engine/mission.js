@@ -16,7 +16,7 @@
 
 import { topicBucket, nextRevision, computeMemory } from './metrics'
 import { newTopicScore, revisionScore, chapterIdOfTopic } from './scoring'
-import { recoveryQueue, memoryHealth } from './recovery'
+import { recoveryQueue, memoryHealth, withinWindow } from './recovery'
 
 export const REVISION_MIN_PER_ITEM = 10 // a recall pass + settling, not a study block
 export const DUE_CAP = 0.4              // revisions may claim at most this much of the day
@@ -87,9 +87,17 @@ export function buildMission({
     return chapterId ? weightOf(chapterId) : 0
   }
 
-  // ---- due revisions (scheduled for today) ----------------------------------
+  // ---- due revisions --------------------------------------------------------
+  // "Due" honors the flexible window: a Day-7 review is honestly on time
+  // anywhere in days 6–10, so a slightly-late revision is ordinary work, not
+  // a recovery case. Only revisions outside their window enter the queue.
+  const bucketOf = (t) => {
+    const b = topicBucket(t.revisions || [], todayISO)
+    if (b !== 'missed') return b
+    return withinWindow(nextRevision(t.revisions || []), todayISO) ? 'due' : 'missed'
+  }
   const due = topics
-    .filter((t) => topicBucket(t.revisions || [], todayISO) === 'due')
+    .filter((t) => bucketOf(t) === 'due')
     .map((t) => {
       const next = nextRevision(t.revisions || [])
       const memory = computeMemory(t.revisions || [], now)
@@ -107,7 +115,8 @@ export function buildMission({
     .sort((a, b) => b.score - a.score)
 
   // ---- recovery (missed, gently) --------------------------------------------
-  const queue = recoveryQueue(topics, { examWeightOf, weakSubjects, now }).map((q) => ({
+  const outsideWindow = topics.filter((t) => bucketOf(t) === 'missed')
+  const queue = recoveryQueue(outsideWindow, { examWeightOf, weakSubjects, now }).map((q) => ({
     kind: 'recovery',
     subject: q.subject,
     label: q.label,
