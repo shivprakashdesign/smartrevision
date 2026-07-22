@@ -21,6 +21,8 @@ import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../engine/metrics'
 import { fetchTopicsWithRevisions } from '../data/topicsRepo'
+import { coachModeEnabled } from '../engine/mission'
+import MissionCard from '../components/MissionCard'
 import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../engine/forecast'
 import { receiptStats } from '../engine/receipt'
 import { daysUntilExam } from '../engine/schedule'
@@ -482,6 +484,10 @@ export default function Home() {
           <FirstRunHero planCount={planCount} />
         ) : (
           <>
+            {/* Today's Mission — the coach-mode daily plan (Classes 11–12).
+                Mode 1 (younger classes) never sees or loads any of it. */}
+            {coachModeEnabled(student) && <MissionCard student={student} topics={topics} />}
+
             {/* Memory forecast hero */}
             <ForecastCard
               topics={topics}

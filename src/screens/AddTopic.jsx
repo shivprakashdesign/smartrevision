@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import AppShell from '../lib/AppShell'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
@@ -109,6 +109,9 @@ const labelClass = 'text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wi
 
 export default function AddTopic() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // Passed by the mission card: { planItemId, topicName, curriculumTopicId }.
+  const prefill = location.state || null
   const { student, loading: studentLoading } = useStudentProfile()
   const { isPro } = usePro()
   const showUpsell = useUpsell()
@@ -175,7 +178,16 @@ export default function AddTopic() {
       .neq('status', 'done')
       .order('subject')
       .order('position')
-      .then(({ data }) => setPlanItems(data || []))
+      .then(({ data }) => {
+        setPlanItems(data || [])
+        // A mission "study this next" tap arrives with the chapter + topic
+        // preselected, so the form opens ready to save.
+        if (prefill?.planItemId) {
+          const item = (data || []).find((it) => it.id === prefill.planItemId)
+          if (item) selectPlanItem(item)
+          if (prefill.topicName) setTopicName(prefill.topicName)
+        }
+      })
   }, [student])
 
   function selectPlanItem(item) {
@@ -304,7 +316,11 @@ export default function AddTopic() {
         schedule_type: scheduleType,
         shared,
         share_token: shared ? randomId() : null,
-        plan_item_id: planItem?.id ?? null
+        plan_item_id: planItem?.id ?? null,
+        // Only trustworthy when the mission handed us the CKB topic AND the
+        // student kept that exact topic name.
+        curriculum_topic_id:
+          prefill?.curriculumTopicId && topicName === prefill.topicName ? prefill.curriculumTopicId : null
       })
       .select()
       .single()

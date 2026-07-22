@@ -26,6 +26,13 @@ export const REGEN_BAND = 0.15          // regenerate swaps among scores within 
 
 export const ENGINE_VERSION = 'mission-1'
 
+// Mode 2 (Intelligent Study Coach) is for Classes 11–12; everyone else keeps
+// the guided flow untouched. `coach_mode: false` is an explicit opt-out.
+export function coachModeEnabled(student) {
+  if (!student || student.coach_mode === false) return false
+  return ['11', '12'].includes(String(student.class_grade))
+}
+
 // Stable identity for pin/exclude across regenerates.
 export const itemKey = (it) =>
   it.kind === 'new' ? `new:${it.curriculumTopicId ?? it.label}` : `rev:${it.revisionId}`

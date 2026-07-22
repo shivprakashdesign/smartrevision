@@ -10,7 +10,7 @@ export const REVISION_COLUMNS =
 export async function fetchTopicsWithRevisions(studentId, { includeArchived = false } = {}) {
   let query = supabase
     .from('topics')
-    .select(`id, subject, topic_name, date_learned, priority, archived, revisions(${REVISION_COLUMNS})`)
+    .select(`id, subject, topic_name, date_learned, priority, archived, plan_item_id, curriculum_topic_id, revisions(${REVISION_COLUMNS})`)
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
   if (!includeArchived) query = query.not('archived', 'is', true)
