@@ -52,7 +52,7 @@ const NCERT = {
 // A chapter absent here isn't tested by that board. CBSE Class 12 is
 // user-verified; CBSE Class 11 are priors to verify. GSEB (Gujarat) uses
 // 100-mark papers — blueprint PENDING, so its board lens is unavailable.
-const BOARD_MARKS = {
+export const BOARD_MARKS = {
   CBSE: {
     11: {
       p11_1: 2, p11_2: 5, p11_3: 5, p11_4: 7, p11_5: 5, p11_6: 6, p11_7: 5,

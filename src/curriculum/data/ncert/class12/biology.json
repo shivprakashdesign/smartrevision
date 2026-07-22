@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 12,
+  "subject": "Biology",
+  "subjectCode": "biology",
+  "boards": [
+    "CBSE",
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "b12_1",
+      "number": 1,
+      "name": "Sexual Reproduction in Flowering Plants",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_1_s",
+          "code": "1",
+          "name": "Sexual Reproduction in Flowering Plants",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_2",
+      "number": 2,
+      "name": "Human Reproduction",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_2_s",
+          "code": "2",
+          "name": "Human Reproduction",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_3",
+      "number": 3,
+      "name": "Reproductive Health",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_3_s",
+          "code": "3",
+          "name": "Reproductive Health",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_4",
+      "number": 4,
+      "name": "Principles of Inheritance and Variation",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_4_s",
+          "code": "4",
+          "name": "Principles of Inheritance and Variation",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_5",
+      "number": 5,
+      "name": "Molecular Basis of Inheritance",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_5_s",
+          "code": "5",
+          "name": "Molecular Basis of Inheritance",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_6",
+      "number": 6,
+      "name": "Evolution",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_6_s",
+          "code": "6",
+          "name": "Evolution",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_7",
+      "number": 7,
+      "name": "Human Health and Disease",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_7_s",
+          "code": "7",
+          "name": "Human Health and Disease",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_8",
+      "number": 8,
+      "name": "Microbes in Human Welfare",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_8_s",
+          "code": "8",
+          "name": "Microbes in Human Welfare",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_9",
+      "number": 9,
+      "name": "Biotechnology : Principles and Processes",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_9_s",
+          "code": "9",
+          "name": "Biotechnology : Principles and Processes",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_10",
+      "number": 10,
+      "name": "Biotechnology and its Applications",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_10_s",
+          "code": "10",
+          "name": "Biotechnology and its Applications",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_11",
+      "number": 11,
+      "name": "Organisms and Populations",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_11_s",
+          "code": "11",
+          "name": "Organisms and Populations",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_12",
+      "number": 12,
+      "name": "Ecosystem",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_12_s",
+          "code": "12",
+          "name": "Ecosystem",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "b12_13",
+      "number": 13,
+      "name": "Biodiversity and Conservation",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "b12_13_s",
+          "code": "13",
+          "name": "Biodiversity and Conservation",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    }
+  ]
+}

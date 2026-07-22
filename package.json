@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "build:curriculum": "vite-node scripts/build-curriculum.mjs",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -36,6 +37,7 @@
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
     "vite": "^5.4.0",
+    "vite-node": "^6.0.0",
     "vitest": "^4.1.10"
   }
 }

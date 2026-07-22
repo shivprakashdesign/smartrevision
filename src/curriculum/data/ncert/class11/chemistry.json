@@ -1,0 +1,582 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 11,
+  "subject": "Chemistry",
+  "subjectCode": "chemistry",
+  "boards": [
+    "CBSE",
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "c11_1",
+      "number": 1,
+      "name": "Some Basic Concepts of Chemistry",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "c11_1.1",
+          "code": "1.1",
+          "name": "Importance of Chemistry",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.2",
+          "code": "1.2",
+          "name": "Nature of Matter",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.3",
+          "code": "1.3",
+          "name": "Properties of Matter and their Measurement",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.4",
+          "code": "1.4",
+          "name": "Uncertainty in Measurement",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.5",
+          "code": "1.5",
+          "name": "Laws of Chemical Combinations",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.6",
+          "code": "1.6",
+          "name": "Dalton's Atomic Theory",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.7",
+          "code": "1.7",
+          "name": "Atomic and Molecular Masses",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.8",
+          "code": "1.8",
+          "name": "Mole Concept and Molar Masses",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.9",
+          "code": "1.9",
+          "name": "Percentage Composition",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_1.10",
+          "code": "1.10",
+          "name": "Stoichiometry and Stoichiometric Calculations",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_2",
+      "number": 2,
+      "name": "Structure of Atom",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "c11_2.1",
+          "code": "2.1",
+          "name": "Discovery of Sub-atomic Particles",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_2.2",
+          "code": "2.2",
+          "name": "Atomic Models",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_2.3",
+          "code": "2.3",
+          "name": "Developments Leading to the Bohr's Model of Atom",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_2.4",
+          "code": "2.4",
+          "name": "Bohr's Model for Hydrogen Atom",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_2.5",
+          "code": "2.5",
+          "name": "Towards Quantum Mechanical Model of the Atom",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_3",
+      "number": 3,
+      "name": "Classification of Elements and Periodicity in Properties",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "c11_3.1",
+          "code": "3.1",
+          "name": "Why do we Need to Classify Elements ?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_3.2",
+          "code": "3.2",
+          "name": "Genesis of Periodic Classification",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_3.3",
+          "code": "3.3",
+          "name": "Modern Periodic Law and the Present Form of the Periodic Table",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_3.4",
+          "code": "3.4",
+          "name": "Nomenclature of Elements with Atomic Numbers > 100",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_3.5",
+          "code": "3.5",
+          "name": "Electronic Configurations of Elements and the Periodic Table",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_3.6",
+          "code": "3.6",
+          "name": "Electronic Configurations and Types of Elements: s-, p-, d-, f- Blocks",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_3.7",
+          "code": "3.7",
+          "name": "Periodic Trends in Properties of Elements",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_4",
+      "number": 4,
+      "name": "Chemical Bonding and Molecular Structure",
+      "estimatedStudyTimeMin": 225,
+      "topics": [
+        {
+          "id": "c11_4.1",
+          "code": "4.1",
+          "name": "Kössel-Lewis Approach to Chemical Bonding",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.2",
+          "code": "4.2",
+          "name": "Ionic or Electrovalent Bond",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.3",
+          "code": "4.3",
+          "name": "Bond Parameters",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.4",
+          "code": "4.4",
+          "name": "The Valence Shell Electron Pair Repulsion (VSEPR) Theory",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.5",
+          "code": "4.5",
+          "name": "Valence Bond Theory",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.6",
+          "code": "4.6",
+          "name": "Hybridisation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.7",
+          "code": "4.7",
+          "name": "Molecular Orbital Theory",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.8",
+          "code": "4.8",
+          "name": "Bonding in Some Homonuclear Diatomic Molecules",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_4.9",
+          "code": "4.9",
+          "name": "Hydrogen Bonding",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_5",
+      "number": 5,
+      "name": "Thermodynamics",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "c11_5.1",
+          "code": "5.1",
+          "name": "Thermodynamic Terms",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_5.2",
+          "code": "5.2",
+          "name": "Applications",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_5.3",
+          "code": "5.3",
+          "name": "Measurement of ΔU and ΔH: Calorimetry",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_5.4",
+          "code": "5.4",
+          "name": "Enthalpy Change, ΔrH of a Reaction - Reaction Enthalpy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_5.5",
+          "code": "5.5",
+          "name": "Enthalpies for Different Types of Reactions",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_5.6",
+          "code": "5.6",
+          "name": "Spontaneity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_5.7",
+          "code": "5.7",
+          "name": "Gibbs Energy Change and Equilibrium",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_6",
+      "number": 6,
+      "name": "Equilibrium",
+      "estimatedStudyTimeMin": 325,
+      "topics": [
+        {
+          "id": "c11_6.1",
+          "code": "6.1",
+          "name": "Equilibrium in Physical Processes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.2",
+          "code": "6.2",
+          "name": "Equilibrium in Chemical Processes - Dynamic Equilibrium",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.3",
+          "code": "6.3",
+          "name": "Law of Chemical Equilibrium and Equilibrium Constant",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.4",
+          "code": "6.4",
+          "name": "Homogeneous Equilibria",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.5",
+          "code": "6.5",
+          "name": "Heterogeneous Equilibria",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.6",
+          "code": "6.6",
+          "name": "Applications of Equilibrium Constants",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.7",
+          "code": "6.7",
+          "name": "Relationship between Equilibrium Constant K, Reaction Quotient Q and Gibbs Energy G",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.8",
+          "code": "6.8",
+          "name": "Factors Affecting Equilibria",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.9",
+          "code": "6.9",
+          "name": "Ionic Equilibrium in Solution",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.10",
+          "code": "6.10",
+          "name": "Acids, Bases and Salts",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.11",
+          "code": "6.11",
+          "name": "Ionization of Acids and Bases",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.12",
+          "code": "6.12",
+          "name": "Buffer Solutions",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_6.13",
+          "code": "6.13",
+          "name": "Solubility Equilibria of Sparingly Soluble Salts",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_7",
+      "number": 7,
+      "name": "Redox Reactions",
+      "estimatedStudyTimeMin": 100,
+      "topics": [
+        {
+          "id": "c11_7.1",
+          "code": "7.1",
+          "name": "Classical Idea of Redox Reactions-Oxidation and Reduction Reactions",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_7.2",
+          "code": "7.2",
+          "name": "Redox Reactions in Terms of Electron Transfer Reactions",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_7.3",
+          "code": "7.3",
+          "name": "Oxidation Number",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_7.4",
+          "code": "7.4",
+          "name": "Redox Reactions and Electrode Processes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_8",
+      "number": 8,
+      "name": "Organic Chemistry - Some Basic Principles and Techniques",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "c11_8.1",
+          "code": "8.1",
+          "name": "General Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.2",
+          "code": "8.2",
+          "name": "Tetravalence of Carbon: Shapes of Organic Compounds",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.3",
+          "code": "8.3",
+          "name": "Structural Representations of Organic Compounds",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.4",
+          "code": "8.4",
+          "name": "Classification of Organic Compounds",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.5",
+          "code": "8.5",
+          "name": "Nomenclature of Organic Compounds",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.6",
+          "code": "8.6",
+          "name": "Isomerism",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.7",
+          "code": "8.7",
+          "name": "Fundamental Concepts in Organic Reaction Mechanism",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.8",
+          "code": "8.8",
+          "name": "Methods of Purification of Organic Compounds",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.9",
+          "code": "8.9",
+          "name": "Qualitative Analysis of Organic Compounds",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_8.10",
+          "code": "8.10",
+          "name": "Quantitative Analysis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "c11_9",
+      "number": 9,
+      "name": "Hydrocarbons",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "c11_9.1",
+          "code": "9.1",
+          "name": "Classification",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_9.2",
+          "code": "9.2",
+          "name": "Alkanes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_9.3",
+          "code": "9.3",
+          "name": "Alkenes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_9.4",
+          "code": "9.4",
+          "name": "Alkynes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_9.5",
+          "code": "9.5",
+          "name": "Aromatic Hydrocarbon",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "c11_9.6",
+          "code": "9.6",
+          "name": "Carcinogenicity and Toxicity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    }
+  ]
+}

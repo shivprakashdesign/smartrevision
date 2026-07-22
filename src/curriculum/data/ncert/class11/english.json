@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 11,
+  "subject": "English",
+  "subjectCode": "english",
+  "boards": [
+    "CBSE",
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "e11_1",
+      "number": 1,
+      "name": "The Portrait of a Lady",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "e11_1.1",
+          "code": "1.1",
+          "name": "Understanding the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_1.2",
+          "code": "1.2",
+          "name": "Talking about the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_1.3",
+          "code": "1.3",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_1.4",
+          "code": "1.4",
+          "name": "Working with words",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_1.5",
+          "code": "1.5",
+          "name": "Noticing form",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_1.6",
+          "code": "1.6",
+          "name": "Things to do",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_2",
+      "number": 2,
+      "name": "A Photograph",
+      "estimatedStudyTimeMin": 25,
+      "topics": [
+        {
+          "id": "e11_2.1",
+          "code": "2.1",
+          "name": "Think it out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_3",
+      "number": 3,
+      "name": "\"We're Not Afraid to Die... if We Can All Be Together\"",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "e11_3.1",
+          "code": "3.1",
+          "name": "Understanding the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_3.2",
+          "code": "3.2",
+          "name": "Talking about the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_3.3",
+          "code": "3.3",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_3.4",
+          "code": "3.4",
+          "name": "Working with words",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_3.5",
+          "code": "3.5",
+          "name": "Things to do",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_4",
+      "number": 4,
+      "name": "Discovering Tut: the Saga Continues",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "e11_4.1",
+          "code": "4.1",
+          "name": "Understanding the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_4.2",
+          "code": "4.2",
+          "name": "Talking about the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_4.3",
+          "code": "4.3",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_4.4",
+          "code": "4.4",
+          "name": "Working with words",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_4.5",
+          "code": "4.5",
+          "name": "Things to do",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_5",
+      "number": 5,
+      "name": "The Laburnum Top",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "e11_5.1",
+          "code": "5.1",
+          "name": "Find out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_5.2",
+          "code": "5.2",
+          "name": "Think it out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_5.3",
+          "code": "5.3",
+          "name": "Note down",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_5.4",
+          "code": "5.4",
+          "name": "List the following",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_5.5",
+          "code": "5.5",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_5.6",
+          "code": "5.6",
+          "name": "Try this out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_6",
+      "number": 6,
+      "name": "The Voice of the Rain",
+      "estimatedStudyTimeMin": 75,
+      "topics": [
+        {
+          "id": "e11_6.1",
+          "code": "6.1",
+          "name": "Think it out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_6.2",
+          "code": "6.2",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_6.3",
+          "code": "6.3",
+          "name": "Look for some other poems",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_7",
+      "number": 7,
+      "name": "The Ailing Planet: the Green Movement's Role",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "e11_7.1",
+          "code": "7.1",
+          "name": "Understanding the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_7.2",
+          "code": "7.2",
+          "name": "Talking about the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_7.3",
+          "code": "7.3",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_7.4",
+          "code": "7.4",
+          "name": "Working with words",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_7.5",
+          "code": "7.5",
+          "name": "Things to do",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_8",
+      "number": 8,
+      "name": "Childhood",
+      "estimatedStudyTimeMin": 25,
+      "topics": [
+        {
+          "id": "e11_8.1",
+          "code": "8.1",
+          "name": "Think it out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_9",
+      "number": 9,
+      "name": "The Adventure",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "e11_9.1",
+          "code": "9.1",
+          "name": "Understanding the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_9.2",
+          "code": "9.2",
+          "name": "Talking about the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_9.3",
+          "code": "9.3",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_9.4",
+          "code": "9.4",
+          "name": "Working with words",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_9.5",
+          "code": "9.5",
+          "name": "Noticing form",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_9.6",
+          "code": "9.6",
+          "name": "Things to do",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_10",
+      "number": 10,
+      "name": "Silk Road",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "e11_10.1",
+          "code": "10.1",
+          "name": "Understanding the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_10.2",
+          "code": "10.2",
+          "name": "Talking about the text",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_10.3",
+          "code": "10.3",
+          "name": "Thinking about language",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_10.4",
+          "code": "10.4",
+          "name": "Working with words",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_10.5",
+          "code": "10.5",
+          "name": "Noticing form",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_10.6",
+          "code": "10.6",
+          "name": "Things to do",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_11",
+      "number": 11,
+      "name": "Father to Son",
+      "estimatedStudyTimeMin": 25,
+      "topics": [
+        {
+          "id": "e11_11.1",
+          "code": "11.1",
+          "name": "Think it out",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "e11_12",
+      "number": 12,
+      "name": "Writing Skills",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "e11_12.1",
+          "code": "12.1",
+          "name": "Note-making",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_12.2",
+          "code": "12.2",
+          "name": "Summarising",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_12.3",
+          "code": "12.3",
+          "name": "Sub-titling",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_12.4",
+          "code": "12.4",
+          "name": "Essay-writing",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_12.5",
+          "code": "12.5",
+          "name": "Letter-writing",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "e11_12.6",
+          "code": "12.6",
+          "name": "Creative Writing",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    }
+  ]
+}
