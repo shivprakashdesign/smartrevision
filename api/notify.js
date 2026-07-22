@@ -1,5 +1,5 @@
 // The notification sender. Pinged every 15 minutes (Supabase pg_cron → see
-// supabase_push_notifications.sql) plus a once-daily Vercel cron as a safety
+// supabase/migrations/0017_push_notifications.sql) plus a once-daily Vercel cron as a safety
 // net. Each run: find accounts whose local clock just passed their chosen
 // reminder time, compose the question notification from their due revisions,
 // send to every subscribed device, and mark the local date as sent so
