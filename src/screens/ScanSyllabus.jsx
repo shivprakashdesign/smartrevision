@@ -16,7 +16,8 @@ import { usePro } from '../lib/ProContext'
 import { scanPhoto } from '../lib/scan'
 import { subjectColor } from '../lib/subjects'
 import { FREE_TOPIC_LIMIT } from '../lib/plan'
-import { offsetsFor } from '../engine/schedule'
+import { offsetsFor, buildRevisionRows } from '../engine/schedule'
+import { insertRevisions } from '../data/revisionsRepo'
 
 const READING_LINES = ['Reading your photo…', 'Finding your topics…', 'Almost done…']
 
@@ -231,14 +232,9 @@ export default function ScanSyllabus() {
     }
 
     const offsets = offsetsFor(student.exam_date, today)
-    const revisionRows = (created || []).flatMap((topic) =>
-      offsets.map(({ label, days }) => {
-        const d = new Date(today)
-        d.setDate(d.getDate() + days)
-        return { topic_id: topic.id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
-      })
+    const revisionsError = await insertRevisions(
+      (created || []).flatMap((topic) => buildRevisionRows(topic.id, offsets, today))
     )
-    const { error: revisionsError } = await supabase.from('revisions').insert(revisionRows)
     if (revisionsError) {
       setError('Topics saved, but scheduling failed — open a topic to rebuild its schedule.')
       return false

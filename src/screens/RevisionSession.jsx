@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { sessionResult } from '../engine/forecast'
+import { insertRevisions } from '../data/revisionsRepo'
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
 const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
@@ -158,11 +159,11 @@ export default function RevisionSession() {
           extra.setDate(extra.getDate() + extraOffset)
           extraDate = extra.toISOString().slice(0, 10)
 
-          await supabase.from('revisions').insert({
+          await insertRevisions([{
             topic_id: revision.topics.id,
             scheduled_date: extraDate,
             interval_label: 'extra'
-          })
+          }])
         }
       }
     }

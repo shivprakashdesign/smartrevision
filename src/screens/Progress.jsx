@@ -12,6 +12,7 @@ import {
   computeMemory, isOnTrack, activeDates, longestStreak,
   completedByDay, recallBreakdown, memoryBySubject, studyBalance
 } from '../engine/metrics'
+import { fetchTopicsWithRevisions } from '../data/topicsRepo'
 
 // ── shared tones ────────────────────────────────────────────────────────────
 const EMERALD = 'hsl(160,84%,39%)'
@@ -292,16 +293,10 @@ export default function Progress() {
 
   useEffect(() => {
     if (!student) return
-    supabase
-      .from('topics')
-      .select('id, subject, revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality)')
-      .eq('student_id', student.id)
-      .not('archived', 'is', true)
-      .then(({ data, error }) => {
-        if (error) console.error(error)
-        setTopics(data || [])
-        setLoading(false)
-      })
+    fetchTopicsWithRevisions(student.id).then((data) => {
+      setTopics(data)
+      setLoading(false)
+    })
   }, [student])
 
   if (studentLoading || loading) return <ProgressSkeleton />

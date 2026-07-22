@@ -14,6 +14,7 @@ import AppShell from '../lib/AppShell'
 import LottieEmpty from '../lib/LottieEmpty'
 import topicsAnim from '../assets/lottie/topics.lottie?url'
 import { completion, computeMemory, topicBucket, nextRevision } from '../engine/metrics'
+import { fetchTopicsWithRevisions } from '../data/topicsRepo'
 import { subjectColor, subjectTint } from '../lib/subjects'
 
 const BUCKET_STYLE = {
@@ -129,16 +130,10 @@ export default function Topics() {
 
   useEffect(() => {
     if (!student) return
-    supabase
-      .from('topics')
-      .select('id, subject, topic_name, archived, revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality)')
-      .eq('student_id', student.id)
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) console.error(error)
-        setTopics(data || [])
-        setLoading(false)
-      })
+    fetchTopicsWithRevisions(student.id, { includeArchived: true }).then((data) => {
+      setTopics(data)
+      setLoading(false)
+    })
   }, [student])
 
   const activeTopics = useMemo(() => topics.filter(t => !t.archived), [topics])

@@ -20,6 +20,7 @@ import allDoneAnim from '../assets/lottie/all-done.lottie?url'
 import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
 } from '../engine/metrics'
+import { fetchTopicsWithRevisions } from '../data/topicsRepo'
 import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../engine/forecast'
 import { receiptStats } from '../engine/receipt'
 import { daysUntilExam } from '../engine/schedule'
@@ -393,15 +394,7 @@ export default function Home() {
   }, [user, student])
 
   async function loadTopics() {
-    const { data, error } = await supabase
-      .from('topics')
-      .select('id, subject, topic_name, date_learned, priority, revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality)')
-      .eq('student_id', student.id)
-      .not('archived', 'is', true)
-      .order('created_at', { ascending: false })
-
-    if (error) console.error(error)
-    setTopics(data || [])
+    setTopics(await fetchTopicsWithRevisions(student.id))
     setLoading(false)
   }
 

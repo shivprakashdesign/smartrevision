@@ -44,6 +44,17 @@ export function offsetsFor(examDate, from = new Date()) {
   return STANDARD_OFFSETS.filter(o => o.days <= left)
 }
 
+// Revision rows for a topic, one per offset, dated from `from`. The single
+// definition of the row shape inserted into `revisions` — AddTopic, scan,
+// reschedule and share-clone all build their rows here.
+export function buildRevisionRows(topicId, offsets, from = new Date()) {
+  return offsets.map(({ label, days }) => {
+    const d = new Date(from)
+    d.setDate(d.getDate() + days)
+    return { topic_id: topicId, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
+  })
+}
+
 // "Same day, Day 1, Day 7, Day 30" — describes the schedule a topic would
 // actually get, so it stays honest once the exam date truncates it.
 export const scheduleSummary = (examDate, from) =>

@@ -10,7 +10,8 @@ import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { offsetsFor, labelForOffset, scheduleSummary } from '../engine/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary, buildRevisionRows } from '../engine/schedule'
+import { insertRevisions } from '../data/revisionsRepo'
 import { suggestSubtopics } from '../lib/scan'
 import { subjectColor } from '../lib/subjects'
 
@@ -330,13 +331,7 @@ export default function AddTopic() {
       ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
       : offsetsFor(student.exam_date, today)
 
-    const revisionRows = offsets.map(({ label, days }) => {
-      const d = new Date(today)
-      d.setDate(d.getDate() + days)
-      return { topic_id: topic.id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
-    })
-
-    const { error: revisionsError } = await supabase.from('revisions').insert(revisionRows)
+    const revisionsError = await insertRevisions(buildRevisionRows(topic.id, offsets, today))
     if (revisionsError) {
       toast.error(revisionsError.message)
       setSaving(false)
