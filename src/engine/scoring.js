@@ -11,6 +11,12 @@
 
 export const TYPE_WEIGHT = { Derivation: 3, Numerical: 3, Concept: 2, MCQ: 1 }
 export const WEAK_MULT = 1.4
+// Saturation discount: each new-learning slot a subject wins in today's
+// mission multiplies its remaining candidates by this. MUST stay below
+// 1/WEAK_MULT so one slot of saturation fully offsets the weakness boost —
+// a weak subject gets the first slot, not the whole day — while a genuine
+// importance gap (blueprint weight) can still let one subject lead.
+export const SUBJECT_SATURATION = 0.7
 // Per-point boost for PYQ frequency (0–5 scale, when curriculum data has it).
 export const PYQ_BOOST = 0.15
 

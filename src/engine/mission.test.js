@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildMission, itemKey, DUE_CAP, RECOVERY_FRAC, REVISION_MIN_PER_ITEM } from './mission'
 import { recoveryQueue, memoryHealth, memoryHealthLabel, windowDays, withinWindow, RELEARN_AFTER_DAYS } from './recovery'
-import { newTopicScore, revisionScore, chapterIdOfTopic } from './scoring'
+import { newTopicScore, revisionScore, chapterIdOfTopic, SUBJECT_SATURATION, WEAK_MULT } from './scoring'
 
 // Noon: revision dates are compared as ISO day strings derived via UTC.
 const NOW = new Date('2026-07-22T12:00:00')
@@ -141,6 +141,58 @@ describe('momentum / recovery', () => {
     expect(memoryHealthLabel(92)).toBe('Excellent')
     expect(memoryHealthLabel(70)).toBe('Good')
     expect(memoryHealthLabel(40)).toBe('Needs attention')
+  })
+})
+
+describe('subject saturation', () => {
+  const chemChapter = {
+    id: 'c1',
+    name: 'Solutions',
+    pyqFrequency: 0,
+    topics: [
+      { id: 'c1.1', name: 'Types of Solutions', type: null, estimatedStudyTimeMin: 25 },
+      { id: 'c1.2', name: 'Solubility', type: null, estimatedStudyTimeMin: 25 },
+      { id: 'c1.3', name: 'Raoult’s Law', type: null, estimatedStudyTimeMin: 25 },
+      { id: 'c1.4', name: 'Colligative Properties', type: null, estimatedStudyTimeMin: 25 }
+    ]
+  }
+  const twoSubjects = {
+    planItems: [
+      { id: 'pi1', subject: 'Physics', chapter_name: 'Electric Charges and Fields', status: 'started', active: true, curriculum_chapter_id: 'p1' },
+      { id: 'pi2', subject: 'Chemistry', chapter_name: 'Solutions', status: 'started', active: true, curriculum_chapter_id: 'c1' }
+    ],
+    curriculum: new Map([['p1', CHAPTER], ['c1', chemChapter]]),
+    now: NOW
+  }
+
+  it('the discount is strong enough to offset the weakness boost by construction', () => {
+    expect(SUBJECT_SATURATION).toBeLessThan(1 / WEAK_MULT)
+  })
+
+  it('a weak subject wins the first slot, not the whole day', () => {
+    // Equal blueprint weights; Physics weak. Without saturation every slot
+    // would be Physics (1.4×). With it, slot 2 goes to Chemistry.
+    const m = buildMission({ ...twoSubjects, blueprint: { weights: { p1: 3, c1: 3 } }, weakSubjects: ['Physics'], availableMin: 120, topics: [] })
+    const subjects = m.items.filter((it) => it.kind === 'new').map((it) => it.subject)
+    expect(subjects[0]).toBe('Physics')
+    expect(subjects[1]).toBe('Chemistry')
+    expect(new Set(subjects).size).toBe(2) // the day interleaves
+  })
+
+  it('a genuine importance gap still lets one subject lead', () => {
+    // Weight 8 vs 1, no weakness: saturation alone must NOT flatten a real
+    // blueprint signal — the heavy chapter keeps every slot of this day.
+    const m = buildMission({ ...twoSubjects, blueprint: { weights: { p1: 8, c1: 1 } }, availableMin: 120, topics: [] })
+    const subjects = m.items.filter((it) => it.kind === 'new').map((it) => it.subject)
+    expect(subjects.length).toBeGreaterThan(2)
+    expect(subjects.every((s) => s === 'Physics')).toBe(true)
+  })
+
+  it('a single active subject is unaffected by saturation', () => {
+    const m = buildMission({ ...base, availableMin: 120, topics: [] })
+    const newItems = m.items.filter((it) => it.kind === 'new')
+    expect(newItems.map((it) => it.curriculumTopicId)).toEqual(['p1.1', 'p1.2', 'p1.3', 'p1.4'])
+    expect(m.items.reduce((a, it) => a + it.plannedMin, 0)).toBe(120)
   })
 })
 

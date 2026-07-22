@@ -15,7 +15,7 @@
 // custom/scanned content (and Mode 1 students) lose nothing.
 
 import { topicBucket, nextRevision, computeMemory } from './metrics'
-import { newTopicScore, revisionScore, chapterIdOfTopic } from './scoring'
+import { newTopicScore, revisionScore, chapterIdOfTopic, SUBJECT_SATURATION } from './scoring'
 import { recoveryQueue, memoryHealth, withinWindow } from './recovery'
 
 export const REVISION_MIN_PER_ITEM = 10 // a recall pass + settling, not a study block
@@ -170,18 +170,30 @@ export function buildMission({
   let newMin = avail - revisionMin - recoveryMin
   let newTake = []
   if (newMin >= MIN_NEW_BLOCK_MIN && newCandidates.length) {
-    const ordered = pinFirst([...newCandidates].sort((a, b) => b.score - a.score))
+    // Iterative pick with the saturation discount: every slot a subject wins
+    // discounts its remaining candidates by SUBJECT_SATURATION, so the
+    // weakness boost alone can't monopolise a day and multi-subject days
+    // interleave. Effective scores only order the picks — items keep their
+    // raw score, so regenerate's rotation band is unchanged.
+    const subjectPicks = {}
+    const effective = (it) => it.score * SUBJECT_SATURATION ** (subjectPicks[it.subject] || 0)
+    const remaining = [...newCandidates].sort((a, b) => b.score - a.score)
     let used = 0
-    const rest = []
-    for (const it of ordered) {
-      if (used + it.plannedMin <= newMin) {
-        newTake.push(it)
-        used += it.plannedMin
-      } else {
-        rest.push(it)
-      }
+    const take = (it) => {
+      remaining.splice(remaining.indexOf(it), 1)
+      newTake.push(it)
+      subjectPicks[it.subject] = (subjectPicks[it.subject] || 0) + 1
+      used += it.plannedMin
     }
-    ;({ selected: newTake } = rotatePool(newTake, rest, seed, pinnedSet))
+    for (const it of remaining.filter((x) => pinnedSet.has(itemKey(x)))) {
+      if (used + it.plannedMin <= newMin) take(it)
+    }
+    for (;;) {
+      const fits = remaining.filter((it) => used + it.plannedMin <= newMin)
+      if (!fits.length) break
+      take(fits.reduce((best, it) => (effective(it) > effective(best) ? it : best)))
+    }
+    ;({ selected: newTake } = rotatePool(newTake, remaining, seed, pinnedSet))
     // The last block absorbs whatever's left so the mission adds up to the day.
     const spent = newTake.reduce((a, it) => a + it.plannedMin, 0)
     if (newTake.length && spent < newMin) {
