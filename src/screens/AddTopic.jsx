@@ -13,6 +13,7 @@ import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
 import { offsetsFor, labelForOffset, scheduleSummary, buildRevisionRows } from '../engine/schedule'
 import { insertRevisions } from '../data/revisionsRepo'
 import { suggestSubtopics } from '../lib/scan'
+import { loadSubject } from '../curriculum/ckb'
 import { subjectColor } from '../lib/subjects'
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
@@ -173,7 +174,7 @@ export default function AddTopic() {
     // Unfinished plan chapters power the "What did you study today?" picker.
     supabase
       .from('plan_items')
-      .select('id, subject, chapter_name, status')
+      .select('id, subject, chapter_name, status, curriculum_chapter_id')
       .eq('student_id', student.id)
       .neq('status', 'done')
       .order('subject')
@@ -296,6 +297,19 @@ export default function AddTopic() {
     return rows
   }
 
+  // The topic's link back to the bundled curriculum, best-effort:
+  //   1. the mission handed us the CKB topic and the student kept its name
+  //   2. logging from a CKB-linked chapter and the typed name matches a topic
+  // Anything else stays null — custom content is always first-class.
+  async function resolveCurriculumTopicId() {
+    if (prefill?.curriculumTopicId && topicName === prefill.topicName) return prefill.curriculumTopicId
+    if (!planItem?.curriculum_chapter_id || !student?.class_grade) return null
+    const file = await loadSubject(Number(student.class_grade), planItem.subject)
+    const chapter = file?.chapters.find((c) => c.id === planItem.curriculum_chapter_id)
+    const match = chapter?.topics.find((t) => t.name.trim().toLowerCase() === topicName.trim().toLowerCase())
+    return match?.id ?? null
+  }
+
   async function handleSubmit() {
     if (!student) return
     if (scheduleType === 'custom' && customOffsets.length === 0) {
@@ -317,10 +331,7 @@ export default function AddTopic() {
         shared,
         share_token: shared ? randomId() : null,
         plan_item_id: planItem?.id ?? null,
-        // Only trustworthy when the mission handed us the CKB topic AND the
-        // student kept that exact topic name.
-        curriculum_topic_id:
-          prefill?.curriculumTopicId && topicName === prefill.topicName ? prefill.curriculumTopicId : null
+        curriculum_topic_id: await resolveCurriculumTopicId()
       })
       .select()
       .single()
