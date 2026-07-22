@@ -19,10 +19,10 @@ import LottieEmpty from '../lib/LottieEmpty'
 import allDoneAnim from '../assets/lottie/all-done.lottie?url'
 import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
-} from '../lib/metrics'
-import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../lib/forecast'
-import { receiptStats } from '../lib/receipt'
-import { daysUntilExam } from '../lib/schedule'
+} from '../engine/metrics'
+import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../engine/forecast'
+import { receiptStats } from '../engine/receipt'
+import { daysUntilExam } from '../engine/schedule'
 
 const TAB_LABELS = { due: 'Due Today', missed: 'To review', upcoming: 'Upcoming' }
 // Active-tab colour per bucket: green = on time, orange = behind (a nudge, not

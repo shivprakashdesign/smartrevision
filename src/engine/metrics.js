@@ -2,13 +2,11 @@
 // `revisions` rows we already store — no new schema. See the redesign spec:
 // Memory% is the forgetting-curve y-axis, Gems are awarded server-side.
 
-const KNOWN_INTERVALS = {
-  same_day: 0,
-  '1_day': 1,
-  '1_week': 7,
-  '1_month': 30,
-  '4_months': 120
-}
+import { STANDARD_OFFSETS } from './schedule'
+
+const KNOWN_INTERVALS = Object.fromEntries(
+  STANDARD_OFFSETS.map(o => [o.label, o.days])
+)
 
 // Interval label → number of days. Handles the standard cycle plus custom
 // "<n>_days" / "<n>_day" labels produced by custom schedules.

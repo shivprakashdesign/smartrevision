@@ -11,7 +11,7 @@ import progressAnim from '../assets/lottie/progress.lottie?url'
 import {
   computeMemory, isOnTrack, activeDates, longestStreak,
   completedByDay, recallBreakdown, memoryBySubject, studyBalance
-} from '../lib/metrics'
+} from '../engine/metrics'
 
 // ── shared tones ────────────────────────────────────────────────────────────
 const EMERALD = 'hsl(160,84%,39%)'

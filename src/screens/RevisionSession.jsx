@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
-import { sessionResult } from '../lib/forecast'
+import { sessionResult } from '../engine/forecast'
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
 const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })

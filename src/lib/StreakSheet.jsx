@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick02Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { supabase } from './supabase'
-import { activeDates } from './metrics'
+import { activeDates } from '../engine/metrics'
 
 const FREEZE_PRICE = 50
 const MAX_FREEZES = 2

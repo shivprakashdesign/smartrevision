@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick02Icon, Alert02Icon, ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
-import { dayMarkers, dayStatus } from './metrics'
+import { dayMarkers, dayStatus } from '../engine/metrics'
 
 const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 

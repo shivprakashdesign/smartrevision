@@ -10,7 +10,7 @@
 // GET /api/notify?dry=1 reports what WOULD be sent without sending.
 
 import webpush from 'web-push'
-import { dailyReminder, streakNudge } from '../src/lib/notifyCopy.js'
+import { dailyReminder, streakNudge } from '../src/engine/notifyCopy.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY

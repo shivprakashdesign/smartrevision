@@ -10,7 +10,7 @@ import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary } from '../engine/schedule'
 import { suggestSubtopics } from '../lib/scan'
 import { subjectColor } from '../lib/subjects'
 

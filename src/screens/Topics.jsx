@@ -13,7 +13,7 @@ import { useStudentProfile } from '../lib/useStudentProfile'
 import AppShell from '../lib/AppShell'
 import LottieEmpty from '../lib/LottieEmpty'
 import topicsAnim from '../assets/lottie/topics.lottie?url'
-import { completion, computeMemory, topicBucket, nextRevision } from '../lib/metrics'
+import { completion, computeMemory, topicBucket, nextRevision } from '../engine/metrics'
 import { subjectColor, subjectTint } from '../lib/subjects'
 
 const BUCKET_STYLE = {

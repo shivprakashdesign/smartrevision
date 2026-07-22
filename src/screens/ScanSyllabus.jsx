@@ -16,7 +16,7 @@ import { usePro } from '../lib/ProContext'
 import { scanPhoto } from '../lib/scan'
 import { subjectColor } from '../lib/subjects'
 import { FREE_TOPIC_LIMIT } from '../lib/plan'
-import { offsetsFor } from '../lib/schedule'
+import { offsetsFor } from '../engine/schedule'
 
 const READING_LINES = ['Reading your photo…', 'Finding your topics…', 'Almost done…']
 

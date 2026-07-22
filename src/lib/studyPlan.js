@@ -18,7 +18,7 @@
 // (picker) order; importance shows up as important chapters simply occupying
 // more days, because they hold more minutes.
 
-import { daysUntilExam } from './schedule'
+import { daysUntilExam } from '../engine/schedule'
 import { chapterWeight } from './syllabus'
 
 const DAY_MS = 86400000

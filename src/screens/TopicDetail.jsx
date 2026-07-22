@@ -16,9 +16,9 @@ import {
   File01Icon, StickyNote01Icon, Clock01Icon, Brain02Icon, ArrowRight01Icon, AlarmClockIcon
 } from '@hugeicons/core-free-icons'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { nextRevision, intervalToDays, computeMemory } from '../lib/metrics'
+import { nextRevision, intervalToDays, computeMemory } from '../engine/metrics'
 import { subjectColor, subjectGradient } from '../lib/subjects'
-import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary } from '../engine/schedule'
 import { useStudentProfile } from '../lib/useStudentProfile'
 
 function randomId() {

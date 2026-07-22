@@ -8,7 +8,7 @@ import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { useSchoolSearch, createSchool, findOrCreateClass, classSchool, schoolSubtitle } from '../lib/schools'
-import { offsetsFor, offsetLabel, daysUntilExam, STANDARD_OFFSETS } from '../lib/schedule'
+import { offsetsFor, offsetLabel, daysUntilExam, STANDARD_OFFSETS } from '../engine/schedule'
 import { syllabusSubjects, hasBoardMarks, boardName, SYLLABUS_BOARDS } from '../lib/syllabus'
 import { subjectColor } from '../lib/subjects'
 

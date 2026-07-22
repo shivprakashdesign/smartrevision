@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { offsetsFor } from './schedule'
+import { offsetsFor } from '../engine/schedule'
 
 // Clone a shared topic into `studentId`'s account: the topic itself, its recall
 // cards, its photos (same public URLs — no re-upload) and a fresh standard
