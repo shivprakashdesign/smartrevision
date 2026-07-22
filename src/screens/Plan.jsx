@@ -10,6 +10,8 @@ import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
+import { nextChapter } from '../engine/roadmap'
+import { setActiveChapter } from '../data/planItemsRepo'
 
 export default function Plan() {
   const { student } = useStudentProfile()
@@ -25,7 +27,7 @@ export default function Plan() {
     const [{ data: rows }, { data: topics }] = await Promise.all([
       supabase
         .from('plan_items')
-        .select('id, subject, chapter_name, status')
+        .select('id, subject, chapter_name, status, position, active')
         .eq('student_id', student.id)
         .order('subject')
         .order('position'),
@@ -41,12 +43,30 @@ export default function Plan() {
     setTopicCounts(counts)
   }
 
-  // Tap the tick: not-done → done; done → back to started/pending.
+  // Tap the tick: not-done → done; done → back to started/pending. Finishing
+  // the active chapter hands the torch to the next not-done chapter in the
+  // subject (a convenience, not a rule — the student can re-point it anytime).
   async function toggleDone(item) {
     const next = item.status === 'done' ? (topicCounts[item.id] ? 'started' : 'pending') : 'done'
     setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, status: next } : it)))
     const { error } = await supabase.from('plan_items').update({ status: next }).eq('id', item.id)
-    if (error) load() // roll back the optimistic flip
+    if (error) { load(); return } // roll back the optimistic flip
+    if (next === 'done' && item.active) {
+      const heir = nextChapter(items, item.subject, item.id)
+      if (heir) await setActiveChapter(student.id, item.subject, heir.id)
+      load()
+    }
+  }
+
+  // Long-press-free "make this my current chapter": tap the chapter name.
+  async function makeActive(item) {
+    if (item.active || item.status === 'done') return
+    setItems((prev) => prev.map((it) => ({
+      ...it,
+      active: it.subject === item.subject ? it.id === item.id : it.active
+    })))
+    const error = await setActiveChapter(student.id, item.subject, item.id)
+    if (error) load()
   }
 
   if (items === null) {
@@ -121,9 +141,18 @@ export default function Plan() {
                             >
                               {isDone && <HugeiconsIcon icon={Tick02Icon} size={12} strokeWidth={3} />}
                             </button>
-                            <span className={`text-[14px] leading-snug flex-1 min-w-0 ${isDone ? 'text-[var(--muted)] line-through' : 'text-[var(--ink)] font-semibold'}`}>
+                            <button
+                              type="button"
+                              onClick={() => makeActive(item)}
+                              className={`text-left text-[14px] leading-snug flex-1 min-w-0 ${isDone ? 'text-[var(--muted)] line-through' : 'text-[var(--ink)] font-semibold'}`}
+                            >
                               {item.chapter_name}
-                            </span>
+                            </button>
+                            {item.active && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-500/12 text-brand-500 shrink-0">
+                                Now
+                              </span>
+                            )}
                             {count > 0 && (
                               <span className="text-[11px] font-bold text-brand-500 shrink-0">
                                 {count} topic{count > 1 ? 's' : ''}

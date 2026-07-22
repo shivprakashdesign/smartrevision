@@ -15,6 +15,7 @@ import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
 import { syllabusSubjects, chaptersFor, chapterWeight, boardName } from '../lib/syllabus'
+import { setActiveChapter } from '../data/planItemsRepo'
 
 // A 1–3 "importance" reading for a chapter under the active lens, so the student
 // sees why some chapters will get more time. 0 (dropped from this exam) reads as
@@ -88,7 +89,9 @@ export default function SyllabusPicker() {
       chaptersFor(board, cls, subject).forEach((ch, i) => {
         const k = key(subject, ch.chapter)
         if (picked.has(k) && !existing.has(k)) {
-          rows.push({ student_id: student.id, subject, chapter_name: ch.chapter, position: i })
+          // Picked from the tree, so the CKB link is known for free — this is
+          // what lets the mission engine weight the chapter later.
+          rows.push({ student_id: student.id, subject, chapter_name: ch.chapter, position: i, curriculum_chapter_id: ch.id })
         }
       })
     }
@@ -97,8 +100,20 @@ export default function SyllabusPicker() {
     const { error } = await supabase
       .from('plan_items')
       .upsert(rows, { onConflict: 'student_id,subject,chapter_name', ignoreDuplicates: true })
+    if (error) { setSaving(false); toast.error(error.message); return }
+    // A subject with no active chapter starts on its first picked chapter —
+    // the student can change it on the Plan screen anytime.
+    const { data: all } = await supabase
+      .from('plan_items')
+      .select('id, subject, position, active, status')
+      .eq('student_id', student.id)
+    for (const subject of new Set(rows.map((r) => r.subject))) {
+      const inSubject = (all || []).filter((it) => it.subject === subject)
+      if (inSubject.some((it) => it.active)) continue
+      const first = inSubject.filter((it) => it.status !== 'done').sort((a, b) => a.position - b.position)[0]
+      if (first) await setActiveChapter(student.id, subject, first.id)
+    }
     setSaving(false)
-    if (error) { toast.error(error.message); return }
     toast.success(`Added ${rows.length} chapter${rows.length > 1 ? 's' : ''} to your plan`)
     navigate('/plan')
   }
