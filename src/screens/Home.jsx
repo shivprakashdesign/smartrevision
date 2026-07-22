@@ -487,8 +487,13 @@ export default function Home() {
         {topics.length === 0 ? (
           /* First run: no topics yet. Everything below (forecast, week strip,
              tabs) is noise or nonsense at zero — the setup hero owns the screen
-             until the first topic exists. */
-          <FirstRunHero planCount={planCount} />
+             until the first topic exists. Coach mode with a plan is the one
+             exception: the mission can already propose today's new learning
+             from the active chapters, which IS the first topic's on-ramp. */
+          <>
+            {coach && planCount > 0 && <MissionCard student={student} topics={topics} />}
+            <FirstRunHero planCount={planCount} />
+          </>
         ) : (
           <>
             {/* Today's Mission — the coach-mode daily plan (Classes 11–12).

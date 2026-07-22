@@ -14,9 +14,13 @@ export function AuthProvider({ children }) {
       setLoading(false)
     })
 
-    // Listen for login/logout events anywhere in the app
+    // Listen for login/logout events anywhere in the app. Token refreshes and
+    // tab-refocus re-emits deliver a NEW session object for the SAME user —
+    // keep the old object then, or every `useEffect([user])` in the app
+    // refires on refocus (Home re-skeletons, in-progress UI state is lost).
+    // The supabase client tracks the fresh token internally either way.
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+      setSession((prev) => (prev?.user?.id === session?.user?.id ? prev : session))
     })
 
     return () => listener.subscription.unsubscribe()
