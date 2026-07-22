@@ -1,0 +1,958 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 11,
+  "subject": "Physics",
+  "subjectCode": "physics",
+  "boards": [
+    "CBSE",
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "p11_1",
+      "number": 1,
+      "name": "Units and Measurements",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "p11_1.1",
+          "code": "1.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_1.2",
+          "code": "1.2",
+          "name": "The International System of Units",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_1.3",
+          "code": "1.3",
+          "name": "Significant Figures",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_1.4",
+          "code": "1.4",
+          "name": "Dimensions of Physical Quantities",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_1.5",
+          "code": "1.5",
+          "name": "Dimensional Formulae and Dimensional Equations",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_1.6",
+          "code": "1.6",
+          "name": "Dimensional Analysis and its Applications",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_2",
+      "number": 2,
+      "name": "Motion in a Straight Line",
+      "estimatedStudyTimeMin": 100,
+      "topics": [
+        {
+          "id": "p11_2.1",
+          "code": "2.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_2.2",
+          "code": "2.2",
+          "name": "Instantaneous Velocity and Speed",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_2.3",
+          "code": "2.3",
+          "name": "Acceleration",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_2.4",
+          "code": "2.4",
+          "name": "Kinematic Equations for Uniformly Accelerated Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_3",
+      "number": 3,
+      "name": "Motion in a Plane",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "p11_3.1",
+          "code": "3.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.2",
+          "code": "3.2",
+          "name": "Scalars and Vectors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.3",
+          "code": "3.3",
+          "name": "Multiplication of Vectors by Real Numbers",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.4",
+          "code": "3.4",
+          "name": "Addition and Subtraction of Vectors - Graphical Method",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.5",
+          "code": "3.5",
+          "name": "Resolution of Vectors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.6",
+          "code": "3.6",
+          "name": "Vector Addition - Analytical Method",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.7",
+          "code": "3.7",
+          "name": "Motion in a Plane",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.8",
+          "code": "3.8",
+          "name": "Motion in a Plane with Constant Acceleration",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.9",
+          "code": "3.9",
+          "name": "Projectile Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_3.10",
+          "code": "3.10",
+          "name": "Uniform Circular Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_4",
+      "number": 4,
+      "name": "Laws of Motion",
+      "estimatedStudyTimeMin": 275,
+      "topics": [
+        {
+          "id": "p11_4.1",
+          "code": "4.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.2",
+          "code": "4.2",
+          "name": "Aristotle's Fallacy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.3",
+          "code": "4.3",
+          "name": "The Law of Inertia",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.4",
+          "code": "4.4",
+          "name": "Newton's First Law of Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.5",
+          "code": "4.5",
+          "name": "Newton's Second Law of Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.6",
+          "code": "4.6",
+          "name": "Newton's Third Law of Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.7",
+          "code": "4.7",
+          "name": "Conservation of Momentum",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.8",
+          "code": "4.8",
+          "name": "Equilibrium of a Particle",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.9",
+          "code": "4.9",
+          "name": "Common Forces in Mechanics",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.10",
+          "code": "4.10",
+          "name": "Circular Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_4.11",
+          "code": "4.11",
+          "name": "Solving Problems in Mechanics",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_5",
+      "number": 5,
+      "name": "Work, Energy and Power",
+      "estimatedStudyTimeMin": 275,
+      "topics": [
+        {
+          "id": "p11_5.1",
+          "code": "5.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.2",
+          "code": "5.2",
+          "name": "Notions of Work and Kinetic Energy: The Work-Energy Theorem",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.3",
+          "code": "5.3",
+          "name": "Work",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.4",
+          "code": "5.4",
+          "name": "Kinetic Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.5",
+          "code": "5.5",
+          "name": "Work Done by a Variable Force",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.6",
+          "code": "5.6",
+          "name": "The Work-Energy Theorem for a Variable Force",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.7",
+          "code": "5.7",
+          "name": "The Concept of Potential Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.8",
+          "code": "5.8",
+          "name": "The Conservation of Mechanical Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.9",
+          "code": "5.9",
+          "name": "The Potential Energy of a Spring",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.10",
+          "code": "5.10",
+          "name": "Power",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_5.11",
+          "code": "5.11",
+          "name": "Collisions",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_6",
+      "number": 6,
+      "name": "System of Particles and Rotational Motion",
+      "estimatedStudyTimeMin": 300,
+      "topics": [
+        {
+          "id": "p11_6.1",
+          "code": "6.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.2",
+          "code": "6.2",
+          "name": "Centre of Mass",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.3",
+          "code": "6.3",
+          "name": "Motion of Centre of Mass",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.4",
+          "code": "6.4",
+          "name": "Linear Momentum of a System of Particles",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.5",
+          "code": "6.5",
+          "name": "Vector Product of Two Vectors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.6",
+          "code": "6.6",
+          "name": "Angular Velocity and its Relation with Linear Velocity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.7",
+          "code": "6.7",
+          "name": "Torque and Angular Momentum",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.8",
+          "code": "6.8",
+          "name": "Equilibrium of a Rigid Body",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.9",
+          "code": "6.9",
+          "name": "Moment of Inertia",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.10",
+          "code": "6.10",
+          "name": "Kinematics of Rotational Motion about a Fixed Axis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.11",
+          "code": "6.11",
+          "name": "Dynamics of Rotational Motion about a Fixed Axis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_6.12",
+          "code": "6.12",
+          "name": "Angular Momentum in case of Rotations about a Fixed Axis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_7",
+      "number": 7,
+      "name": "Gravitation",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "p11_7.1",
+          "code": "7.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.2",
+          "code": "7.2",
+          "name": "Kepler's Laws",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.3",
+          "code": "7.3",
+          "name": "Universal Law of Gravitation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.4",
+          "code": "7.4",
+          "name": "The Gravitational Constant",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.5",
+          "code": "7.5",
+          "name": "Acceleration Due to Gravity of the Earth",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.6",
+          "code": "7.6",
+          "name": "Acceleration Due to Gravity Below and Above the Surface of Earth",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.7",
+          "code": "7.7",
+          "name": "Gravitational Potential Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.8",
+          "code": "7.8",
+          "name": "Escape Speed",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.9",
+          "code": "7.9",
+          "name": "Earth Satellites",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_7.10",
+          "code": "7.10",
+          "name": "Energy of an Orbiting Satellite",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_8",
+      "number": 8,
+      "name": "Mechanical Properties of Solids",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "p11_8.1",
+          "code": "8.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_8.2",
+          "code": "8.2",
+          "name": "Stress and Strain",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_8.3",
+          "code": "8.3",
+          "name": "Hooke's Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_8.4",
+          "code": "8.4",
+          "name": "Stress-strain Curve",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_8.5",
+          "code": "8.5",
+          "name": "Elastic Moduli",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_8.6",
+          "code": "8.6",
+          "name": "Applications of Elastic Behaviour of Materials",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_9",
+      "number": 9,
+      "name": "Mechanical Properties of Fluids",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "p11_9.1",
+          "code": "9.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_9.2",
+          "code": "9.2",
+          "name": "Pressure",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_9.3",
+          "code": "9.3",
+          "name": "Streamline Flow",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_9.4",
+          "code": "9.4",
+          "name": "Bernoulli's Principle",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_9.5",
+          "code": "9.5",
+          "name": "Viscosity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_9.6",
+          "code": "9.6",
+          "name": "Surface Tension",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_10",
+      "number": 10,
+      "name": "Thermal Properties of Matter",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "p11_10.1",
+          "code": "10.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.2",
+          "code": "10.2",
+          "name": "Temperature and Heat",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.3",
+          "code": "10.3",
+          "name": "Measurement of Temperature",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.4",
+          "code": "10.4",
+          "name": "Ideal-gas Equation and Absolute Temperature",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.5",
+          "code": "10.5",
+          "name": "Thermal Expansion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.6",
+          "code": "10.6",
+          "name": "Specific Heat Capacity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.7",
+          "code": "10.7",
+          "name": "Calorimetry",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.8",
+          "code": "10.8",
+          "name": "Change of State",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.9",
+          "code": "10.9",
+          "name": "Heat Transfer",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_10.10",
+          "code": "10.10",
+          "name": "Newton's Law of Cooling",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_11",
+      "number": 11,
+      "name": "Thermodynamics",
+      "estimatedStudyTimeMin": 275,
+      "topics": [
+        {
+          "id": "p11_11.1",
+          "code": "11.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.2",
+          "code": "11.2",
+          "name": "Thermal Equilibrium",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.3",
+          "code": "11.3",
+          "name": "Zeroth Law of Thermodynamics",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.4",
+          "code": "11.4",
+          "name": "Heat, Internal Energy and Work",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.5",
+          "code": "11.5",
+          "name": "First Law of Thermodynamics",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.6",
+          "code": "11.6",
+          "name": "Specific Heat Capacity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.7",
+          "code": "11.7",
+          "name": "Thermodynamic State Variables and Equation of State",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.8",
+          "code": "11.8",
+          "name": "Thermodynamic Processes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.9",
+          "code": "11.9",
+          "name": "Second Law of Thermodynamics",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.10",
+          "code": "11.10",
+          "name": "Reversible and Irreversible Processes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_11.11",
+          "code": "11.11",
+          "name": "Carnot Engine",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_12",
+      "number": 12,
+      "name": "Kinetic Theory",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "p11_12.1",
+          "code": "12.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_12.2",
+          "code": "12.2",
+          "name": "Molecular Nature of Matter",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_12.3",
+          "code": "12.3",
+          "name": "Behaviour of Gases",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_12.4",
+          "code": "12.4",
+          "name": "Kinetic Theory of an Ideal Gas",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_12.5",
+          "code": "12.5",
+          "name": "Law of Equipartition of Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_12.6",
+          "code": "12.6",
+          "name": "Specific Heat Capacity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_12.7",
+          "code": "12.7",
+          "name": "Mean Free Path",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_13",
+      "number": 13,
+      "name": "Oscillations",
+      "estimatedStudyTimeMin": 200,
+      "topics": [
+        {
+          "id": "p11_13.1",
+          "code": "13.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.2",
+          "code": "13.2",
+          "name": "Periodic and Oscillatory Motions",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.3",
+          "code": "13.3",
+          "name": "Simple Harmonic Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.4",
+          "code": "13.4",
+          "name": "Simple Harmonic Motion and Uniform Circular Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.5",
+          "code": "13.5",
+          "name": "Velocity and Acceleration in Simple Harmonic Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.6",
+          "code": "13.6",
+          "name": "Force Law for Simple Harmonic Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.7",
+          "code": "13.7",
+          "name": "Energy in Simple Harmonic Motion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_13.8",
+          "code": "13.8",
+          "name": "The Simple Pendulum",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11_14",
+      "number": 14,
+      "name": "Waves",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "p11_14.1",
+          "code": "14.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_14.2",
+          "code": "14.2",
+          "name": "Transverse and Longitudinal Waves",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_14.3",
+          "code": "14.3",
+          "name": "Displacement Relation in a Progressive Wave",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_14.4",
+          "code": "14.4",
+          "name": "The Speed of a Travelling Wave",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_14.5",
+          "code": "14.5",
+          "name": "The Principle of Superposition of Waves",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_14.6",
+          "code": "14.6",
+          "name": "Reflection of Waves",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11_14.7",
+          "code": "14.7",
+          "name": "Beats",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    }
+  ]
+}

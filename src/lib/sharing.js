@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
-import { offsetsFor } from './schedule'
+import { offsetsFor, buildRevisionRows } from '../engine/schedule'
+import { insertRevisions } from '../data/revisionsRepo'
 
 // Clone a shared topic into `studentId`'s account: the topic itself, its recall
 // cards, its photos (same public URLs — no re-upload) and a fresh standard
@@ -33,12 +34,7 @@ export async function cloneSharedTopic(token, studentId) {
     .single()
   if (error || !topic) return null
 
-  const revisions = offsetsFor(me?.exam_date, today).map(({ label, days }) => {
-    const d = new Date(today)
-    d.setDate(d.getDate() + days)
-    return { topic_id: topic.id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
-  })
-  await supabase.from('revisions').insert(revisions)
+  await insertRevisions(buildRevisionRows(topic.id, offsetsFor(me?.exam_date, today), today))
 
   if (src.recall_cards?.length) {
     await supabase.from('recall_cards').insert(src.recall_cards.map(c => ({ topic_id: topic.id, question: c.question, answer: c.answer })))

@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
-import { sessionResult } from '../lib/forecast'
+import { sessionResult } from '../engine/forecast'
+import { rescheduleAfter } from '../engine/schedule'
+import { coachModeEnabled } from '../engine/mission'
+import { withinWindow } from '../engine/recovery'
+import { insertRevisions } from '../data/revisionsRepo'
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
 const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
@@ -83,7 +87,7 @@ export default function RevisionSession() {
     // the memory recharge and exam-day forecast without extra round-trips.
     const { data } = await supabase
       .from('revisions')
-      .select('*, topics(id, topic_name, subject, student_id, students(exam_date), revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality))')
+      .select('*, topics(id, topic_name, subject, student_id, students(exam_date, class_grade), revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality))')
       .eq('id', id)
       .single()
     setRevision(data)
@@ -107,6 +111,22 @@ export default function RevisionSession() {
     const studentId = revision.topics.student_id
     // Streak + freeze handling lives server-side in the record_activity RPC.
     const { data: activity } = await supabase.rpc('record_activity', { p_student_id: studentId })
+
+    // Coach mode: coming back well past the window shifts the remaining
+    // reviews so spacing restarts from today — the plan adapts to the student,
+    // never scolds them for the gap. (Mode 1 keeps fixed dates.)
+    if (coachModeEnabled(revision.topics.students) && !withinWindow(revision, todayISO())) {
+      const { updates, dropped } = rescheduleAfter(
+        revision.topics.revisions || [],
+        revision.id,
+        todayISO(),
+        revision.topics.students?.exam_date || null
+      )
+      for (const u of updates) {
+        await supabase.from('revisions').update({ scheduled_date: u.scheduled_date }).eq('id', u.id)
+      }
+      if (dropped.length) await supabase.from('revisions').delete().in('id', dropped)
+    }
 
     const { data: myAccount } = await supabase
       .from('accounts')
@@ -158,11 +178,11 @@ export default function RevisionSession() {
           extra.setDate(extra.getDate() + extraOffset)
           extraDate = extra.toISOString().slice(0, 10)
 
-          await supabase.from('revisions').insert({
+          await insertRevisions([{
             topic_id: revision.topics.id,
             scheduled_date: extraDate,
             interval_label: 'extra'
-          })
+          }])
         }
       }
     }

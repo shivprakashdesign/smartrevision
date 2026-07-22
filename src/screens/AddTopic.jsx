@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import AppShell from '../lib/AppShell'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
@@ -10,8 +10,10 @@ import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary, buildRevisionRows } from '../engine/schedule'
+import { insertRevisions } from '../data/revisionsRepo'
 import { suggestSubtopics } from '../lib/scan'
+import { loadSubject } from '../curriculum/ckb'
 import { subjectColor } from '../lib/subjects'
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
@@ -108,6 +110,9 @@ const labelClass = 'text-[11px] font-bold text-[var(--muted)] mb-1.5 tracking-wi
 
 export default function AddTopic() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // Passed by the mission card: { planItemId, topicName, curriculumTopicId }.
+  const prefill = location.state || null
   const { student, loading: studentLoading } = useStudentProfile()
   const { isPro } = usePro()
   const showUpsell = useUpsell()
@@ -169,12 +174,21 @@ export default function AddTopic() {
     // Unfinished plan chapters power the "What did you study today?" picker.
     supabase
       .from('plan_items')
-      .select('id, subject, chapter_name, status')
+      .select('id, subject, chapter_name, status, curriculum_chapter_id')
       .eq('student_id', student.id)
       .neq('status', 'done')
       .order('subject')
       .order('position')
-      .then(({ data }) => setPlanItems(data || []))
+      .then(({ data }) => {
+        setPlanItems(data || [])
+        // A mission "study this next" tap arrives with the chapter + topic
+        // preselected, so the form opens ready to save.
+        if (prefill?.planItemId) {
+          const item = (data || []).find((it) => it.id === prefill.planItemId)
+          if (item) selectPlanItem(item)
+          if (prefill.topicName) setTopicName(prefill.topicName)
+        }
+      })
   }, [student])
 
   function selectPlanItem(item) {
@@ -283,6 +297,19 @@ export default function AddTopic() {
     return rows
   }
 
+  // The topic's link back to the bundled curriculum, best-effort:
+  //   1. the mission handed us the CKB topic and the student kept its name
+  //   2. logging from a CKB-linked chapter and the typed name matches a topic
+  // Anything else stays null — custom content is always first-class.
+  async function resolveCurriculumTopicId() {
+    if (prefill?.curriculumTopicId && topicName === prefill.topicName) return prefill.curriculumTopicId
+    if (!planItem?.curriculum_chapter_id || !student?.class_grade) return null
+    const file = await loadSubject(Number(student.class_grade), planItem.subject)
+    const chapter = file?.chapters.find((c) => c.id === planItem.curriculum_chapter_id)
+    const match = chapter?.topics.find((t) => t.name.trim().toLowerCase() === topicName.trim().toLowerCase())
+    return match?.id ?? null
+  }
+
   async function handleSubmit() {
     if (!student) return
     if (scheduleType === 'custom' && customOffsets.length === 0) {
@@ -303,7 +330,8 @@ export default function AddTopic() {
         schedule_type: scheduleType,
         shared,
         share_token: shared ? randomId() : null,
-        plan_item_id: planItem?.id ?? null
+        plan_item_id: planItem?.id ?? null,
+        curriculum_topic_id: await resolveCurriculumTopicId()
       })
       .select()
       .single()
@@ -330,13 +358,7 @@ export default function AddTopic() {
       ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
       : offsetsFor(student.exam_date, today)
 
-    const revisionRows = offsets.map(({ label, days }) => {
-      const d = new Date(today)
-      d.setDate(d.getDate() + days)
-      return { topic_id: topic.id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
-    })
-
-    const { error: revisionsError } = await supabase.from('revisions').insert(revisionRows)
+    const revisionsError = await insertRevisions(buildRevisionRows(topic.id, offsets, today))
     if (revisionsError) {
       toast.error(revisionsError.message)
       setSaving(false)

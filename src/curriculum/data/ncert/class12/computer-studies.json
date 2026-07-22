@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 12,
+  "subject": "Computer Studies",
+  "subjectCode": "computer-studies",
+  "boards": [
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "cs12_1",
+      "number": 1,
+      "name": "Creating HTML forms using KompoZer",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_1_s",
+          "code": "1",
+          "name": "Creating HTML forms using KompoZer",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_2",
+      "number": 2,
+      "name": "Cascading Style Sheets and Java script",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_2_s",
+          "code": "2",
+          "name": "Cascading Style Sheets and Java script",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_3",
+      "number": 3,
+      "name": "Designing simple website using KompoZer",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_3_s",
+          "code": "3",
+          "name": "Designing simple website using KompoZer",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_4",
+      "number": 4,
+      "name": "Introduction to E-Commerce",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_4_s",
+          "code": "4",
+          "name": "Introduction to E-Commerce",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_5",
+      "number": 5,
+      "name": "Introduction to M-Commerce",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_5_s",
+          "code": "5",
+          "name": "Introduction to M-Commerce",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_6",
+      "number": 6,
+      "name": "Object-Oriented concepts",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_6_s",
+          "code": "6",
+          "name": "Object-Oriented concepts",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_7",
+      "number": 7,
+      "name": "Java Basics",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_7_s",
+          "code": "7",
+          "name": "Java Basics",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_8",
+      "number": 8,
+      "name": "Classes and objects in Java",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_8_s",
+          "code": "8",
+          "name": "Classes and objects in Java",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_9",
+      "number": 9,
+      "name": "Working with Array and String",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_9_s",
+          "code": "9",
+          "name": "Working with Array and String",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_10",
+      "number": 10,
+      "name": "Exception handling in Java",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_10_s",
+          "code": "10",
+          "name": "Exception handling in Java",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_11",
+      "number": 11,
+      "name": "File handling",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_11_s",
+          "code": "11",
+          "name": "File handling",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_12",
+      "number": 12,
+      "name": "Publishing documents using LaTeX",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_12_s",
+          "code": "12",
+          "name": "Publishing documents using LaTeX",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    },
+    {
+      "id": "cs12_13",
+      "number": 13,
+      "name": "Other useful free tools and services",
+      "estimatedStudyTimeMin": 60,
+      "topics": [
+        {
+          "id": "cs12_13_s",
+          "code": "13",
+          "name": "Other useful free tools and services",
+          "type": null,
+          "estimatedStudyTimeMin": 60
+        }
+      ]
+    }
+  ]
+}

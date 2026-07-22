@@ -1,0 +1,893 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 11,
+  "subject": "Biology",
+  "subjectCode": "biology",
+  "boards": [
+    "CBSE",
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "b11_1",
+      "number": 1,
+      "name": "The Living World",
+      "estimatedStudyTimeMin": 50,
+      "topics": [
+        {
+          "id": "b11_1.1",
+          "code": "1.1",
+          "name": "Diversity in the Living World",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_1.2",
+          "code": "1.2",
+          "name": "Taxonomic Categories",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_2",
+      "number": 2,
+      "name": "Biological Classification",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "b11_2.1",
+          "code": "2.1",
+          "name": "Kingdom Monera",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_2.2",
+          "code": "2.2",
+          "name": "Kingdom Protista",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_2.3",
+          "code": "2.3",
+          "name": "Kingdom Fungi",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_2.4",
+          "code": "2.4",
+          "name": "Kingdom Plantae",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_2.5",
+          "code": "2.5",
+          "name": "Kingdom Animalia",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_2.6",
+          "code": "2.6",
+          "name": "Viruses, Viroids, Prions and Lichens",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_3",
+      "number": 3,
+      "name": "Plant Kingdom",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "b11_3.1",
+          "code": "3.1",
+          "name": "Algae",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_3.2",
+          "code": "3.2",
+          "name": "Bryophytes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_3.3",
+          "code": "3.3",
+          "name": "Pteridophytes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_3.4",
+          "code": "3.4",
+          "name": "Gymnosperms",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_3.5",
+          "code": "3.5",
+          "name": "Angiosperms",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_4",
+      "number": 4,
+      "name": "Animal Kingdom",
+      "estimatedStudyTimeMin": 50,
+      "topics": [
+        {
+          "id": "b11_4.1",
+          "code": "4.1",
+          "name": "Basis of Classification",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_4.2",
+          "code": "4.2",
+          "name": "Classification of Animals",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_5",
+      "number": 5,
+      "name": "Morphology of Flowering Plants",
+      "estimatedStudyTimeMin": 225,
+      "topics": [
+        {
+          "id": "b11_5.1",
+          "code": "5.1",
+          "name": "The Root",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.2",
+          "code": "5.2",
+          "name": "The Stem",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.3",
+          "code": "5.3",
+          "name": "The Leaf",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.4",
+          "code": "5.4",
+          "name": "The Inflorescence",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.5",
+          "code": "5.5",
+          "name": "The Flower",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.6",
+          "code": "5.6",
+          "name": "The Fruit",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.7",
+          "code": "5.7",
+          "name": "The Seed",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.8",
+          "code": "5.8",
+          "name": "Semi-technical Description of a Typical Flowering Plant",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_5.9",
+          "code": "5.9",
+          "name": "Description of Some Important Families",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_6",
+      "number": 6,
+      "name": "Anatomy of Flowering Plants",
+      "estimatedStudyTimeMin": 50,
+      "topics": [
+        {
+          "id": "b11_6.1",
+          "code": "6.1",
+          "name": "The Tissue System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_6.2",
+          "code": "6.2",
+          "name": "Anatomy of Dicotyledonous and Monocotyledonous Plants",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_7",
+      "number": 7,
+      "name": "Structural Organisation in Animals",
+      "estimatedStudyTimeMin": 50,
+      "topics": [
+        {
+          "id": "b11_7.1",
+          "code": "7.1",
+          "name": "Organ and Organ System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_7.2",
+          "code": "7.2",
+          "name": "Frogs",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_8",
+      "number": 8,
+      "name": "Cell: The Unit of Life",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "b11_8.1",
+          "code": "8.1",
+          "name": "What is a Cell?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_8.2",
+          "code": "8.2",
+          "name": "Cell Theory",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_8.3",
+          "code": "8.3",
+          "name": "An Overview of Cell",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_8.4",
+          "code": "8.4",
+          "name": "Prokaryotic Cells",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_8.5",
+          "code": "8.5",
+          "name": "Eukaryotic Cells",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_9",
+      "number": 9,
+      "name": "Biomolecules",
+      "estimatedStudyTimeMin": 200,
+      "topics": [
+        {
+          "id": "b11_9.1",
+          "code": "9.1",
+          "name": "How to Analyse Chemical Composition?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.2",
+          "code": "9.2",
+          "name": "Primary and Secondary Metabolites",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.3",
+          "code": "9.3",
+          "name": "Biomacromolecules",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.4",
+          "code": "9.4",
+          "name": "Proteins",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.5",
+          "code": "9.5",
+          "name": "Polysaccharides",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.6",
+          "code": "9.6",
+          "name": "Nucleic Acids",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.7",
+          "code": "9.7",
+          "name": "Structure of Proteins",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_9.8",
+          "code": "9.8",
+          "name": "Enzymes",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_10",
+      "number": 10,
+      "name": "Cell Cycle and Cell Division",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "b11_10.1",
+          "code": "10.1",
+          "name": "Cell Cycle",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_10.2",
+          "code": "10.2",
+          "name": "M Phase",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_10.3",
+          "code": "10.3",
+          "name": "Significance of Mitosis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_10.4",
+          "code": "10.4",
+          "name": "Meiosis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_10.5",
+          "code": "10.5",
+          "name": "Significance of Meiosis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_11",
+      "number": 11,
+      "name": "Photosynthesis in Higher Plants",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "b11_11.1",
+          "code": "11.1",
+          "name": "What do we Know?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.2",
+          "code": "11.2",
+          "name": "Early Experiments",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.3",
+          "code": "11.3",
+          "name": "Where does Photosynthesis take place?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.4",
+          "code": "11.4",
+          "name": "How many Pigments are involved in Photosynthesis?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.5",
+          "code": "11.5",
+          "name": "Light Reaction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.6",
+          "code": "11.6",
+          "name": "The Electron Transport Chain",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.7",
+          "code": "11.7",
+          "name": "Where are the ATP and NADPH Used?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.8",
+          "code": "11.8",
+          "name": "The C4 Pathway",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.9",
+          "code": "11.9",
+          "name": "Photorespiration",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_11.10",
+          "code": "11.10",
+          "name": "Factors affecting Photosynthesis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_12",
+      "number": 12,
+      "name": "Respiration in Plants",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "b11_12.1",
+          "code": "12.1",
+          "name": "Do Plants Breathe?",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_12.2",
+          "code": "12.2",
+          "name": "Glycolysis",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_12.3",
+          "code": "12.3",
+          "name": "Fermentation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_12.4",
+          "code": "12.4",
+          "name": "Aerobic Respiration",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_12.5",
+          "code": "12.5",
+          "name": "The Respiratory Balance Sheet",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_12.6",
+          "code": "12.6",
+          "name": "Amphibolic Pathway",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_12.7",
+          "code": "12.7",
+          "name": "Respiratory Quotient",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_13",
+      "number": 13,
+      "name": "Plant Growth and Development",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "b11_13.1",
+          "code": "13.1",
+          "name": "Growth",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_13.2",
+          "code": "13.2",
+          "name": "Differentiation, Dedifferentiation and Redifferentiation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_13.3",
+          "code": "13.3",
+          "name": "Development",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_13.4",
+          "code": "13.4",
+          "name": "Plant Growth Regulators",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_13.5",
+          "code": "13.5",
+          "name": "Photoperiodism",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_13.6",
+          "code": "13.6",
+          "name": "Vernalisation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_14",
+      "number": 14,
+      "name": "Breathing and Exchange of Gases",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "b11_14.1",
+          "code": "14.1",
+          "name": "Respiratory Organs",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_14.2",
+          "code": "14.2",
+          "name": "Mechanism of Breathing",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_14.3",
+          "code": "14.3",
+          "name": "Exchange of Gases",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_14.4",
+          "code": "14.4",
+          "name": "Transport of Gases",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_14.5",
+          "code": "14.5",
+          "name": "Regulation of Respiration",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_14.6",
+          "code": "14.6",
+          "name": "Disorders of Respiratory System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_15",
+      "number": 15,
+      "name": "Body Fluids and Circulation",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "b11_15.1",
+          "code": "15.1",
+          "name": "Blood",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_15.2",
+          "code": "15.2",
+          "name": "Lymph (Tissue Fluid)",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_15.3",
+          "code": "15.3",
+          "name": "Circulatory Pathways",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_15.4",
+          "code": "15.4",
+          "name": "Double Circulation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_15.5",
+          "code": "15.5",
+          "name": "Regulation of Cardiac Activity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_15.6",
+          "code": "15.6",
+          "name": "Disorders of Circulatory System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_16",
+      "number": 16,
+      "name": "Excretory Products and their Elimination",
+      "estimatedStudyTimeMin": 200,
+      "topics": [
+        {
+          "id": "b11_16.1",
+          "code": "16.1",
+          "name": "Human Excretory System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.2",
+          "code": "16.2",
+          "name": "Urine Formation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.3",
+          "code": "16.3",
+          "name": "Function of the Tubules",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.4",
+          "code": "16.4",
+          "name": "Mechanism of Concentration of the Filtrate",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.5",
+          "code": "16.5",
+          "name": "Regulation of Kidney Function",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.6",
+          "code": "16.6",
+          "name": "Micturition",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.7",
+          "code": "16.7",
+          "name": "Role of other Organs in Excretion",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_16.8",
+          "code": "16.8",
+          "name": "Disorders of the Excretory System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_17",
+      "number": 17,
+      "name": "Locomotion and Movement",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "b11_17.1",
+          "code": "17.1",
+          "name": "Types of Movement",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_17.2",
+          "code": "17.2",
+          "name": "Muscle",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_17.3",
+          "code": "17.3",
+          "name": "Skeletal System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_17.4",
+          "code": "17.4",
+          "name": "Joints",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_17.5",
+          "code": "17.5",
+          "name": "Disorders of Muscular and Skeletal System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_18",
+      "number": 18,
+      "name": "Neural Control and Coordination",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "b11_18.1",
+          "code": "18.1",
+          "name": "Neural System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_18.2",
+          "code": "18.2",
+          "name": "Human Neural System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_18.3",
+          "code": "18.3",
+          "name": "Neuron as Structural and Functional Unit of Neural System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_18.4",
+          "code": "18.4",
+          "name": "Central Neural System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_18.5",
+          "code": "18.5",
+          "name": "Reflex Action and Reflex Arc",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_18.6",
+          "code": "18.6",
+          "name": "Sensory Reception and Processing",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "b11_19",
+      "number": 19,
+      "name": "Chemical Coordination and Integration",
+      "estimatedStudyTimeMin": 100,
+      "topics": [
+        {
+          "id": "b11_19.1",
+          "code": "19.1",
+          "name": "Endocrine Glands and Hormones",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_19.2",
+          "code": "19.2",
+          "name": "Human Endocrine System",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_19.3",
+          "code": "19.3",
+          "name": "Hormones of Heart, Kidney and Gastrointestinal Tract",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "b11_19.4",
+          "code": "19.4",
+          "name": "Mechanism of Hormone Action",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    }
+  ]
+}

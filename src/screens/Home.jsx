@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import NumberFlow from '@number-flow/react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Fire02Icon, Diamond02Icon, Notification01Icon, Flag02Icon } from '@hugeicons/core-free-icons'
+import { Fire02Icon, Diamond02Icon, Notification01Icon, Flag02Icon, Calendar03Icon } from '@hugeicons/core-free-icons'
 import BrandLogo from '../lib/BrandLogo'
 import WeekStrip from '../lib/WeekStrip'
 import StreakSheet from '../lib/StreakSheet'
@@ -19,10 +19,14 @@ import LottieEmpty from '../lib/LottieEmpty'
 import allDoneAnim from '../assets/lottie/all-done.lottie?url'
 import {
   summarize, completion, computeMemory, isOnTrack, nextRevision
-} from '../lib/metrics'
-import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../lib/forecast'
-import { receiptStats } from '../lib/receipt'
-import { daysUntilExam } from '../lib/schedule'
+} from '../engine/metrics'
+import { fetchTopicsWithRevisions } from '../data/topicsRepo'
+import { coachModeEnabled } from '../engine/mission'
+import { memoryHealth } from '../engine/recovery'
+import MissionCard from '../components/MissionCard'
+import { forecastCard, forecastBySubject, FORECAST_MIN_REVISED } from '../engine/forecast'
+import { receiptStats } from '../engine/receipt'
+import { daysUntilExam } from '../engine/schedule'
 
 const TAB_LABELS = { due: 'Due Today', missed: 'To review', upcoming: 'Upcoming' }
 // Active-tab colour per bucket: green = on time, orange = behind (a nudge, not
@@ -393,15 +397,7 @@ export default function Home() {
   }, [user, student])
 
   async function loadTopics() {
-    const { data, error } = await supabase
-      .from('topics')
-      .select('id, subject, topic_name, date_learned, priority, revisions(id, scheduled_date, interval_label, completed, completed_at, recall_quality)')
-      .eq('student_id', student.id)
-      .not('archived', 'is', true)
-      .order('created_at', { ascending: false })
-
-    if (error) console.error(error)
-    setTopics(data || [])
+    setTopics(await fetchTopicsWithRevisions(student.id))
     setLoading(false)
   }
 
@@ -413,12 +409,18 @@ export default function Home() {
   // Lead with the achievable action; behind-schedule items live (softly) in
   // their own tab, and become a positive, tappable nudge when nothing's due today.
   let summaryNode
+  const coach = coachModeEnabled(student)
+  const health = coach ? memoryHealth(topics) : null
   if (counts.due > 0) {
     summaryNode = <>You've got <b className="text-[var(--ink)]">{counts.due} revision{counts.due > 1 ? 's' : ''}</b> to revise today — steady wins the streak. 💪</>
   } else if (counts.missed > 0) {
-    summaryNode = <>Nothing due today — a good moment to{' '}
-      <button onClick={() => setTab('missed')} className="text-brand-500 font-bold underline underline-offset-2 active:opacity-70">review {counts.missed}</button>.
-    </>
+    // Coach mode never shows a backlog count — the mission absorbs missed work
+    // gradually and Memory Health is the honest number instead.
+    summaryNode = coach
+      ? <>Welcome back — today's mission has your catch-up built in.{health != null && <> Memory health <b className="text-[var(--ink)]">{health}%</b>.</>}</>
+      : <>Nothing due today — a good moment to{' '}
+          <button onClick={() => setTab('missed')} className="text-brand-500 font-bold underline underline-offset-2 active:opacity-70">review {counts.missed}</button>.
+        </>
   } else if (counts.upcoming > 0) {
     summaryNode = <>All caught up — nothing due today. 🎉</>
   } else if (planCount > 0) {
@@ -485,10 +487,19 @@ export default function Home() {
         {topics.length === 0 ? (
           /* First run: no topics yet. Everything below (forecast, week strip,
              tabs) is noise or nonsense at zero — the setup hero owns the screen
-             until the first topic exists. */
-          <FirstRunHero planCount={planCount} />
+             until the first topic exists. Coach mode with a plan is the one
+             exception: the mission can already propose today's new learning
+             from the active chapters, which IS the first topic's on-ramp. */
+          <>
+            {coach && planCount > 0 && <MissionCard student={student} topics={topics} />}
+            <FirstRunHero planCount={planCount} />
+          </>
         ) : (
           <>
+            {/* Today's Mission — the coach-mode daily plan (Classes 11–12).
+                Mode 1 (younger classes) never sees or loads any of it. */}
+            {coachModeEnabled(student) && <MissionCard student={student} topics={topics} />}
+
             {/* Memory forecast hero */}
             <ForecastCard
               topics={topics}
@@ -500,6 +511,15 @@ export default function Home() {
 
             {/* Calendar week strip */}
             <WeekStrip topics={topics} studyDays={student?.study_days} />
+
+            {/* Weekly study plan — only once chapters have been picked */}
+            {planCount > 0 && (
+              <Link to="/calendar" className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm active:scale-[0.98] transition-transform">
+                <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} className="text-brand-500 shrink-0" />
+                <span className="text-[13.5px] font-bold text-[var(--ink)] flex-1">Your weekly study plan</span>
+                <span className="text-[12px] font-bold text-[var(--muted)]">Open ›</span>
+              </Link>
+            )}
 
             {/* Tabs */}
             <div className="flex items-center gap-1.5 mb-4">

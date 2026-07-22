@@ -4,7 +4,7 @@ import { Cancel01Icon } from '@hugeicons/core-free-icons'
 
 const FREEZE_PRICE = 50
 
-// Real gem-earning rules (mirror supabase_gems.sql).
+// Real gem-earning rules (mirror supabase/migrations/0006_gems.sql).
 const EARN = [
   { label: 'Complete a revision', pts: '+10' },
   { label: 'Finish it on time', pts: '+5' },

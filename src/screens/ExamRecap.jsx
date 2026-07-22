@@ -12,7 +12,7 @@ import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
-import { receiptStats, receiptShareText } from '../lib/receipt'
+import { receiptStats, receiptShareText } from '../engine/receipt'
 
 const longDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
 const CONFIDENCE_EMOJI = { good: '😊', okay: '😐', struggled: '😓' }

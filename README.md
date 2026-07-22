@@ -10,7 +10,7 @@
 
 ## Supabase setup
 1. Create a free project at supabase.com
-2. Go to SQL Editor → paste the entire contents of `supabase_schema.sql` → Run
+2. Go to SQL Editor → paste the entire contents of the files in `supabase/migrations/` in numbered order → Run
 3. Go to Authentication → Providers → enable Email (and Phone/OTP later when ready)
 4. Copy your Project URL + anon key into `.env`
 

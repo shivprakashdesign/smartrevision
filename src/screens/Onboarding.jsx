@@ -6,7 +6,7 @@ import NumberFlow from '@number-flow/react'
 import { supabase } from '../lib/supabase'
 import { subjectColor, subjectsForGoal } from '../lib/subjects'
 import { useSchoolSearch, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
-import { STANDARD_OFFSETS, offsetsFor, offsetLabel, daysUntilExam } from '../lib/schedule'
+import { STANDARD_OFFSETS, offsetsFor, offsetLabel, daysUntilExam } from '../engine/schedule'
 import { useTheme } from '../lib/ThemeContext'
 import { usePro } from '../lib/ProContext'
 import { useUpsell, ProLock } from '../lib/ProUpsell'
@@ -71,6 +71,9 @@ const THEMES = [
 // Grades a student can pick, highest first — most of our users are in the
 // exam years, and a horizontal list should open on them rather than on Class 1.
 const GRADES = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+// Daily self-study presets, in minutes — feeds the weighted study plan.
+const STUDY_TIME = [[60, '1h'], [120, '2h'], [180, '3h'], [240, '4h']]
+const fmtMin = (m) => (m % 60 === 0 ? `${m / 60}h` : `${Math.floor(m / 60)}h ${m % 60}m`)
 
 // `school` is student-only: a parent's children each have their own school, so
 // asking once here would be wrong. See `stepsFor`.
@@ -171,6 +174,7 @@ export default function Onboarding() {
   const [grade, setGrade] = useState(null)
   const [examDate, setExamDate] = useState('')
   const [studyDays, setStudyDays] = useState([1, 2, 3, 4, 5, 6])
+  const [dailyStudyMin, setDailyStudyMin] = useState(null)
   const [school, setSchool] = useState(null)      // the chosen row, or null
   const [schoolQuery, setSchoolQuery] = useState('')
   const [saving, setSaving] = useState(false)
@@ -228,7 +232,8 @@ export default function Onboarding() {
         grade && school && ['CLASS & SCHOOL', `Class ${grade} · ${school.name}`],
         grade && !school && ['CLASS', `Class ${grade}`],
         examDate && ['EXAM', `${whenExam.replace(/^in /, 'In ')} · ${plannedOffsets.length} reviews per topic`],
-        ['STUDY DAYS', restDays.length ? STUDY_DAYS.filter(([d]) => studyDays.includes(d)).map(([, l]) => l).join(', ') : 'Every day']
+        ['STUDY DAYS', restDays.length ? STUDY_DAYS.filter(([d]) => studyDays.includes(d)).map(([, l]) => l).join(', ') : 'Every day'],
+        dailyStudyMin && ['DAILY STUDY', fmtMin(dailyStudyMin)]
       ].filter(Boolean)
 
   const copy = COPY[mode]
@@ -354,7 +359,8 @@ export default function Onboarding() {
         class_grade: grade ? String(grade) : null,
         class_id: classId,
         exam_date: examDate || null,
-        study_days: studyDays
+        study_days: studyDays,
+        daily_study_min: dailyStudyMin
       })
     }
 
@@ -646,6 +652,29 @@ export default function Onboarding() {
                   </div>
                   <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-2">
                     {restDayNote}
+                  </p>
+                </div>
+              )}
+
+              {mode === 'student' && (
+                <div className="mt-5">
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest mb-2">HOW LONG CAN YOU STUDY A DAY?</p>
+                  <div className="flex gap-1.5">
+                    {STUDY_TIME.map(([m, label]) => {
+                      const sel = dailyStudyMin === m
+                      return (
+                        <button key={m} onClick={() => setDailyStudyMin(m)}
+                          style={sel ? {} : { borderColor: T.border, color: T.ink, transition: colorTransition }}
+                          className={`flex-1 py-2 rounded-xl text-[13px] font-bold border-2 transition-colors ${
+                            sel ? 'bg-brand-500 border-brand-500 text-white' : ''
+                          }`}>
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <p style={{ color: T.muted, transition: colorTransition }} className="text-[12px] mt-2">
+                    We split this across your topics, heavier on the important and weak ones. Change it anytime.
                   </p>
                 </div>
               )}

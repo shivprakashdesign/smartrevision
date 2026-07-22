@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
-import { forecastCard, forecastBySubject, weakestTopics } from './forecast'
+import { forecastCard, forecastBySubject, weakestTopics } from '../engine/forecast'
 import { subjectColor } from './subjects'
 
 const shortDate = iso => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })

@@ -16,9 +16,10 @@ import {
   File01Icon, StickyNote01Icon, Clock01Icon, Brain02Icon, ArrowRight01Icon, AlarmClockIcon
 } from '@hugeicons/core-free-icons'
 import { FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { nextRevision, intervalToDays, computeMemory } from '../lib/metrics'
+import { nextRevision, intervalToDays, computeMemory } from '../engine/metrics'
 import { subjectColor, subjectGradient } from '../lib/subjects'
-import { offsetsFor, labelForOffset, scheduleSummary } from '../lib/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary, buildRevisionRows } from '../engine/schedule'
+import { insertRevisions } from '../data/revisionsRepo'
 import { useStudentProfile } from '../lib/useStudentProfile'
 
 function randomId() {
@@ -188,12 +189,7 @@ export default function TopicDetail() {
     const offsets = schedType === 'custom'
       ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
       : offsetsFor(student?.exam_date, today)
-    const rows = offsets.map(({ label, days }) => {
-      const d = new Date(today)
-      d.setDate(d.getDate() + days)
-      return { topic_id: id, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
-    })
-    await supabase.from('revisions').insert(rows)
+    await insertRevisions(buildRevisionRows(id, offsets, today))
     setTopic(prev => ({ ...prev, schedule_type: schedType }))
     const { data: revs } = await supabase.from('revisions').select('*').eq('topic_id', id).order('scheduled_date', { ascending: true })
     setRevisions(revs || [])

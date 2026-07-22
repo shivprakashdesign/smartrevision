@@ -1,0 +1,958 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "class": 12,
+  "subject": "Physics",
+  "subjectCode": "physics",
+  "boards": [
+    "CBSE",
+    "GSEB"
+  ],
+  "chapters": [
+    {
+      "id": "p1",
+      "number": 1,
+      "name": "Electric Charges and Fields",
+      "estimatedStudyTimeMin": 350,
+      "topics": [
+        {
+          "id": "p1.1",
+          "code": "1.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.2",
+          "code": "1.2",
+          "name": "Electric Charge",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.3",
+          "code": "1.3",
+          "name": "Conductors and Insulators",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.4",
+          "code": "1.4",
+          "name": "Basic Properties of Electric Charge",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.5",
+          "code": "1.5",
+          "name": "Coulomb's Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.6",
+          "code": "1.6",
+          "name": "Forces between Multiple Charges",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.7",
+          "code": "1.7",
+          "name": "Electric Field",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.8",
+          "code": "1.8",
+          "name": "Electric Field Lines",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.9",
+          "code": "1.9",
+          "name": "Electric Flux",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.10",
+          "code": "1.10",
+          "name": "Electric Dipole",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.11",
+          "code": "1.11",
+          "name": "Dipole in a Uniform External Field",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.12",
+          "code": "1.12",
+          "name": "Continuous Charge Distribution",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.13",
+          "code": "1.13",
+          "name": "Gauss's Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p1.14",
+          "code": "1.14",
+          "name": "Applications of Gauss's Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "number": 2,
+      "name": "Electrostatic Potential and Capacitance",
+      "estimatedStudyTimeMin": 375,
+      "topics": [
+        {
+          "id": "p2.1",
+          "code": "2.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.2",
+          "code": "2.2",
+          "name": "Electrostatic Potential",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.3",
+          "code": "2.3",
+          "name": "Potential due to a Point Charge",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.4",
+          "code": "2.4",
+          "name": "Potential due to an Electric Dipole",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.5",
+          "code": "2.5",
+          "name": "Potential due to a System of Charges",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.6",
+          "code": "2.6",
+          "name": "Equipotential Surfaces",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.7",
+          "code": "2.7",
+          "name": "Potential Energy of a System of Charges",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.8",
+          "code": "2.8",
+          "name": "Potential Energy in an External Field",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.9",
+          "code": "2.9",
+          "name": "Electrostatics of Conductors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.10",
+          "code": "2.10",
+          "name": "Dielectrics and Polarisation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.11",
+          "code": "2.11",
+          "name": "Capacitors and Capacitance",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.12",
+          "code": "2.12",
+          "name": "The Parallel Plate Capacitor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.13",
+          "code": "2.13",
+          "name": "Effect of Dielectric on Capacitance",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.14",
+          "code": "2.14",
+          "name": "Combination of Capacitors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p2.15",
+          "code": "2.15",
+          "name": "Energy Stored in a Capacitor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "number": 3,
+      "name": "Current Electricity",
+      "estimatedStudyTimeMin": 325,
+      "topics": [
+        {
+          "id": "p3.1",
+          "code": "3.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.2",
+          "code": "3.2",
+          "name": "Electric Current",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.3",
+          "code": "3.3",
+          "name": "Electric Currents in Conductors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.4",
+          "code": "3.4",
+          "name": "Ohm's law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.5",
+          "code": "3.5",
+          "name": "Drift of Electrons and the Origin of Resistivity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.6",
+          "code": "3.6",
+          "name": "Limitations of Ohm's Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.7",
+          "code": "3.7",
+          "name": "Resistivity of Various Materials",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.8",
+          "code": "3.8",
+          "name": "Temperature Dependence of Resistivity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.9",
+          "code": "3.9",
+          "name": "Electrical Energy, Power",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.10",
+          "code": "3.10",
+          "name": "Cells, emf, Internal Resistance",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.11",
+          "code": "3.11",
+          "name": "Cells in Series and in Parallel",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.12",
+          "code": "3.12",
+          "name": "Kirchhoff's Rules",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p3.13",
+          "code": "3.13",
+          "name": "Wheatstone Bridge",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p4",
+      "number": 4,
+      "name": "Moving Charges and Magnetism",
+      "estimatedStudyTimeMin": 250,
+      "topics": [
+        {
+          "id": "p4.1",
+          "code": "4.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.2",
+          "code": "4.2",
+          "name": "Magnetic Force",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.3",
+          "code": "4.3",
+          "name": "Motion in a Magnetic Field",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.4",
+          "code": "4.4",
+          "name": "Magnetic Field due to a Current Element, Biot-Savart Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.5",
+          "code": "4.5",
+          "name": "Magnetic Field on the Axis of a Circular Current Loop",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.6",
+          "code": "4.6",
+          "name": "Ampere's Circuital Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.7",
+          "code": "4.7",
+          "name": "The Solenoid",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.8",
+          "code": "4.8",
+          "name": "Force between Two Parallel Currents, the Ampere",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.9",
+          "code": "4.9",
+          "name": "Torque on Current Loop, Magnetic Dipole",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p4.10",
+          "code": "4.10",
+          "name": "The Moving Coil Galvanometer",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p5",
+      "number": 5,
+      "name": "Magnetism and Matter",
+      "estimatedStudyTimeMin": 125,
+      "topics": [
+        {
+          "id": "p5.1",
+          "code": "5.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p5.2",
+          "code": "5.2",
+          "name": "The Bar Magnet",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p5.3",
+          "code": "5.3",
+          "name": "Magnetism and Gauss's Law",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p5.4",
+          "code": "5.4",
+          "name": "Magnetisation and Magnetic Intensity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p5.5",
+          "code": "5.5",
+          "name": "Magnetic Properties of Materials",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p6",
+      "number": 6,
+      "name": "Electromagnetic Induction",
+      "estimatedStudyTimeMin": 200,
+      "topics": [
+        {
+          "id": "p6.1",
+          "code": "6.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.2",
+          "code": "6.2",
+          "name": "The Experiments of Faraday and Henry",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.3",
+          "code": "6.3",
+          "name": "Magnetic Flux",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.4",
+          "code": "6.4",
+          "name": "Faraday's Law of Induction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.5",
+          "code": "6.5",
+          "name": "Lenz's Law and Conservation of Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.6",
+          "code": "6.6",
+          "name": "Motional Electromotive Force",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.7",
+          "code": "6.7",
+          "name": "Inductance",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p6.8",
+          "code": "6.8",
+          "name": "AC Generator",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p7",
+      "number": 7,
+      "name": "Alternating Current",
+      "estimatedStudyTimeMin": 200,
+      "topics": [
+        {
+          "id": "p7.1",
+          "code": "7.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.2",
+          "code": "7.2",
+          "name": "AC Voltage Applied to a Resistor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.3",
+          "code": "7.3",
+          "name": "Representation of AC Current and Voltage by Rotating Vectors — Phasors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.4",
+          "code": "7.4",
+          "name": "AC Voltage Applied to an Inductor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.5",
+          "code": "7.5",
+          "name": "AC Voltage Applied to a Capacitor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.6",
+          "code": "7.6",
+          "name": "AC Voltage Applied to a Series LCR Circuit",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.7",
+          "code": "7.7",
+          "name": "Power in AC Circuit: The Power Factor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p7.8",
+          "code": "7.8",
+          "name": "Transformers",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p8",
+      "number": 8,
+      "name": "Electromagnetic Waves",
+      "estimatedStudyTimeMin": 100,
+      "topics": [
+        {
+          "id": "p8.1",
+          "code": "8.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p8.2",
+          "code": "8.2",
+          "name": "Displacement Current",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p8.3",
+          "code": "8.3",
+          "name": "Electromagnetic Waves",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p8.4",
+          "code": "8.4",
+          "name": "Electromagnetic Spectrum",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p9",
+      "number": 9,
+      "name": "Ray Optics and Optical Instruments",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "p9.1",
+          "code": "9.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p9.2",
+          "code": "9.2",
+          "name": "Reflection of Light by Spherical Mirrors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p9.3",
+          "code": "9.3",
+          "name": "Refraction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p9.4",
+          "code": "9.4",
+          "name": "Total Internal Reflection",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p9.5",
+          "code": "9.5",
+          "name": "Refraction at Spherical Surfaces and by Lenses",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p9.6",
+          "code": "9.6",
+          "name": "Refraction through a Prism",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p9.7",
+          "code": "9.7",
+          "name": "Optical Instruments",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p10",
+      "number": 10,
+      "name": "Wave Optics",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "p10.1",
+          "code": "10.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p10.2",
+          "code": "10.2",
+          "name": "Huygens Principle",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p10.3",
+          "code": "10.3",
+          "name": "Refraction and Reflection of Plane Waves using Huygens Principle",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p10.4",
+          "code": "10.4",
+          "name": "Coherent and Incoherent Addition of Waves",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p10.5",
+          "code": "10.5",
+          "name": "Interference of Light Waves and Young's Experiment",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p10.6",
+          "code": "10.6",
+          "name": "Diffraction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p10.7",
+          "code": "10.7",
+          "name": "Polarisation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p11",
+      "number": 11,
+      "name": "Dual Nature of Radiation and Matter",
+      "estimatedStudyTimeMin": 200,
+      "topics": [
+        {
+          "id": "p11.1",
+          "code": "11.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.2",
+          "code": "11.2",
+          "name": "Electron Emission",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.3",
+          "code": "11.3",
+          "name": "Photoelectric Effect",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.4",
+          "code": "11.4",
+          "name": "Experimental Study of Photoelectric Effect",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.5",
+          "code": "11.5",
+          "name": "Photoelectric Effect and Wave Theory of Light",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.6",
+          "code": "11.6",
+          "name": "Einstein's Photoelectric Equation: Energy Quantum of Radiation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.7",
+          "code": "11.7",
+          "name": "Particle Nature of Light: The Photon",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p11.8",
+          "code": "11.8",
+          "name": "Wave Nature of Matter",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p12",
+      "number": 12,
+      "name": "Atoms",
+      "estimatedStudyTimeMin": 150,
+      "topics": [
+        {
+          "id": "p12.1",
+          "code": "12.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p12.2",
+          "code": "12.2",
+          "name": "Alpha-particle Scattering and Rutherford's Nuclear Model of Atom",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p12.3",
+          "code": "12.3",
+          "name": "Atomic Spectra",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p12.4",
+          "code": "12.4",
+          "name": "Bohr Model of the Hydrogen Atom",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p12.5",
+          "code": "12.5",
+          "name": "The Line Spectra of the Hydrogen Atom",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p12.6",
+          "code": "12.6",
+          "name": "DE Broglie's Explanation of Bohr's Second Postulate of Quantisation",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p13",
+      "number": 13,
+      "name": "Nuclei",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "p13.1",
+          "code": "13.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p13.2",
+          "code": "13.2",
+          "name": "Atomic Masses and Composition of Nucleus",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p13.3",
+          "code": "13.3",
+          "name": "Size of the Nucleus",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p13.4",
+          "code": "13.4",
+          "name": "Mass-Energy and Nuclear Binding Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p13.5",
+          "code": "13.5",
+          "name": "Nuclear Force",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p13.6",
+          "code": "13.6",
+          "name": "Radioactivity",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p13.7",
+          "code": "13.7",
+          "name": "Nuclear Energy",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    },
+    {
+      "id": "p14",
+      "number": 14,
+      "name": "Semiconductor Electronics: Materials, Devices and Simple Circuits",
+      "estimatedStudyTimeMin": 175,
+      "topics": [
+        {
+          "id": "p14.1",
+          "code": "14.1",
+          "name": "Introduction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p14.2",
+          "code": "14.2",
+          "name": "Classification of Metals, Conductors and Semiconductors",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p14.3",
+          "code": "14.3",
+          "name": "Intrinsic Semiconductor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p14.4",
+          "code": "14.4",
+          "name": "Extrinsic Semiconductor",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p14.5",
+          "code": "14.5",
+          "name": "p-n Junction",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p14.6",
+          "code": "14.6",
+          "name": "Semiconductor Diode",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        },
+        {
+          "id": "p14.7",
+          "code": "14.7",
+          "name": "Application of Junction Diode as a Rectifier",
+          "type": null,
+          "estimatedStudyTimeMin": 25
+        }
+      ]
+    }
+  ]
+}

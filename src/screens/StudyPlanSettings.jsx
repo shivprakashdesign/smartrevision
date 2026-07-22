@@ -8,14 +8,19 @@ import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { useSchoolSearch, createSchool, findOrCreateClass, classSchool, schoolSubtitle } from '../lib/schools'
-import { offsetsFor, offsetLabel, daysUntilExam, STANDARD_OFFSETS } from '../lib/schedule'
+import { offsetsFor, offsetLabel, daysUntilExam, STANDARD_OFFSETS } from '../engine/schedule'
+import { syllabusSubjects, hasBoardMarks, boardName, SYLLABUS_BOARDS } from '../lib/syllabus'
+import { subjectColor } from '../lib/subjects'
 
 const GRADES = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 const STUDY_DAYS = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [7, 'Sun']]
+// Daily self-study presets, in minutes. Custom fills the gaps.
+const STUDY_TIME = [[60, '1h'], [120, '2h'], [180, '3h'], [240, '4h'], [360, '6h']]
 
 const todayISO = () => new Date().toLocaleDateString('en-CA')
 const listAnd = (xs) =>
   xs.length <= 1 ? (xs[0] || '') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`
+const fmtMin = (m) => (m % 60 === 0 ? `${m / 60}h` : `${Math.floor(m / 60)}h ${m % 60}m`)
 
 function Section({ title, children, delay = 0 }) {
   return (
@@ -34,12 +39,24 @@ export default function StudyPlanSettings() {
   const { student, refreshStudent } = useStudentProfile()
 
   const [grade, setGrade] = useState(null)
+  const [board, setBoard] = useState('CBSE')
   const [school, setSchool] = useState(null)
   const [schoolQuery, setSchoolQuery] = useState('')
   const [examDate, setExamDate] = useState('')
   const [studyDays, setStudyDays] = useState([1, 2, 3, 4, 5, 6])
+  const [dailyStudyMin, setDailyStudyMin] = useState(null)
+  const [weakSubjects, setWeakSubjects] = useState([])
+  const [examLens, setExamLens] = useState('jee')
+  const [subjects, setSubjects] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  // The lens choice (JEE vs board weightage) only means something where we have
+  // a hardcoded weighted syllabus (Class 11–12) AND the board actually prices its
+  // chapters — GSEB's board blueprint is pending, so only its JEE lens is offered.
+  const hasWeightedSyllabus = grade != null && syllabusSubjects(board, grade).length > 0
+  const boardLensAvailable = grade != null && hasBoardMarks(board, grade)
+  const lensRelevant = hasWeightedSyllabus && boardLensAvailable
 
   const { results, searching } = useSchoolSearch(schoolQuery, grade, !school)
 
@@ -50,11 +67,20 @@ export default function StudyPlanSettings() {
     let cancelled = false
     ;(async () => {
       const current = await classSchool(student.class_id)
+      // Subjects live on the account (chosen at onboarding) — the weakness
+      // picker offers exactly the subjects the student actually studies.
+      const { data: acct } = await supabase
+        .from('accounts').select('subjects').eq('id', student.owner_account_id).single()
       if (cancelled) return
       setGrade(current?.grade ?? (student.class_grade ? Number(student.class_grade) : null))
+      setBoard(student.board || 'CBSE')
       setSchool(current?.school ?? null)
       setExamDate(student.exam_date || '')
       setStudyDays(student.study_days?.length ? student.study_days : [1, 2, 3, 4, 5, 6])
+      setDailyStudyMin(student.daily_study_min ?? null)
+      setWeakSubjects(student.weak_subjects || [])
+      setExamLens(student.exam_lens || 'jee')
+      setSubjects(acct?.subjects || [])
       setLoaded(true)
     })()
     return () => { cancelled = true }
@@ -68,6 +94,17 @@ export default function StudyPlanSettings() {
     } else {
       setStudyDays([...studyDays, d].sort((a, b) => a - b))
     }
+  }
+
+  function toggleWeak(s) {
+    setWeakSubjects(weakSubjects.includes(s) ? weakSubjects.filter(x => x !== s) : [...weakSubjects, s])
+  }
+
+  function customTime() {
+    const v = prompt('Minutes you can study on a study day? (e.g. 150 = 2h 30m)', String(dailyStudyMin || 120))
+    if (v === null) return
+    const m = Math.max(15, Math.min(960, parseInt(v, 10) || 0))
+    if (m) setDailyStudyMin(m)
   }
 
   async function save() {
@@ -88,8 +125,14 @@ export default function StudyPlanSettings() {
     const { error } = await supabase.from('students').update({
       class_id: classId,
       class_grade: grade ? String(grade) : null,
+      board,
       exam_date: examDate || null,
-      study_days: studyDays
+      study_days: studyDays,
+      daily_study_min: dailyStudyMin,
+      weak_subjects: weakSubjects,
+      // Weighted syllabus always plans against a lens; without a board blueprint
+      // (GSEB) that lens is forced to JEE. No weighted syllabus → no lens.
+      exam_lens: hasWeightedSyllabus ? (boardLensAvailable ? examLens : 'jee') : null
     }).eq('id', student.id)
 
     setSaving(false)
@@ -136,6 +179,24 @@ export default function StudyPlanSettings() {
             })}
           </div>
         </Section>
+
+        {SYLLABUS_BOARDS.length > 1 && (
+          <Section title="Board" delay={0.03}>
+            <div className="flex gap-2">
+              {SYLLABUS_BOARDS.map(b => {
+                const sel = board === b
+                return (
+                  <button key={b} onClick={() => setBoard(b)}
+                    className={`flex-1 py-2.5 rounded-xl text-[13.5px] font-bold border-2 transition-colors ${
+                      sel ? 'bg-brand-500 border-brand-500 text-white' : 'border-[var(--border)] text-[var(--ink)]'
+                    }`}>
+                    {boardName(b)}
+                  </button>
+                )
+              })}
+            </div>
+          </Section>
+        )}
 
         <Section title="School" delay={0.05}>
           {school ? (
@@ -210,6 +271,85 @@ export default function StudyPlanSettings() {
           </div>
           <p className="text-[12px] text-[var(--muted)] mt-3">{restDayNote}</p>
         </Section>
+
+        <Section title="Daily study time" delay={0.2}>
+          <div className="flex flex-wrap gap-2">
+            {STUDY_TIME.map(([m, label]) => {
+              const sel = dailyStudyMin === m
+              return (
+                <button key={m} onClick={() => setDailyStudyMin(m)}
+                  className={`flex-1 min-w-[56px] py-2.5 rounded-xl text-[14px] font-bold border-2 transition-colors ${
+                    sel ? 'bg-brand-500 border-brand-500 text-white' : 'border-[var(--border)] text-[var(--ink)]'
+                  }`}>
+                  {label}
+                </button>
+              )
+            })}
+            <button onClick={customTime}
+              className={`flex-1 min-w-[56px] py-2.5 rounded-xl text-[14px] font-bold border-2 transition-colors ${
+                dailyStudyMin && !STUDY_TIME.some(([m]) => m === dailyStudyMin)
+                  ? 'bg-brand-500 border-brand-500 text-white' : 'border-[var(--border)] text-[var(--ink)]'
+              }`}>
+              {dailyStudyMin && !STUDY_TIME.some(([m]) => m === dailyStudyMin) ? fmtMin(dailyStudyMin) : 'Custom'}
+            </button>
+          </div>
+          <p className="text-[12px] text-[var(--muted)] mt-3">
+            How long you can study on a study day — we split it across your topics, heavier on the important and weak ones.
+          </p>
+        </Section>
+
+        {subjects.length > 0 && (
+          <Section title="Where are you weak?" delay={0.25}>
+            <div className="flex flex-wrap gap-2">
+              {subjects.map(s => {
+                const sel = weakSubjects.includes(s)
+                return (
+                  <button key={s} onClick={() => toggleWeak(s)}
+                    className={`px-4 py-2.5 rounded-full text-[14px] font-bold border-2 transition-colors ${
+                      sel ? `${subjectColor(s)} border-transparent text-white` : 'border-[var(--border)] text-[var(--ink)]'
+                    }`}>
+                    {s}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[12px] text-[var(--muted)] mt-3">
+              Weak subjects get more of your time. Tap to select — leave empty if you feel even everywhere.
+            </p>
+          </Section>
+        )}
+
+        {lensRelevant && (
+          <Section title="Plan against" delay={0.3}>
+            <div className="flex gap-2">
+              {[['jee', 'JEE weightage'], ['board', `${boardName(board)} marks`]].map(([id, label]) => {
+                const sel = examLens === id
+                return (
+                  <button key={id} onClick={() => setExamLens(id)}
+                    className={`flex-1 py-2.5 rounded-xl text-[13.5px] font-bold border-2 transition-colors ${
+                      sel ? 'bg-brand-500 border-brand-500 text-white' : 'border-[var(--border)] text-[var(--ink)]'
+                    }`}>
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[12px] text-[var(--muted)] mt-3">
+              {examLens === 'jee'
+                ? 'Time follows JEE Main chapter weightage — e.g. Current Electricity and Coordination Compounds get more.'
+                : 'Time follows board marks — e.g. Optics and Electrochemistry get more.'}
+            </p>
+          </Section>
+        )}
+
+        {hasWeightedSyllabus && !boardLensAvailable && (
+          <Section title="Plan against" delay={0.3}>
+            <p className="text-[13px] font-bold text-[var(--ink)]">JEE weightage</p>
+            <p className="text-[12px] text-[var(--muted)] mt-1">
+              {boardName(board)} board weightage is coming soon — for now your plan follows JEE Main chapter weightage.
+            </p>
+          </Section>
+        )}
 
         <button onClick={save} disabled={saving || !loaded}
           className="w-full py-3.5 rounded-2xl bg-brand-500 text-white font-bold text-[15px] disabled:opacity-40 active:scale-[0.98] transition-transform">

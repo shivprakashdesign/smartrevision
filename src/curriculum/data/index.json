@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "2026.1",
+  "boards": [
+    {
+      "id": "CBSE",
+      "name": "CBSE"
+    },
+    {
+      "id": "GSEB",
+      "name": "Gujarat Board"
+    }
+  ],
+  "subjects": [
+    {
+      "class": 11,
+      "subject": "Physics",
+      "subjectCode": "physics",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class11/physics.json",
+      "chapterCount": 14,
+      "topicCount": 119
+    },
+    {
+      "class": 11,
+      "subject": "Chemistry",
+      "subjectCode": "chemistry",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class11/chemistry.json",
+      "chapterCount": 9,
+      "topicCount": 71
+    },
+    {
+      "class": 11,
+      "subject": "Maths",
+      "subjectCode": "maths",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class11/maths.json",
+      "chapterCount": 14,
+      "topicCount": 64
+    },
+    {
+      "class": 11,
+      "subject": "Biology",
+      "subjectCode": "biology",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class11/biology.json",
+      "chapterCount": 19,
+      "topicCount": 104
+    },
+    {
+      "class": 11,
+      "subject": "English",
+      "subjectCode": "english",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class11/english.json",
+      "chapterCount": 12,
+      "topicCount": 51
+    },
+    {
+      "class": 12,
+      "subject": "Physics",
+      "subjectCode": "physics",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class12/physics.json",
+      "chapterCount": 14,
+      "topicCount": 119
+    },
+    {
+      "class": 12,
+      "subject": "Chemistry",
+      "subjectCode": "chemistry",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class12/chemistry.json",
+      "chapterCount": 10,
+      "topicCount": 74
+    },
+    {
+      "class": 12,
+      "subject": "Maths",
+      "subjectCode": "maths",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class12/maths.json",
+      "chapterCount": 13,
+      "topicCount": 65
+    },
+    {
+      "class": 12,
+      "subject": "Biology",
+      "subjectCode": "biology",
+      "boards": [
+        "CBSE",
+        "GSEB"
+      ],
+      "path": "ncert/class12/biology.json",
+      "chapterCount": 13,
+      "topicCount": 13
+    },
+    {
+      "class": 12,
+      "subject": "Computer Studies",
+      "subjectCode": "computer-studies",
+      "boards": [
+        "GSEB"
+      ],
+      "path": "ncert/class12/computer-studies.json",
+      "chapterCount": 13,
+      "topicCount": 13
+    }
+  ],
+  "blueprints": [
+    {
+      "examId": "cbse-board-11",
+      "kind": "board",
+      "board": "CBSE",
+      "class": 11,
+      "path": "blueprints/cbse-board-11.json"
+    },
+    {
+      "examId": "cbse-board-12",
+      "kind": "board",
+      "board": "CBSE",
+      "class": 12,
+      "path": "blueprints/cbse-board-12.json"
+    },
+    {
+      "examId": "gseb-board-12",
+      "kind": "board",
+      "board": "GSEB",
+      "class": 12,
+      "path": "blueprints/gseb-board-12.json"
+    },
+    {
+      "examId": "jee-main",
+      "kind": "entrance",
+      "path": "blueprints/jee-main.json"
+    }
+  ]
+}
