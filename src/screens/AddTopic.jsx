@@ -16,7 +16,7 @@ import { suggestSubtopics } from '../lib/scan'
 import { loadSubject } from '../curriculum/ckb'
 import { subjectColor } from '../lib/subjects'
 
-const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Sci.', 'Languages', 'History']
+const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Science', 'Languages', 'History']
 const STEP_LABELS = ['Topic', 'Details', 'Schedule']
 
 // "What did you study today?" — the plan's chapters as tap targets, so logging
@@ -144,7 +144,7 @@ export default function AddTopic() {
   // student hasn't used yet), then subjects from their existing topics, then
   // what they told us during onboarding, then generic defaults. Without the
   // onboarding set, a new student who said "Physics, Chemistry, Biology" five
-  // minutes ago would be offered "Maths, Science, Computer Sci." instead.
+  // minutes ago would be offered "Maths, Science, Computer Science" instead.
   const [accountSubjects, setAccountSubjects] = useState([])
   const subjectOptions = [...new Set([
     ...(planItem ? [planItem.subject] : []),

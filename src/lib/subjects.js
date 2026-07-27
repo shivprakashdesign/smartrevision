@@ -50,12 +50,12 @@ export function colorClassForKey(key) {
 // A Class 9 student never studies Physics as its own subject; a JEE aspirant
 // never studies History. Anything not listed here is reachable via Add custom.
 const BY_GOAL = {
-  'Class 6–8':   ['Maths', 'Science', 'Social Science', 'English', 'Hindi', 'Computer Sci.'],
+  'Class 6–8':   ['Maths', 'Science', 'Social Science', 'English', 'Hindi', 'Computer Science'],
   'Class 9–10':  ['Maths', 'Science', 'Social Science', 'English', 'Hindi'],
   'Class 11–12': ['Physics', 'Chemistry', 'Maths', 'Biology', 'English'],
   'JEE / NEET':  ['Physics', 'Chemistry', 'Maths', 'Biology']
 }
-const EXPLORING = ['Maths', 'Science', 'English', 'Computer Sci.', 'History']
+const EXPLORING = ['Maths', 'Science', 'English', 'Computer Science', 'History']
 
 // Parent copy says "JEE / NEET prep" where student copy says "JEE / NEET";
 // both mean the same syllabus.
