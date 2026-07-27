@@ -44,15 +44,30 @@ export function offsetsFor(examDate, from = new Date()) {
   return STANDARD_OFFSETS.filter(o => o.days <= left)
 }
 
+// How far back a student may say they studied something. Logging happens in
+// batches ("I did these three on Sunday"), and a curve anchored to the day you
+// typed instead of the day you studied is wrong from the first review.
+export const BACKDATE_WINDOW_DAYS = 7
+
 // Revision rows for a topic, one per offset, dated from `from`. The single
 // definition of the row shape inserted into `revisions` — AddTopic, scan,
 // reschedule and share-clone all build their rows here.
-export function buildRevisionRows(topicId, offsets, from = new Date()) {
-  return offsets.map(({ label, days }) => {
+//
+// `notBefore` (ISO day) supports backdating: when `from` is in the past, the
+// reviews whose day has already gone are dropped rather than landing as
+// instantly-missed rows. Truncate, never compress — the same rule offsetsFor
+// applies at the exam end. If that would leave nothing at all, the last review
+// stands in today so the topic still has a next step.
+export function buildRevisionRows(topicId, offsets, from = new Date(), notBefore = null) {
+  const rows = offsets.map(({ label, days }) => {
     const d = new Date(from)
     d.setDate(d.getDate() + days)
     return { topic_id: topicId, scheduled_date: d.toISOString().slice(0, 10), interval_label: label }
   })
+  if (!notBefore || !rows.length) return rows
+  const kept = rows.filter(r => r.scheduled_date >= notBefore)
+  if (kept.length) return kept
+  return [{ ...rows[rows.length - 1], scheduled_date: notBefore }]
 }
 
 // Adaptive rescheduling: when a revision completes well past its window, the

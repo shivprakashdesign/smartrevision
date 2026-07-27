@@ -18,7 +18,8 @@ import { memoryHealthLabel } from '../engine/recovery'
 import { loadSubject } from '../curriculum/ckb'
 import { loadBlueprint } from '../curriculum/blueprints'
 import { fetchPlanItems } from '../data/planItemsRepo'
-import { fetchMission, saveMission, abandonMission } from '../data/missionsRepo'
+import { fetchMission, saveMission, abandonMission, logActualMinutes, fetchRecentMissions } from '../data/missionsRepo'
+import { consistencyScore, consistencyLabel, CONSISTENCY_WINDOW_DAYS } from '../engine/consistency'
 import { subjectColor } from '../lib/subjects'
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
@@ -32,6 +33,13 @@ const KIND_CLS = {
   revision: 'text-emerald-600 bg-emerald-500/12',
   recovery: 'text-brand-500 bg-brand-500/12',
   new: 'text-violet-600 bg-violet-500/12'
+}
+
+// Log-what-you-did choices, centred on what was planned: the honest answer is
+// usually "a bit less than I said", so the options straddle the plan.
+function actualChoices(planned) {
+  const raw = [Math.round(planned * 0.25), Math.round(planned * 0.5), Math.round(planned * 0.75), planned, Math.round(planned * 1.25)]
+  return [...new Set(raw.map((m) => Math.max(5, Math.round(m / 5) * 5)))]
 }
 
 function minutesLabel(min) {
@@ -65,6 +73,7 @@ export default function MissionCard({ student, topics }) {
   const [excluded, setExcluded] = useState([])
   const [preview, setPreview] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [recent, setRecent] = useState([])
 
   const cls = Number(student.class_grade)
   const board = student.board || 'CBSE'
@@ -73,9 +82,11 @@ export default function MissionCard({ student, topics }) {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      const [planItems, mission] = await Promise.all([
+      const since = new Date(Date.now() - (CONSISTENCY_WINDOW_DAYS - 1) * 86400000).toISOString().slice(0, 10)
+      const [planItems, mission, recentRows] = await Promise.all([
         fetchPlanItems(student.id),
-        fetchMission(student.id, todayISO())
+        fetchMission(student.id, todayISO()),
+        fetchRecentMissions(student.id, since)
       ])
       // CKB chapters for the active, linked chapters — per-subject lazy chunks.
       const activeSubjects = [...new Set(planItems.filter((pi) => pi.active && pi.curriculum_chapter_id).map((pi) => pi.subject))]
@@ -86,6 +97,7 @@ export default function MissionCard({ student, topics }) {
       const blueprint = await loadBlueprint(examId)
       if (cancelled) return
       setInputs({ planItems, curriculum, blueprint })
+      setRecent(recentRows)
       setSaved(mission && mission.status === 'accepted' ? mission : null)
     })()
     return () => { cancelled = true }
@@ -130,6 +142,17 @@ export default function MissionCard({ student, topics }) {
     toast.success("Mission set — see you at the finish 🏁")
   }
 
+  async function logActual(min) {
+    const error = await logActualMinutes(saved.id, min)
+    if (error) { toast.error(error.message); return }
+    setSaved({ ...saved, actual_min: min })
+    setRecent((prev) => [
+      ...prev.filter((m) => m.mission_date !== saved.mission_date),
+      { mission_date: saved.mission_date, available_min: saved.available_min, actual_min: min }
+    ])
+    toast.success(`Logged ${minutesLabel(min)} — that's the real number 👌`)
+  }
+
   async function changePlan() {
     if (saved) await abandonMission(saved.id)
     setSaved(null)
@@ -157,6 +180,8 @@ export default function MissionCard({ student, topics }) {
   const shell = 'bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-sm mb-4 animate-enter overflow-hidden'
 
   if (saved === undefined || !inputs) return null
+
+  const consistency = consistencyScore(recent)
 
   // ---- accepted: today's list, live status ----------------------------------
   if (saved) {
@@ -202,6 +227,33 @@ export default function MissionCard({ student, topics }) {
               </button>
             )
           })}
+        </div>
+
+        {/* How long it actually took. We asked for a number this morning —
+            this is the only way we ever find out whether it was real. */}
+        <div className="px-4 pb-4 pt-1 border-t border-[var(--border)]">
+          {saved.actual_min == null ? (
+            <>
+              <p className="text-[12px] text-[var(--muted)] mb-2">How long did you actually study?</p>
+              <div className="flex flex-wrap gap-1.5">
+                {actualChoices(saved.available_min).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => logActual(m)}
+                    className="px-3 py-1.5 rounded-full text-[12px] font-bold border border-[var(--border)] text-[var(--slate-txt)] active:scale-95 transition-transform"
+                  >
+                    {minutesLabel(m)}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-[12px] text-[var(--muted)]">
+              Studied <b className="text-[var(--ink)]">{minutesLabel(saved.actual_min)}</b> of {minutesLabel(saved.available_min)} planned
+              {consistency != null && <> · <b className="text-[var(--ink)]">{consistency}%</b> {consistencyLabel(consistency).toLowerCase()}</>}
+            </p>
+          )}
         </div>
       </div>
     )
