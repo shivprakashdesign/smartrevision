@@ -153,6 +153,15 @@ export default function AddTopic() {
     ...DEFAULT_SUBJECTS
   ])]
 
+  // Typeahead for the "Other" field: as a new subject is typed, surface
+  // existing/known subjects that match, so "Comp…" offers "Computer Science"
+  // instead of the student re-typing a near-duplicate spelling. Own subjects
+  // first (subjectOptions is already ordered that way and deduped).
+  const subjectQuery = subject.trim().toLowerCase()
+  const subjectSuggestions = customSubject && subjectQuery
+    ? subjectOptions.filter(s => s.toLowerCase().includes(subjectQuery) && s.toLowerCase() !== subjectQuery).slice(0, 5)
+    : []
+
   useEffect(() => {
     if (!student) return
     supabase
@@ -466,7 +475,26 @@ export default function AddTopic() {
                     </button>
                   </div>
                   {customSubject && (
-                    <input type="text" placeholder="Subject (e.g. Chemistry)" value={subject} onChange={(e) => setSubject(e.target.value)} autoFocus className={`mt-2 ${inputClass}`} />
+                    <>
+                      <input type="text" placeholder="Subject (e.g. Chemistry)" value={subject} onChange={(e) => setSubject(e.target.value)} autoFocus className={`mt-2 ${inputClass}`} />
+                      {subjectSuggestions.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-[11px] text-[var(--muted)] mb-1.5">You already use — tap to reuse:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {subjectSuggestions.map(s => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setSubject(s)}
+                                className="px-3 py-1.5 rounded-full text-[12px] font-semibold border border-[var(--border)] bg-[var(--card)] text-[var(--slate-txt)] active:scale-95 transition-transform"
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
