@@ -15,6 +15,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Target02Icon, RefreshIcon, Cancel01Icon, Tick02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { buildMission, itemKey } from '../engine/mission'
 import { memoryHealthLabel } from '../engine/recovery'
+import { inferWeakSubjects } from '../engine/weakness'
 import { loadSubject } from '../curriculum/ckb'
 import { loadBlueprint } from '../curriculum/blueprints'
 import { fetchPlanItems } from '../data/planItemsRepo'
@@ -96,7 +97,9 @@ export default function MissionCard({ student, topics }) {
     planItems: inputs.planItems,
     curriculum: inputs.curriculum,
     blueprint: inputs.blueprint,
-    weakSubjects: student.weak_subjects || []
+    // Weakness is inferred from recall history (falls back to the manual
+    // self-report for cold-start / override); feeds the same WEAK_MULT.
+    weakSubjects: inferWeakSubjects(topics, { selfReported: student.weak_subjects || [] })
   }, [inputs, topics, student.weak_subjects])
 
   function plan(nextSeed = seed, nextExcluded = excluded) {
