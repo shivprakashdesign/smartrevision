@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase'
 export async function fetchMission(studentId, dateISO) {
   const { data, error } = await supabase
     .from('missions')
-    .select('id, mission_date, available_min, status, seed, mission_items(id, kind, subject, label, curriculum_topic_id, plan_item_id, topic_id, revision_id, planned_min, position, pinned, state)')
+    .select('id, mission_date, available_min, actual_min, status, seed, mission_items(id, kind, subject, label, curriculum_topic_id, plan_item_id, topic_id, revision_id, planned_min, position, pinned, state)')
     .eq('student_id', studentId)
     .eq('mission_date', dateISO)
     .maybeSingle()
@@ -51,6 +51,25 @@ export async function saveMission(studentId, dateISO, mission) {
   }))
   const { error: itemsError } = await supabase.from('mission_items').insert(items)
   return { error: itemsError, missionId: row.id }
+}
+
+// What the student actually studied today. Paired with available_min (what
+// they planned), this is what makes consistency honest — and what a future
+// planner can learn from.
+export async function logActualMinutes(missionId, actualMin) {
+  const { error } = await supabase.from('missions').update({ actual_min: actualMin }).eq('id', missionId)
+  return error
+}
+
+// Accepted missions in the trailing window, for the consistency score.
+export async function fetchRecentMissions(studentId, sinceISO) {
+  const { data, error } = await supabase
+    .from('missions')
+    .select('mission_date, available_min, actual_min')
+    .eq('student_id', studentId)
+    .gte('mission_date', sinceISO)
+  if (error) console.error(error)
+  return data || []
 }
 
 export async function abandonMission(missionId) {

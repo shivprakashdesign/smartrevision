@@ -10,13 +10,30 @@ import { useUpsell, ProLock } from '../lib/ProUpsell'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, Cancel01Icon, PlusSignIcon, LockIcon } from '@hugeicons/core-free-icons'
 import { FREE_TOPIC_LIMIT, FREE_PHOTOS_PER_TOPIC } from '../lib/plan'
-import { offsetsFor, labelForOffset, scheduleSummary, buildRevisionRows } from '../engine/schedule'
+import { offsetsFor, labelForOffset, scheduleSummary, buildRevisionRows, BACKDATE_WINDOW_DAYS } from '../engine/schedule'
 import { insertRevisions } from '../data/revisionsRepo'
 import { suggestSubtopics } from '../lib/scan'
 import { loadSubject } from '../curriculum/ckb'
 import { subjectColor } from '../lib/subjects'
 
 const DEFAULT_SUBJECTS = ['Maths', 'Science', 'Computer Science', 'Languages', 'History']
+
+const todayISO = () => new Date().toLocaleDateString('en-CA')
+
+// "Today / Yesterday / Sat / Fri …" back to the backdate window. Chips rather
+// than a date input: it's two taps on a phone and impossible to mis-type.
+function backdateChoices(windowDays = BACKDATE_WINDOW_DAYS) {
+  const out = []
+  for (let i = 0; i <= windowDays; i++) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    out.push({
+      iso: d.toLocaleDateString('en-CA'),
+      label: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : d.toLocaleDateString(undefined, { weekday: 'short' })
+    })
+  }
+  return out
+}
 const STEP_LABELS = ['Topic', 'Details', 'Schedule']
 
 // "What did you study today?" — the plan's chapters as tap targets, so logging
@@ -131,6 +148,9 @@ export default function AddTopic() {
   const [customOffsets, setCustomOffsets] = useState([])
   const [offsetInput, setOffsetInput] = useState('')
   const [saving, setSaving] = useState(false)
+  // The day the student actually studied this — logging happens in batches, and
+  // a curve anchored to the day they typed is wrong from the first review.
+  const [learnedOn, setLearnedOn] = useState(todayISO)
   const [planItems, setPlanItems] = useState([])
   const [planItem, setPlanItem] = useState(null)
   const [suggestions, setSuggestions] = useState([])
@@ -145,6 +165,7 @@ export default function AddTopic() {
   // what they told us during onboarding, then generic defaults. Without the
   // onboarding set, a new student who said "Physics, Chemistry, Biology" five
   // minutes ago would be offered "Maths, Science, Computer Science" instead.
+  const backdateOptions = backdateChoices()
   const [accountSubjects, setAccountSubjects] = useState([])
   const subjectOptions = [...new Set([
     ...(planItem ? [planItem.subject] : []),
@@ -326,14 +347,15 @@ export default function AddTopic() {
     }
     setSaving(true)
 
-    const today = new Date()
+    // Noon, so the ISO day never shifts under a timezone offset.
+    const learnedDate = new Date(`${learnedOn}T12:00:00`)
     const { data: topic, error: topicError } = await supabase
       .from('topics')
       .insert({
         student_id: student.id,
         subject,
         topic_name: topicName,
-        date_learned: today.toISOString().slice(0, 10),
+        date_learned: learnedOn,
         priority,
         notes,
         schedule_type: scheduleType,
@@ -363,11 +385,15 @@ export default function AddTopic() {
 
     // A standard schedule stops at the exam: a Day-120 review for a student
     // sitting boards in six weeks isn't a review, it's a date after the fact.
+    // Offsets are measured from the day it was actually studied, so the exam
+    // truncation stays honest about where each review would really land.
     const offsets = scheduleType === 'custom'
       ? customOffsets.map(days => ({ label: labelForOffset(days), days }))
-      : offsetsFor(student.exam_date, today)
+      : offsetsFor(student.exam_date, learnedDate)
 
-    const revisionsError = await insertRevisions(buildRevisionRows(topic.id, offsets, today))
+    const revisionsError = await insertRevisions(
+      buildRevisionRows(topic.id, offsets, learnedDate, todayISO())
+    )
     if (revisionsError) {
       toast.error(revisionsError.message)
       setSaving(false)
@@ -578,6 +604,29 @@ export default function AddTopic() {
 
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }} className="space-y-3">
+                <div>
+                  <p className={labelClass}>When did you study this?</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {backdateOptions.map(({ iso, label }) => (
+                      <button
+                        key={iso}
+                        type="button"
+                        onClick={() => setLearnedOn(iso)}
+                        className={`px-3 py-1.5 rounded-full text-[12px] font-bold border-2 transition-colors ${
+                          learnedOn === iso ? 'border-brand-500 text-brand-500 bg-[rgba(37,99,235,0.12)]' : 'border-[var(--border)] text-[var(--muted)]'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  {learnedOn !== todayISO() && (
+                    <p className="text-[11px] text-[var(--muted)] mt-1.5">
+                      Your revisions count from that day — the ones already past are skipped.
+                    </p>
+                  )}
+                </div>
+
                 <div>
                   <p className={labelClass}>Schedule</p>
                   <div className="flex gap-2">
