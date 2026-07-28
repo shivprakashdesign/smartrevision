@@ -13,7 +13,7 @@
       "id": "c11_1",
       "number": 1,
       "name": "Some Basic Concepts of Chemistry",
-      "estimatedStudyTimeMin": 250,
+      "estimatedStudyTimeMin": 265,
       "topics": [
         {
           "id": "c11_1.1",
@@ -47,8 +47,8 @@
           "id": "c11_1.5",
           "code": "1.5",
           "name": "Laws of Chemical Combinations",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "c11_1.6",
@@ -134,7 +134,7 @@
       "id": "c11_3",
       "number": 3,
       "name": "Classification of Elements and Periodicity in Properties",
-      "estimatedStudyTimeMin": 175,
+      "estimatedStudyTimeMin": 190,
       "topics": [
         {
           "id": "c11_3.1",
@@ -154,8 +154,8 @@
           "id": "c11_3.3",
           "code": "3.3",
           "name": "Modern Periodic Law and the Present Form of the Periodic Table",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "c11_3.4",
@@ -319,7 +319,7 @@
       "id": "c11_6",
       "number": 6,
       "name": "Equilibrium",
-      "estimatedStudyTimeMin": 325,
+      "estimatedStudyTimeMin": 340,
       "topics": [
         {
           "id": "c11_6.1",
@@ -339,8 +339,8 @@
           "id": "c11_6.3",
           "code": "6.3",
           "name": "Law of Chemical Equilibrium and Equilibrium Constant",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "c11_6.4",

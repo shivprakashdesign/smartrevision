@@ -13,7 +13,7 @@
       "id": "p1",
       "number": 1,
       "name": "Electric Charges and Fields",
-      "estimatedStudyTimeMin": 350,
+      "estimatedStudyTimeMin": 395,
       "topics": [
         {
           "id": "p1.1",
@@ -47,8 +47,8 @@
           "id": "p1.5",
           "code": "1.5",
           "name": "Coulomb's Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p1.6",
@@ -103,15 +103,15 @@
           "id": "p1.13",
           "code": "1.13",
           "name": "Gauss's Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p1.14",
           "code": "1.14",
           "name": "Applications of Gauss's Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         }
       ]
     },
@@ -232,7 +232,7 @@
       "id": "p3",
       "number": 3,
       "name": "Current Electricity",
-      "estimatedStudyTimeMin": 325,
+      "estimatedStudyTimeMin": 370,
       "topics": [
         {
           "id": "p3.1",
@@ -259,8 +259,8 @@
           "id": "p3.4",
           "code": "3.4",
           "name": "Ohm's law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p3.5",
@@ -273,8 +273,8 @@
           "id": "p3.6",
           "code": "3.6",
           "name": "Limitations of Ohm's Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p3.7",
@@ -315,8 +315,8 @@
           "id": "p3.12",
           "code": "3.12",
           "name": "Kirchhoff's Rules",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p3.13",
@@ -331,7 +331,7 @@
       "id": "p4",
       "number": 4,
       "name": "Moving Charges and Magnetism",
-      "estimatedStudyTimeMin": 250,
+      "estimatedStudyTimeMin": 280,
       "topics": [
         {
           "id": "p4.1",
@@ -358,8 +358,8 @@
           "id": "p4.4",
           "code": "4.4",
           "name": "Magnetic Field due to a Current Element, Biot-Savart Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p4.5",
@@ -372,8 +372,8 @@
           "id": "p4.6",
           "code": "4.6",
           "name": "Ampere's Circuital Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p4.7",
@@ -409,7 +409,7 @@
       "id": "p5",
       "number": 5,
       "name": "Magnetism and Matter",
-      "estimatedStudyTimeMin": 125,
+      "estimatedStudyTimeMin": 140,
       "topics": [
         {
           "id": "p5.1",
@@ -429,8 +429,8 @@
           "id": "p5.3",
           "code": "5.3",
           "name": "Magnetism and Gauss's Law",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p5.4",
@@ -452,7 +452,7 @@
       "id": "p6",
       "number": 6,
       "name": "Electromagnetic Induction",
-      "estimatedStudyTimeMin": 200,
+      "estimatedStudyTimeMin": 230,
       "topics": [
         {
           "id": "p6.1",
@@ -479,15 +479,15 @@
           "id": "p6.4",
           "code": "6.4",
           "name": "Faraday's Law of Induction",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p6.5",
           "code": "6.5",
           "name": "Lenz's Law and Conservation of Energy",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p6.6",
@@ -673,7 +673,7 @@
       "id": "p10",
       "number": 10,
       "name": "Wave Optics",
-      "estimatedStudyTimeMin": 175,
+      "estimatedStudyTimeMin": 205,
       "topics": [
         {
           "id": "p10.1",
@@ -686,15 +686,15 @@
           "id": "p10.2",
           "code": "10.2",
           "name": "Huygens Principle",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p10.3",
           "code": "10.3",
           "name": "Refraction and Reflection of Plane Waves using Huygens Principle",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "p10.4",
@@ -794,7 +794,7 @@
       "id": "p12",
       "number": 12,
       "name": "Atoms",
-      "estimatedStudyTimeMin": 150,
+      "estimatedStudyTimeMin": 165,
       "topics": [
         {
           "id": "p12.1",
@@ -835,8 +835,8 @@
           "id": "p12.6",
           "code": "12.6",
           "name": "DE Broglie's Explanation of Bohr's Second Postulate of Quantisation",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         }
       ]
     },

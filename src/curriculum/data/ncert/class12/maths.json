@@ -278,7 +278,7 @@
       "id": "m7",
       "number": 7,
       "name": "Integrals",
-      "estimatedStudyTimeMin": 250,
+      "estimatedStudyTimeMin": 265,
       "topics": [
         {
           "id": "m7.1",
@@ -333,8 +333,8 @@
           "id": "m7.8",
           "code": "7.8",
           "name": "Fundamental Theorem of Calculus",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "m7.9",
@@ -529,7 +529,7 @@
       "id": "m13",
       "number": 13,
       "name": "Probability",
-      "estimatedStudyTimeMin": 125,
+      "estimatedStudyTimeMin": 155,
       "topics": [
         {
           "id": "m13.1",
@@ -549,8 +549,8 @@
           "id": "m13.3",
           "code": "13.3",
           "name": "Multiplication Theorem on Probability",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "m13.4",
@@ -563,8 +563,8 @@
           "id": "m13.5",
           "code": "13.5",
           "name": "Bayes' Theorem",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         }
       ]
     }
