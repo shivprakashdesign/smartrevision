@@ -13,6 +13,8 @@ import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
 import { chapterByName, hasBoardMarks } from '../lib/syllabus'
 import { buildPlan } from '../lib/studyPlan'
+import { inferWeakSubjects } from '../engine/weakness'
+import { fetchTopicsWithRevisions } from '../data/topicsRepo'
 
 const DOW =['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -38,17 +40,21 @@ function Guide({ title, body, to, cta, icon }) {
 export default function StudyCalendar() {
   const { student } = useStudentProfile()
   const [items, setItems] = useState(null)
+  const [topics, setTopics] = useState([])
 
   useEffect(() => {
     if (!student) return
     let cancelled = false
     ;(async () => {
-      const { data } = await supabase
-        .from('plan_items')
-        .select('id, subject, chapter_name, status')
-        .eq('student_id', student.id)
-        .neq('status', 'done')
-      if (!cancelled) setItems(data || [])
+      const [{ data }, topicRows] = await Promise.all([
+        supabase
+          .from('plan_items')
+          .select('id, subject, chapter_name, status')
+          .eq('student_id', student.id)
+          .neq('status', 'done'),
+        fetchTopicsWithRevisions(student.id)
+      ])
+      if (!cancelled) { setItems(data || []); setTopics(topicRows) }
     })()
     return () => { cancelled = true }
   }, [student])
@@ -100,7 +106,7 @@ export default function StudyCalendar() {
     examDate: student.exam_date,
     dailyStudyMin: student.daily_study_min,
     studyDays: student.study_days,
-    weakSubjects: student.weak_subjects || [],
+    weakSubjects: inferWeakSubjects(topics, { selfReported: student.weak_subjects || [] }),
     lens
   })
 
