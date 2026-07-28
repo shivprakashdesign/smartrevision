@@ -36,6 +36,21 @@ const KIND_CLS = {
   new: 'text-violet-600 bg-violet-500/12'
 }
 
+// What kind of work a topic is — the thing that earns a derivation more
+// minutes than an MCQ set (TYPE_WEIGHT). Only shown on "Learn" items, since
+// that's the only place type changes the allocation.
+const TYPE_CLS = {
+  Derivation: 'text-blue-700 bg-blue-500/12',
+  Concept: 'text-violet-700 bg-violet-500/12',
+  Numerical: 'text-amber-700 bg-amber-500/12',
+  MCQ: 'text-emerald-700 bg-emerald-500/12'
+}
+
+function TypeBadge({ type }) {
+  if (!type || !TYPE_CLS[type]) return null
+  return <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${TYPE_CLS[type]}`}>{type}</span>
+}
+
 // Log-what-you-did choices, centred on what was planned: the honest answer is
 // usually "a bit less than I said", so the options straddle the plan.
 function actualChoices(planned) {
@@ -75,6 +90,8 @@ export default function MissionCard({ student, topics }) {
   const [preview, setPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [recent, setRecent] = useState([])
+  const [customOpen, setCustomOpen] = useState(false)
+  const [customMin, setCustomMin] = useState('')
 
   const cls = Number(student.class_grade)
   const board = student.board || 'CBSE'
@@ -93,11 +110,17 @@ export default function MissionCard({ student, topics }) {
       const activeSubjects = [...new Set(planItems.filter((pi) => pi.active && pi.curriculum_chapter_id).map((pi) => pi.subject))]
       const files = await Promise.all(activeSubjects.map((s) => loadSubject(cls, s)))
       const curriculum = new Map()
-      for (const f of files) if (f) for (const ch of f.chapters) curriculum.set(ch.id, ch)
+      // curriculumTopicId → type, so a PERSISTED mission item can show its
+      // badge too (mission_items stores identities, not curriculum content).
+      const topicTypes = new Map()
+      for (const f of files) if (f) for (const ch of f.chapters) {
+        curriculum.set(ch.id, ch)
+        for (const t of ch.topics || []) if (t.type) topicTypes.set(t.id, t.type)
+      }
       const examId = lens === 'board' ? `${board.toLowerCase()}-board-${cls}` : 'jee-main'
       const blueprint = await loadBlueprint(examId)
       if (cancelled) return
-      setInputs({ planItems, curriculum, blueprint })
+      setInputs({ planItems, curriculum, blueprint, topicTypes })
       setRecent(recentRows)
       setSaved(mission && mission.status === 'accepted' ? mission : null)
     })()
@@ -185,6 +208,10 @@ export default function MissionCard({ student, topics }) {
   if (saved === undefined || !inputs) return null
 
   const consistency = consistencyScore(recent)
+  // Preview items carry `type` from the engine; persisted rows look it up by
+  // curriculum id. Either way, only "Learn" work shows it.
+  const typeOf = (it) =>
+    it.kind !== 'new' ? null : (it.type ?? inputs.topicTypes.get(it.curriculum_topic_id ?? it.curriculumTopicId) ?? null)
 
   // ---- accepted: today's list, live status ----------------------------------
   if (saved) {
@@ -223,7 +250,10 @@ export default function MissionCard({ student, topics }) {
                 </span>
                 <span className="flex-1 min-w-0">
                   <span className={`block text-[13px] font-semibold leading-snug truncate ${isDone ? 'text-[var(--muted)] line-through' : 'text-[var(--ink)]'}`}>{it.label}</span>
-                  <span className="block text-[11px] font-semibold" style={{ color: subjectColor(it.subject) }}>{it.subject}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-semibold" style={{ color: subjectColor(it.subject) }}>{it.subject}</span>
+                    <TypeBadge type={typeOf(it)} />
+                  </span>
                 </span>
                 <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${KIND_CLS[it.kind]}`}>{KIND_LABEL[it.kind]}</span>
                 <span className="shrink-0 text-[11px] font-bold text-[var(--muted)] w-11 text-right">{minutesLabel(it.planned_min)}</span>
@@ -249,7 +279,45 @@ export default function MissionCard({ student, topics }) {
                     {minutesLabel(m)}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => setCustomOpen(true)}
+                  className={`px-3 py-1.5 rounded-full text-[12px] font-bold border transition-transform active:scale-95 ${
+                    customOpen ? 'border-brand-500 text-brand-500' : 'border-[var(--border)] text-[var(--slate-txt)]'
+                  }`}
+                >
+                  Exact
+                </button>
               </div>
+              {/* The rounded chips cover the common case; real sessions are
+                  47 minutes, and an approximate log makes consistency a lie. */}
+              {customOpen && (
+                <form
+                  className="flex items-center gap-2 mt-2"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const m = parseInt(customMin, 10)
+                    if (!m || m < 1) { toast('Enter the minutes you studied'); return }
+                    logActual(Math.min(m, 1440))
+                  }}
+                >
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max="1440"
+                    autoFocus
+                    value={customMin}
+                    onChange={(e) => setCustomMin(e.target.value)}
+                    placeholder="e.g. 47"
+                    className="w-24 border border-[var(--border)] rounded-xl px-3 py-1.5 text-[13px] text-[var(--ink)] bg-[var(--card-alt)] focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <span className="text-[12px] text-[var(--muted)]">minutes</span>
+                  <button type="submit" className="ml-auto px-3 py-1.5 rounded-full text-[12px] font-bold bg-brand-500 text-white active:scale-95 transition-transform">
+                    Save
+                  </button>
+                </form>
+              )}
             </>
           ) : (
             <p className="text-[12px] text-[var(--muted)]">
@@ -290,7 +358,10 @@ export default function MissionCard({ student, topics }) {
                 <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${KIND_CLS[it.kind]}`}>{KIND_LABEL[it.kind]}</span>
                 <span className="flex-1 min-w-0">
                   <span className="block text-[13px] font-semibold text-[var(--ink)] leading-snug truncate">{it.label}</span>
-                  <span className="block text-[11px] font-semibold" style={{ color: subjectColor(it.subject) }}>{it.subject}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-semibold" style={{ color: subjectColor(it.subject) }}>{it.subject}</span>
+                    <TypeBadge type={typeOf(it)} />
+                  </span>
                 </span>
                 <span className="shrink-0 text-[11px] font-bold text-[var(--muted)]">{minutesLabel(it.plannedMin)}</span>
                 <button type="button" onClick={() => removeItem(it)} aria-label={`Remove ${it.label}`} className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[var(--muted)] active:bg-[var(--card-alt)]">
@@ -299,6 +370,19 @@ export default function MissionCard({ student, topics }) {
               </motion.div>
             ))}
           </AnimatePresence>
+
+          {/* The slice we deliberately didn't plan into. Showing it is the
+              honest bit: the day isn't packed, so overrunning isn't failing. */}
+          {preview.budget.bufferMin > 0 && (
+            <div className="flex items-center gap-2.5 px-2 py-2 opacity-70">
+              <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full text-[var(--muted)] bg-[var(--card-alt)]">Spare</span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-[13px] font-semibold text-[var(--slate-txt)] leading-snug">Breathing room</span>
+                <span className="block text-[11px] text-[var(--muted)]">Catch-up or rest — yours if you finish early.</span>
+              </span>
+              <span className="shrink-0 text-[11px] font-bold text-[var(--muted)]">{minutesLabel(preview.budget.bufferMin)}</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2 p-4 pt-3">
           <button

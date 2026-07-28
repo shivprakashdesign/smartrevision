@@ -11,11 +11,13 @@
 //               and its queue size is never shown (Memory Health is)
 //   new        the remainder, ≥ MIN_SUBTOPIC_MIN per block, drop-lowest when
 //               short — the same floor-and-drop behavior as the calendar
+//   buffer     BUFFER_FRAC of the day is never allocated at all — the three
+//               buckets divide what's left, so plan + buffer = the day
 // With no roadmap/CKB the mission degrades to revisions + recovery only, so
 // custom/scanned content (and Mode 1 students) lose nothing.
 
 import { topicBucket, nextRevision, computeMemory } from './metrics'
-import { newTopicScore, revisionScore, chapterIdOfTopic, SUBJECT_SATURATION } from './scoring'
+import { newTopicScore, revisionScore, chapterIdOfTopic, SUBJECT_SATURATION, BUFFER_FRAC } from './scoring'
 import { recoveryQueue, memoryHealth, withinWindow } from './recovery'
 
 export const REVISION_MIN_PER_ITEM = 10 // a recall pass + settling, not a study block
@@ -144,6 +146,10 @@ export function buildMission({
         chapterName: pi.chapter_name,
         planItemId: pi.id,
         curriculumTopicId: topic.id,
+        // Carried so the UI can show WHY a block is this long — a derivation
+        // earns more minutes than an MCQ set (TYPE_WEIGHT). Null for the many
+        // topics whose heading proves nothing.
+        type: topic.type ?? null,
         plannedMin: Math.max(topic.estimatedStudyTimeMin || MIN_NEW_BLOCK_MIN, MIN_NEW_BLOCK_MIN),
         score: newTopicScore({
           examWeight,
@@ -159,15 +165,23 @@ export function buildMission({
   // ---- budget split ---------------------------------------------------------
   const pinFirst = (arr) => [...arr.filter((it) => pinnedSet.has(itemKey(it))), ...arr.filter((it) => !pinnedSet.has(itemKey(it)))]
 
-  const dueCapMin = Math.floor(avail * DUE_CAP)
-  const dueTake = pinFirst(due).slice(0, Math.max(1, Math.floor(dueCapMin / REVISION_MIN_PER_ITEM)))
-  const revisionMin = Math.min(dueTake.length * REVISION_MIN_PER_ITEM, avail)
+  // A slice of the day stays unplanned: blocks overrun, phones ring, and a
+  // schedule packed to the last minute is one a student can only fall behind
+  // on. The three buckets divide what's left, so the plan plus the buffer is
+  // the day. (It also keeps the consistency score honest — allocating 100%
+  // would mean "kept my plan" was never quite achievable.)
+  const bufferMin = Math.round(avail * BUFFER_FRAC)
+  const studyable = Math.max(0, avail - bufferMin)
 
-  const recoveryCapMin = Math.floor(avail * RECOVERY_FRAC)
-  const recoveryTake = pinFirst(queue).slice(0, Math.floor(Math.min(recoveryCapMin, avail - revisionMin) / REVISION_MIN_PER_ITEM))
+  const dueCapMin = Math.floor(studyable * DUE_CAP)
+  const dueTake = pinFirst(due).slice(0, Math.max(1, Math.floor(dueCapMin / REVISION_MIN_PER_ITEM)))
+  const revisionMin = Math.min(dueTake.length * REVISION_MIN_PER_ITEM, studyable)
+
+  const recoveryCapMin = Math.floor(studyable * RECOVERY_FRAC)
+  const recoveryTake = pinFirst(queue).slice(0, Math.floor(Math.min(recoveryCapMin, studyable - revisionMin) / REVISION_MIN_PER_ITEM))
   const recoveryMin = recoveryTake.length * REVISION_MIN_PER_ITEM
 
-  let newMin = avail - revisionMin - recoveryMin
+  let newMin = studyable - revisionMin - recoveryMin
   let newTake = []
   if (newMin >= MIN_NEW_BLOCK_MIN && newCandidates.length) {
     // Iterative pick with the saturation discount: every slot a subject wins
@@ -210,7 +224,7 @@ export function buildMission({
   // belongs to revision — let due + recovery expand past their caps.
   let extraRevision = []
   if (!newTake.length) {
-    let left = avail - revisionMin - recoveryMin
+    let left = studyable - revisionMin - recoveryMin
     const overflow = [...due.filter((it) => !dueTake.includes(it)), ...queue.filter((it) => !recoveryTake.includes(it))]
     for (const it of overflow) {
       if (left < REVISION_MIN_PER_ITEM) break
@@ -229,7 +243,8 @@ export function buildMission({
     budget: {
       revisionMin: revisionMin + extraRevision.filter((it) => it.kind === 'revision').length * REVISION_MIN_PER_ITEM,
       recoveryMin: recoveryMin + extraRevision.filter((it) => it.kind === 'recovery').length * REVISION_MIN_PER_ITEM,
-      newMin: newTake.reduce((a, it) => a + it.plannedMin, 0)
+      newMin: newTake.reduce((a, it) => a + it.plannedMin, 0),
+      bufferMin
     },
     items,
     memoryHealth: memoryHealth(topics, now),
