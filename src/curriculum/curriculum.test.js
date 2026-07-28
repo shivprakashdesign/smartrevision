@@ -70,6 +70,63 @@ describe('curriculum data', () => {
   })
 })
 
+describe('topic types', () => {
+  const byName = {}
+  const typeOf = {}
+  for (const { meta, file } of subjectFiles) {
+    for (const ch of file.chapters) {
+      for (const t of ch.topics) {
+        byName[`${meta.subject}|${t.name}`] = t
+        typeOf[t.id] = t.type
+      }
+    }
+  }
+  const VALID = new Set(['Derivation', 'Concept', 'Numerical', 'MCQ'])
+
+  it('only ever uses the four types the planner knows', () => {
+    for (const t of Object.values(typeOf)) {
+      if (t !== null) expect(VALID.has(t)).toBe(true)
+    }
+  })
+
+  it('tags named laws and theorems as derivations', () => {
+    expect(byName["Physics|Coulomb's Law"].type).toBe('Derivation')
+    expect(byName["Physics|Gauss's Law"].type).toBe('Derivation')
+    expect(byName["Physics|Kirchhoff's Rules"].type).toBe('Derivation')
+    expect(byName["Physics|Newton's First Law of Motion"].type).toBe('Derivation')
+    expect(byName['Maths|Bayes’ Theorem']?.type ?? byName["Maths|Bayes' Theorem"]?.type).toBe('Derivation')
+  })
+
+  it('leaves ordinary sections untyped so they take the Concept default', () => {
+    expect(byName['Physics|Electric Charge'].type).toBe(null)
+    expect(byName['Physics|Introduction'].type).toBe(null)
+  })
+
+  it('honours the hand override table over the classifier', () => {
+    // "Dimensional Formulae…" matches /formula/ but is a method, not a derivation.
+    expect(typeOf['p11_1.5']).toBe('Concept')
+  })
+
+  it('never guesses Numerical or MCQ — headings do not carry that signal', () => {
+    const guessed = Object.values(typeOf).filter((t) => t === 'Numerical' || t === 'MCQ')
+    expect(guessed).toEqual([])
+  })
+
+  it('leaves Biology, English and Computer Studies untyped', () => {
+    for (const { meta, file } of subjectFiles) {
+      if (['Physics', 'Chemistry', 'Maths'].includes(meta.subject)) continue
+      for (const ch of file.chapters) {
+        for (const t of ch.topics) expect(t.type).toBe(null)
+      }
+    }
+  })
+
+  it('a typed topic gets more estimated study time than a plain one', () => {
+    expect(byName["Physics|Coulomb's Law"].estimatedStudyTimeMin)
+      .toBeGreaterThan(byName['Physics|Electric Charge'].estimatedStudyTimeMin)
+  })
+})
+
 describe('blueprints', () => {
   it('only price chapters that exist in the curriculum', () => {
     for (const { meta, file } of blueprintFiles) {

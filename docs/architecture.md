@@ -39,6 +39,12 @@ sources in `scripts/curriculum-src/`; never edit the JSON by hand.
 - `blueprints.js` — per-exam chapter weights (CBSE 11/12, GSEB 12, JEE Main).
   Content and exam pricing are separate on purpose: the same chapter tree
   serves every board; each exam prices it in its own blueprint file.
+- **Topic types** (`Derivation`/`Concept`/`Numerical`/`MCQ`, which drive
+  `TYPE_WEIGHT` and estimated study time) are assigned at build time by
+  `scripts/curriculum-src/topicTypes.js`. It tags only what a section heading
+  proves — named laws and theorems — and deliberately never guesses `Numerical`
+  or `MCQ`, which headings don't carry. Correct a mis-type by adding its id to
+  `TYPE_OVERRIDES`, not by editing the JSON.
 - **Id rule:** chapter/topic ids (`p1`, `c11_3`, `p1.5`, …) are stable forever
   and append-only — student rows reference them via `curriculum_topic_id`.
   `curriculum.test.js` + `id-snapshot.json` enforce this; the build script

@@ -23,6 +23,7 @@ import path from 'node:path'
 import { CLASS_11 } from './curriculum-src/ncert11.js'
 import { CLASS_12 } from './curriculum-src/ncert12.js'
 import { BOARD_MARKS } from './curriculum-src/boardMarks.js'
+import { classifyTopic } from './curriculum-src/topicTypes.js'
 
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/curriculum/data')
 const SCHEMA_VERSION = 1
@@ -44,13 +45,16 @@ const boardsFor = (subject) => (subject === 'Computer Studies' ? ['GSEB'] : ['CB
 
 const TREES = { 11: CLASS_11, 12: CLASS_12 }
 
-function topicJson(sub, isFallback) {
+function topicJson(sub, isFallback, subject) {
+  // Source rows carry no type; classifyTopic reads what the heading proves
+  // (named laws/theorems) and leaves the rest null → Concept default.
+  const type = sub.type ?? classifyTopic({ id: sub.id, name: sub.label, subject })
   return {
     id: sub.id,
     code: sub.code,
     name: sub.label,
-    type: sub.type ?? null, // Derivation|Concept|Numerical|MCQ; null → Concept default
-    estimatedStudyTimeMin: isFallback ? FALLBACK_TOPIC_MINUTES : TYPE_MINUTES[sub.type] ?? TYPE_MINUTES.Concept
+    type, // Derivation|Concept|Numerical|MCQ; null → Concept default
+    estimatedStudyTimeMin: isFallback ? FALLBACK_TOPIC_MINUTES : TYPE_MINUTES[type] ?? TYPE_MINUTES.Concept
   }
 }
 
@@ -66,7 +70,7 @@ function buildSubjectFile(cls, subject, chapters) {
       // A single subtopic whose label is the chapter name is the expandChapters
       // fallback for books that give no topic breakdown.
       const isFallback = ch.subtopics.length === 1 && ch.subtopics[0].label === ch.chapter
-      const topics = ch.subtopics.map((s) => topicJson(s, isFallback))
+      const topics = ch.subtopics.map((s) => topicJson(s, isFallback, subject))
       return {
         id: ch.id,
         number: ch.number,

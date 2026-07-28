@@ -235,7 +235,7 @@
       "id": "m11_6",
       "number": 6,
       "name": "Permutations and Combinations",
-      "estimatedStudyTimeMin": 100,
+      "estimatedStudyTimeMin": 115,
       "topics": [
         {
           "id": "m11_6.1",
@@ -248,8 +248,8 @@
           "id": "m11_6.2",
           "code": "6.2",
           "name": "Fundamental Principle of Counting",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         },
         {
           "id": "m11_6.3",
@@ -271,7 +271,7 @@
       "id": "m11_7",
       "number": 7,
       "name": "Binomial Theorem",
-      "estimatedStudyTimeMin": 50,
+      "estimatedStudyTimeMin": 65,
       "topics": [
         {
           "id": "m11_7.1",
@@ -284,8 +284,8 @@
           "id": "m11_7.2",
           "code": "7.2",
           "name": "Binomial Theorem for Positive Integral Indices",
-          "type": null,
-          "estimatedStudyTimeMin": 25
+          "type": "Derivation",
+          "estimatedStudyTimeMin": 40
         }
       ]
     },
