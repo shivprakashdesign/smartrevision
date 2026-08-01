@@ -10,6 +10,7 @@ import { useStudentProfile } from '../lib/useStudentProfile'
 import { useSchoolSearch, createSchool, findOrCreateClass, classSchool, schoolSubtitle } from '../lib/schools'
 import { offsetsFor, offsetLabel, daysUntilExam, STANDARD_OFFSETS } from '../engine/schedule'
 import { syllabusSubjects, hasBoardMarks, boardName, SYLLABUS_BOARDS } from '../lib/syllabus'
+import { isSeniorClass } from '../engine/mission'
 import { subjectColor } from '../lib/subjects'
 
 const GRADES = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -54,6 +55,10 @@ export default function StudyPlanSettings() {
   // The lens choice (JEE vs board weightage) only means something where we have
   // a hardcoded weighted syllabus (Class 11–12) AND the board actually prices its
   // chapters — GSEB's board blueprint is pending, so only its JEE lens is offered.
+  // Classes 1–10 don't get the weekly plan, so the plan-only inputs (daily study
+  // time, weakness, lens) are hidden for them — this screen is just class, exam
+  // and study days. Reacts to the grade picked in the form, not just the saved one.
+  const senior = isSeniorClass(grade)
   const hasWeightedSyllabus = grade != null && syllabusSubjects(board, grade).length > 0
   const boardLensAvailable = grade != null && hasBoardMarks(board, grade)
   const lensRelevant = hasWeightedSyllabus && boardLensAvailable
@@ -161,7 +166,7 @@ export default function StudyPlanSettings() {
           <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2.2} /> Settings
         </Link>
 
-        <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight mb-1">Study plan</h1>
+        <h1 className="text-[26px] font-bold text-[var(--ink)] tracking-tight mb-1">{senior ? 'Study plan' : 'Class & schedule'}</h1>
         <p className="text-[14px] text-[var(--muted)] mb-6">Your class, your exam and the days you study.</p>
 
         <Section title="Class">
@@ -272,6 +277,7 @@ export default function StudyPlanSettings() {
           <p className="text-[12px] text-[var(--muted)] mt-3">{restDayNote}</p>
         </Section>
 
+        {senior && (
         <Section title="Daily study time" delay={0.2}>
           <div className="flex flex-wrap gap-2">
             {STUDY_TIME.map(([m, label]) => {
@@ -297,8 +303,9 @@ export default function StudyPlanSettings() {
             How long you can study on a study day — we split it across your topics, heavier on the important and weak ones.
           </p>
         </Section>
+        )}
 
-        {subjects.length > 0 && (
+        {senior && subjects.length > 0 && (
           <Section title="Where are you weak?" delay={0.25}>
             <div className="flex flex-wrap gap-2">
               {subjects.map(s => {

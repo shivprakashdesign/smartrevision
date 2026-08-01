@@ -5,7 +5,7 @@
 // ALONGSIDE scan/manual, never replacing them. The weighted weekly calendar
 // (step 5) reads these plan_items back and looks their weights up in the tree.
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -13,6 +13,7 @@ import { ArrowLeft01Icon, Camera01Icon, Tick02Icon } from '@hugeicons/core-free-
 import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
+import { coachModeEnabled } from '../engine/mission'
 import { subjectColor } from '../lib/subjects'
 import { syllabusSubjects, chaptersFor, chapterWeight, boardName } from '../lib/syllabus'
 import { setActiveChapter } from '../data/planItemsRepo'
@@ -117,6 +118,10 @@ export default function SyllabusPicker() {
     toast.success(`Added ${rows.length} chapter${rows.length > 1 ? 's' : ''} to your plan`)
     navigate('/plan')
   }
+
+  // The syllabus chapter-picker is a senior-class (11–12) surface only; there's
+  // no hardcoded tree for 1–10. Send a 1–10 student who lands here by URL home.
+  if (student && !coachModeEnabled(student)) return <Navigate to="/home" replace />
 
   const pickedCount = picked.size
 

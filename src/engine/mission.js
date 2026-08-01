@@ -26,11 +26,19 @@ export const REGEN_BAND = 0.15          // regenerate swaps among scores within 
 
 export const ENGINE_VERSION = 'mission-1'
 
+// The app runs two experiences split on class band. Classes 11–12 ("senior")
+// get the textbook-blueprint weekly plan + Study Coach; Classes 1–10 keep the
+// clean revision flow with none of the plan machinery. This is the one seam
+// that decides which UI a student sees.
+export function isSeniorClass(classGrade) {
+  return ['11', '12'].includes(String(classGrade))
+}
+
 // Mode 2 (Intelligent Study Coach) is for Classes 11–12; everyone else keeps
 // the guided flow untouched. `coach_mode: false` is an explicit opt-out.
 export function coachModeEnabled(student) {
   if (!student || student.coach_mode === false) return false
-  return ['11', '12'].includes(String(student.class_grade))
+  return isSeniorClass(student.class_grade)
 }
 
 // Stable identity for pin/exclude across regenerates.
