@@ -9,6 +9,7 @@ import { usePro } from '../lib/ProContext'
 import { useTheme } from '../lib/ThemeContext'
 import { THEMES } from '../lib/theme'
 import { useStudentProfile } from '../lib/useStudentProfile'
+import { coachModeEnabled } from '../engine/mission'
 
 function initials(name) {
   if (!name) return 'SR'
@@ -123,7 +124,7 @@ export default function Settings() {
 
         {/* Preferences */}
         <Group title="Preferences" delay={0.1}>
-          <Row to="/settings/study-plan" tile="🎯" tint="bg-brand-500/15" label="Study plan" value={student?.class_grade ? `Class ${student.class_grade}` : 'Set up'} />
+          <Row to="/settings/study-plan" tile="🎯" tint="bg-brand-500/15" label={coachModeEnabled(student) ? 'Study plan' : 'Class & schedule'} value={student?.class_grade ? `Class ${student.class_grade}` : 'Set up'} />
           <Row to="/settings/theme" tile="🎨" tint="bg-violet-500/15" label="Theme" value={themeName} />
           <Row to="/settings/subjects" tile="🗂️" tint="bg-teal-500/15" label="Subjects" />
           <Row to="/settings/notifications" tile="🔔" tint="bg-amber-500/15" label="Notifications" last />

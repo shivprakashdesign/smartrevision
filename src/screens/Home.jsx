@@ -512,8 +512,8 @@ export default function Home() {
             {/* Calendar week strip */}
             <WeekStrip topics={topics} studyDays={student?.study_days} />
 
-            {/* Weekly study plan — only once chapters have been picked */}
-            {planCount > 0 && (
+            {/* Weekly study plan — senior classes (11–12) only, once chapters exist */}
+            {coach && planCount > 0 && (
               <Link to="/calendar" className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm active:scale-[0.98] transition-transform">
                 <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} className="text-brand-500 shrink-0" />
                 <span className="text-[13.5px] font-bold text-[var(--ink)] flex-1">Your weekly study plan</span>

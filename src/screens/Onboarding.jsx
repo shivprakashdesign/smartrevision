@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase'
 import { subjectColor, subjectsForGoal } from '../lib/subjects'
 import { useSchoolSearch, createSchool, findOrCreateClass, schoolSubtitle } from '../lib/schools'
 import { STANDARD_OFFSETS, offsetsFor, offsetLabel, daysUntilExam } from '../engine/schedule'
+import { isSeniorClass } from '../engine/mission'
 import { useTheme } from '../lib/ThemeContext'
 import { usePro } from '../lib/ProContext'
 import { useUpsell, ProLock } from '../lib/ProUpsell'
@@ -233,7 +234,7 @@ export default function Onboarding() {
         grade && !school && ['CLASS', `Class ${grade}`],
         examDate && ['EXAM', `${whenExam.replace(/^in /, 'In ')} · ${plannedOffsets.length} reviews per topic`],
         ['STUDY DAYS', restDays.length ? STUDY_DAYS.filter(([d]) => studyDays.includes(d)).map(([, l]) => l).join(', ') : 'Every day'],
-        dailyStudyMin && ['DAILY STUDY', fmtMin(dailyStudyMin)]
+        isSeniorClass(grade) && dailyStudyMin && ['DAILY STUDY', fmtMin(dailyStudyMin)]
       ].filter(Boolean)
 
   const copy = COPY[mode]
@@ -360,7 +361,9 @@ export default function Onboarding() {
         class_id: classId,
         exam_date: examDate || null,
         study_days: studyDays,
-        daily_study_min: dailyStudyMin
+        // Only senior classes (11–12) get a weekly plan, so only they carry a
+        // daily-study-time — 1–10 saves null even if the field was touched earlier.
+        daily_study_min: isSeniorClass(grade) ? dailyStudyMin : null
       })
     }
 
@@ -656,7 +659,7 @@ export default function Onboarding() {
                 </div>
               )}
 
-              {mode === 'student' && (
+              {mode === 'student' && isSeniorClass(grade) && (
                 <div className="mt-5">
                   <p style={{ color: T.muted, transition: colorTransition }} className="text-[11px] font-bold tracking-widest mb-2">HOW LONG CAN YOU STUDY A DAY?</p>
                   <div className="flex gap-1.5">

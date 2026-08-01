@@ -3,13 +3,14 @@
 // from hardcoded board/JEE importance + subject weakness — never from AI. This
 // screen only reads and renders; every decision lives in buildPlan().
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, BookOpen01Icon, Calendar03Icon } from '@hugeicons/core-free-icons'
 import AppShell from '../lib/AppShell'
 import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
+import { coachModeEnabled } from '../engine/mission'
 import { subjectColor } from '../lib/subjects'
 import { chapterByName, hasBoardMarks } from '../lib/syllabus'
 import { buildPlan } from '../lib/studyPlan'
@@ -58,6 +59,10 @@ export default function StudyCalendar() {
     })()
     return () => { cancelled = true }
   }, [student])
+
+  // The weekly plan is a senior-class (11–12) surface only. If a 1–10 student
+  // lands here by URL, send them home rather than render an empty plan.
+  if (student && !coachModeEnabled(student)) return <Navigate to="/home" replace />
 
   const header = (
     <Link to="/plan" className="inline-flex items-center gap-1 text-[13px] font-bold text-[var(--muted)] active:opacity-70 transition-opacity mb-4">

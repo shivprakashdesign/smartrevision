@@ -11,10 +11,12 @@ import { supabase } from '../lib/supabase'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { subjectColor } from '../lib/subjects'
 import { nextChapter } from '../engine/roadmap'
+import { coachModeEnabled } from '../engine/mission'
 import { setActiveChapter } from '../data/planItemsRepo'
 
 export default function Plan() {
   const { student } = useStudentProfile()
+  const senior = coachModeEnabled(student)
   const [items, setItems] = useState(null)
   const [topicCounts, setTopicCounts] = useState({})
 
@@ -95,16 +97,30 @@ export default function Plan() {
 
           {items.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-[14px] text-[var(--slate-txt)] mb-4">No chapters yet — pick them from your syllabus, or scan the page.</p>
-              <Link
-                to="/pick-syllabus"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
-              >
-                <HugeiconsIcon icon={BookOpen01Icon} size={18} strokeWidth={2} /> Pick your chapters
-              </Link>
-              <Link to="/scan" className="mt-3 flex items-center justify-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
-                <HugeiconsIcon icon={Camera01Icon} size={15} strokeWidth={2} /> Or scan your syllabus
-              </Link>
+              {senior ? (
+                <>
+                  <p className="text-[14px] text-[var(--slate-txt)] mb-4">No chapters yet — pick them from your syllabus, or scan the page.</p>
+                  <Link
+                    to="/pick-syllabus"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
+                  >
+                    <HugeiconsIcon icon={BookOpen01Icon} size={18} strokeWidth={2} /> Pick your chapters
+                  </Link>
+                  <Link to="/scan" className="mt-3 flex items-center justify-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
+                    <HugeiconsIcon icon={Camera01Icon} size={15} strokeWidth={2} /> Or scan your syllabus
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-[14px] text-[var(--slate-txt)] mb-4">No chapters yet — scan your syllabus page to add them.</p>
+                  <Link
+                    to="/scan"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-500 text-white font-bold text-[14px] active:scale-[0.97] transition-transform"
+                  >
+                    <HugeiconsIcon icon={Camera01Icon} size={18} strokeWidth={2} /> Scan your syllabus
+                  </Link>
+                </>
+              )}
             </div>
           ) : (
             <>
@@ -112,12 +128,14 @@ export default function Plan() {
                 <b className="text-[var(--ink)]">{started}</b> of {items.length} chapters started{done > 0 ? <> · <b className="text-emerald-600">{done} done</b></> : null}
               </p>
 
-              <Link to="/calendar"
-                className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-2xl bg-brand-500 text-white active:scale-[0.98] transition-transform">
-                <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} />
-                <span className="text-[14px] font-bold flex-1 text-left">See your weekly plan</span>
-                <span className="text-[18px] leading-none">→</span>
-              </Link>
+              {senior && (
+                <Link to="/calendar"
+                  className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-2xl bg-brand-500 text-white active:scale-[0.98] transition-transform">
+                  <HugeiconsIcon icon={Calendar03Icon} size={18} strokeWidth={2} />
+                  <span className="text-[14px] font-bold flex-1 text-left">See your weekly plan</span>
+                  <span className="text-[18px] leading-none">→</span>
+                </Link>
+              )}
 
               <div className="space-y-4">
                 {Object.entries(groups).map(([subject, rows]) => (
@@ -167,9 +185,11 @@ export default function Plan() {
               </div>
 
               <div className="mt-5 flex items-center gap-4">
-                <Link to="/pick-syllabus" className="inline-flex items-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
-                  <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} /> Add chapters
-                </Link>
+                {senior && (
+                  <Link to="/pick-syllabus" className="inline-flex items-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
+                    <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} /> Add chapters
+                  </Link>
+                )}
                 <Link to="/scan" className="inline-flex items-center gap-1.5 text-[12px] font-bold text-brand-500 active:opacity-70">
                   <HugeiconsIcon icon={Camera01Icon} size={15} strokeWidth={2} /> Scan a page
                 </Link>
