@@ -19,18 +19,17 @@
 // more days, because they hold more minutes.
 
 import { daysUntilExam } from '../engine/schedule'
-import { TYPE_WEIGHT, WEAK_MULT } from '../engine/scoring'
+import { TYPE_WEIGHT, WEAK_MULT, BUFFER_FRAC } from '../engine/scoring'
 import { chapterWeight } from './syllabus'
 
 const DAY_MS = 86400000
 
 // Tunables — deliberately in one place, because the weights are priors to tune,
 // not settled truth (see syllabus.js).
-export const BUFFER_FRAC = 0.12        // reserved catch-up/rest slice of each day
 export const MIN_SUBTOPIC_MIN = 15     // below this a study block isn't worth planning
 // The importance formula's constants live with the shared scoring engine so
 // the daily mission and this calendar can never weight the same topic apart.
-export { TYPE_WEIGHT, WEAK_MULT } from '../engine/scoring'
+export { TYPE_WEIGHT, WEAK_MULT, BUFFER_FRAC } from '../engine/scoring'
 
 const midnight = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const isoDay = (d) => {

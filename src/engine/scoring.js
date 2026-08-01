@@ -11,6 +11,11 @@
 
 export const TYPE_WEIGHT = { Derivation: 3, Numerical: 3, Concept: 2, MCQ: 1 }
 export const WEAK_MULT = 1.4
+// Slice of any planned stretch left unallocated — catch-up, overrun, rest.
+// Planning 100% of the time a student says they have is a plan they can only
+// fail: the first block that overruns eats the next one. Shared by the daily
+// mission and the long-horizon calendar so both are honest the same way.
+export const BUFFER_FRAC = 0.12
 // Saturation discount: each new-learning slot a subject wins in today's
 // mission multiplies its remaining candidates by this. MUST stay below
 // 1/WEAK_MULT so one slot of saturation fully offsets the weakness boost —

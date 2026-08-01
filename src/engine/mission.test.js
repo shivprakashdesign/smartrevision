@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildMission, itemKey, DUE_CAP, RECOVERY_FRAC, REVISION_MIN_PER_ITEM } from './mission'
 import { recoveryQueue, memoryHealth, memoryHealthLabel, windowDays, withinWindow, RELEARN_AFTER_DAYS } from './recovery'
-import { newTopicScore, revisionScore, chapterIdOfTopic, SUBJECT_SATURATION, WEAK_MULT } from './scoring'
+import { newTopicScore, revisionScore, chapterIdOfTopic, SUBJECT_SATURATION, WEAK_MULT, BUFFER_FRAC } from './scoring'
 
 // Noon: revision dates are compared as ISO day strings derived via UTC.
 const NOW = new Date('2026-07-22T12:00:00')
@@ -65,9 +65,11 @@ describe('budget split', () => {
     const topics = Array.from({ length: 20 }, () => missedTopic(6))
     const m = buildMission({ ...base, availableMin: 100, topics })
     expect(m.budget.recoveryMin).toBeLessThanOrEqual(100 * RECOVERY_FRAC)
-    // 48-overdue never appears anywhere in the mission output.
+    // 48-overdue never appears anywhere in the mission output. The cap is a
+    // share of the STUDYABLE time (the day less its buffer), not the raw day.
+    const studyable = 100 - m.budget.bufferMin
     expect(m.items.filter((it) => it.kind === 'recovery').length).toBe(
-      Math.floor((100 * RECOVERY_FRAC) / REVISION_MIN_PER_ITEM)
+      Math.floor(Math.floor(studyable * RECOVERY_FRAC) / REVISION_MIN_PER_ITEM)
     )
   })
 
@@ -76,8 +78,10 @@ describe('budget split', () => {
     const newItems = m.items.filter((it) => it.kind === 'new')
     expect(newItems.length).toBeGreaterThan(0)
     for (const it of newItems) expect(it.planItemId).toBe('pi1')
-    // Minutes add up to the whole day: last new block absorbs the residual.
-    expect(m.items.reduce((a, it) => a + it.plannedMin, 0)).toBe(120)
+    // Planned work + the untouched buffer add up to the whole day: the last
+    // new block absorbs the residual, and the buffer is never allocated.
+    expect(m.budget.bufferMin).toBeGreaterThan(0)
+    expect(m.items.reduce((a, it) => a + it.plannedMin, 0) + m.budget.bufferMin).toBe(120)
   })
 
   it('a tiny day becomes revision-only — even 10 minutes counts', () => {
@@ -192,7 +196,24 @@ describe('subject saturation', () => {
     const m = buildMission({ ...base, availableMin: 120, topics: [] })
     const newItems = m.items.filter((it) => it.kind === 'new')
     expect(newItems.map((it) => it.curriculumTopicId)).toEqual(['p1.1', 'p1.2', 'p1.3', 'p1.4'])
-    expect(m.items.reduce((a, it) => a + it.plannedMin, 0)).toBe(120)
+    expect(m.items.reduce((a, it) => a + it.plannedMin, 0) + m.budget.bufferMin).toBe(120)
+  })
+})
+
+describe('the buffer', () => {
+  it('reserves a slice of every day that is never planned into', () => {
+    const m = buildMission({ ...base, availableMin: 120, topics: [] })
+    expect(m.budget.bufferMin).toBe(Math.round(120 * BUFFER_FRAC))
+    // Nothing is scheduled into it, and the day still adds up.
+    const planned = m.budget.newMin + m.budget.revisionMin + m.budget.recoveryMin
+    expect(planned).toBeLessThanOrEqual(120 - m.budget.bufferMin)
+  })
+
+  it('carries the topic type so the UI can explain the minutes', () => {
+    const m = buildMission({ ...base, availableMin: 120, topics: [] })
+    const learn = m.items.filter((it) => it.kind === 'new')
+    expect(learn.length).toBeGreaterThan(0)
+    for (const it of learn) expect(it).toHaveProperty('type')
   })
 })
 
