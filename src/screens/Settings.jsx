@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Fire02Icon, Diamond02Icon, ArrowRight01Icon, ArrowLeft01Icon } from '@hugeicons/core-free-icons'
+import { Fire02Icon, Diamond02Icon, ArrowRight01Icon, ArrowLeft01Icon, Alert02Icon } from '@hugeicons/core-free-icons'
 import NumberFlow from '@number-flow/react'
 import AppShell from '../lib/AppShell'
 import { useAuth } from '../lib/AuthContext'
@@ -10,6 +12,8 @@ import { useTheme } from '../lib/ThemeContext'
 import { THEMES } from '../lib/theme'
 import { useStudentProfile } from '../lib/useStudentProfile'
 import { coachModeEnabled } from '../engine/mission'
+import { resetProfileData } from '../lib/resetProfile'
+import { setSubjectColorOverrides } from '../lib/subjects'
 
 function initials(name) {
   if (!name) return 'SR'
@@ -49,14 +53,45 @@ export default function Settings() {
   const { user, logout } = useAuth()
   const { isPro } = usePro()
   const { theme } = useTheme()
-  const { student, allStudents, accountType } = useStudentProfile()
+  const { student, allStudents, accountType, refreshStudent } = useStudentProfile()
   const navigate = useNavigate()
+
+  const [resetOpen, setResetOpen] = useState(false)
+  const [resetConfirm, setResetConfirm] = useState('')
+  const [resetting, setResetting] = useState(false)
 
   const themeName = THEMES.find(t => t.id === theme)?.name || 'Chalk'
   // Parents manage children from /profiles regardless of count (even zero, to add one).
   // Non-parent accounts only see it if they somehow hold multiple profiles.
   const isParent = accountType === 'parent'
   const showSwitch = isParent || (allStudents?.length || 0) > 1
+
+  function closeReset() {
+    if (resetting) return
+    setResetOpen(false)
+    setResetConfirm('')
+  }
+
+  async function handleReset() {
+    if (!student || resetConfirm.trim().toUpperCase() !== 'RESET') return
+    setResetting(true)
+    // Only wipe the account-level subject list if this student is the only
+    // profile on it, so a parent's other children keep their picks.
+    const soleProfile = (allStudents?.length || 0) <= 1
+    const { error } = await resetProfileData(student, { clearAccountSubjects: soleProfile })
+    if (error) {
+      setResetting(false)
+      toast.error(error.message || "Couldn't reset — try again")
+      return
+    }
+    setSubjectColorOverrides({})   // drop cached pill colours immediately
+    await refreshStudent()
+    setResetting(false)
+    setResetOpen(false)
+    setResetConfirm('')
+    toast.success('Profile reset — a fresh start')
+    navigate('/home')
+  }
 
   return (
     <AppShell><div className="px-5 pt-6 pb-10">
@@ -139,11 +174,57 @@ export default function Settings() {
 
         {/* Account */}
         <Group delay={0.2}>
+          <Row onClick={() => setResetOpen(true)} tile="🗑️" tint="bg-red-500/15" label="Reset profile" danger />
           <Row onClick={logout} tile="↩︎" tint="bg-red-500/15" label="Log out" danger last />
         </Group>
 
         <p className="text-center text-[11px] text-[var(--slate-txt)] mt-2">Smart Revision · v1.0</p>
       </div>
+
+      {/* Reset confirm — irreversible, so it asks the user to type RESET */}
+      <AnimatePresence>
+        {resetOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={closeReset}
+              className="fixed inset-0 z-40 bg-black/40"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.98, x: '-50%' }} animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }} exit={{ opacity: 0, y: 20, scale: 0.98, x: '-50%' }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              className="fixed z-50 left-1/2 bottom-6 w-[calc(100%-2.5rem)] max-w-sm bg-[var(--card)] rounded-3xl border border-[var(--border)] shadow-lg p-5"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <HugeiconsIcon icon={Alert02Icon} size={22} strokeWidth={2} className="text-red-500" />
+                <h2 className="text-[17px] font-bold text-[var(--ink)]">Reset your profile?</h2>
+              </div>
+              <p className="text-[13px] text-[var(--muted)] mb-4">
+                This permanently deletes everything — all your topics, subjects, revision history, study plan, class, exam date, streak and gems — and starts your profile fresh. Only your name stays. This <b className="text-[var(--ink)]">can't be undone</b>.
+              </p>
+              <label className="block text-[12px] font-bold text-[var(--slate-txt)] mb-1.5">Type RESET to confirm</label>
+              <input
+                value={resetConfirm}
+                onChange={e => setResetConfirm(e.target.value)}
+                autoCapitalize="characters"
+                placeholder="RESET"
+                className="w-full border border-[var(--border)] rounded-2xl px-4 py-3 text-[15px] text-[var(--ink)] bg-[var(--card-alt)] mb-4 focus:outline-none focus:border-red-500 transition-colors"
+              />
+              <div className="flex gap-2.5">
+                <button disabled={resetting} onClick={closeReset} className="flex-1 py-3 rounded-2xl text-[14px] font-bold text-[var(--slate-txt)] bg-[var(--card-alt)] active:scale-[0.98] transition-transform disabled:opacity-50">Cancel</button>
+                <button
+                  disabled={resetting || resetConfirm.trim().toUpperCase() !== 'RESET'}
+                  onClick={handleReset}
+                  className="flex-1 py-3 rounded-2xl text-[14px] font-bold text-white bg-red-500 active:scale-[0.98] transition-transform disabled:opacity-40"
+                >
+                  {resetting ? 'Resetting…' : 'Reset everything'}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div></AppShell>
   )
 }
